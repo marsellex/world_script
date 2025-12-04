@@ -334,6 +334,7 @@
 
     .frame {
       width: 100%;
+      max-width: 1240px;
       height: 680px;
       max-height: 95vh;
       background: radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 60%);
@@ -342,10 +343,12 @@
       box-shadow: 0 22px 55px rgba(0, 0, 0, 0.95);
       display: grid;
       grid-template-columns: 230px 1fr;
-      overflow: hidden;
+      overflow-y: auto;      /* ✅ вместо hidden даём вертикальный скролл */
+      overflow-x: hidden;    /* горизонталь всё ещё режем */
       position: relative;
       backdrop-filter: blur(6px);
     }
+
 
     .sidebar {
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(8, 47, 73, 0.98));
@@ -568,10 +571,7 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-    
-      /* САМОЕ ГЛАВНОЕ: даём скролл карточке */
-      overflow-y: auto;
-      overflow-x: hidden;
+      /* overflow-y можно убрать, если скролл теперь у .frame */
     }
 
 
@@ -1937,4 +1937,5 @@
   </script>
 </body>
 </html>
+
 
