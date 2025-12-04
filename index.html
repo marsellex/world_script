@@ -285,7 +285,6 @@
 
     .auth-link:hover { text-decoration: underline; }
 
-    /* кнопка "Создать личное дело" на экране авторизации */
     #personal-file-auth-btn {
       position: absolute;
       left: 18px;
@@ -343,7 +342,7 @@
       box-shadow: 0 22px 55px rgba(0, 0, 0, 0.95);
       display: grid;
       grid-template-columns: 230px 1fr;
-      overflow-y: auto;   /* скролл панели */
+      overflow-y: auto;
       overflow-x: hidden;
       position: relative;
       backdrop-filter: blur(6px);
@@ -607,11 +606,9 @@
       flex-wrap: wrap;
     }
 
-    /* секции панели */
     .section { display: none; }
     .section.active { display: block; }
 
-    /* ЛИЧНОЕ ДЕЛО */
     .rules-block {
       font-size: 13px;
       color: #e5e7eb;
@@ -802,7 +799,6 @@
       color: #9ca3af;
     }
 
-    /* Кнопка для рядовых снизу */
     #rookie-info-btn {
       position: absolute;
       bottom: 10px;
@@ -1000,7 +996,7 @@
             <label for="reg-avatar">Аватарка</label>
             <input id="reg-avatar" type="file" accept="image/*" />
             <div class="hint">
-              Картинка будет обрезана до 500×500 и сохранена локально. Если не выберешь — будет заглушка.
+              Картинка будет обрезана до 500×500 и сохранена локально и на сервере Supabase.
             </div>
             <div class="error" id="reg-avatar-error"></div>
             <div class="avatar-preview" id="reg-avatar-preview">
@@ -1013,7 +1009,7 @@
           </button>
 
           <p class="small-note">
-            Все данные хранятся только в этом браузере (localStorage), на сервер ничего не уходит.
+            Локально данные хранятся в браузере, а также дублируются в Supabase (онлайн база).
           </p>
 
           <div class="auth-link" id="to-login-link">
@@ -1294,7 +1290,7 @@
 
               <div class="personal-files-list-wrapper">
                 <div class="personal-label">
-                  <strong>Список созданных личных дел</strong>
+                  <strong>Список созданных личных дел (из Supabase)</strong>
                 </div>
                 <div class="personal-note">
                   Ваше личное дело всегда отображается вверху списка и подсвечивается для вас.
@@ -1305,7 +1301,7 @@
           </div>
 
           <div class="panel-footer">
-            <span>Версия панели: 0.3 (личные дела, биндер, обучение, список дел).</span>
+            <span>Версия панели: 0.4 (Supabase: пользователи + личные дела).</span>
             <span>Биндер: положи файл <code>binder.zip</code> рядом с сайтом для рабочей кнопки.</span>
           </div>
         </div>
@@ -1318,21 +1314,17 @@
     </div>
   </div>
 
+  <!-- Supabase JS -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
-  
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
 
   <script>
-    const { data, error } = await supabase
-    .from("users")
-    .select("*");
     const DAY_MS = 24 * 60 * 60 * 1000;
     const STORAGE_KEY = "pp_user";
-    const STORAGE_PF_LIST = "pp_personal_files";
 
     function loadUser() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -1348,33 +1340,6 @@
       localStorage.removeItem(STORAGE_KEY);
     }
 
-    function loadPersonalFilesIndex() {
-      const raw = localStorage.getItem(STORAGE_PF_LIST);
-      if (!raw) return [];
-      try {
-        const data = JSON.parse(raw);
-        return Array.isArray(data) ? data : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function savePersonalFilesIndex(list) {
-      localStorage.setItem(STORAGE_PF_LIST, JSON.stringify(list));
-    }
-
-    function upsertPersonalFileIndex(entry) {
-      const list = loadPersonalFilesIndex();
-      const idx = list.findIndex(it => it.nick === entry.nick);
-      if (idx >= 0) {
-        list[idx] = { ...list[idx], ...entry, updatedAt: Date.now() };
-      } else {
-        list.push({ ...entry, updatedAt: Date.now() });
-      }
-      savePersonalFilesIndex(list);
-    }
-
-    // Нормализация ника: Имя_Фамилия, только буквы
     function normalizeNick(raw) {
       if (!raw) return null;
       let s = raw.trim();
@@ -1400,7 +1365,6 @@
       return result;
     }
 
-    // ---------- ЭЛЕМЕНТЫ AUTH ----------
     const authRoot = document.getElementById("auth-root");
     const panelRoot = document.getElementById("panel-root");
 
@@ -1466,7 +1430,6 @@
       }
     }
 
-    // департаменты при регистрации
     deptContainer.addEventListener("click", (e) => {
       const option = e.target.closest(".dept-option");
       if (!option) return;
@@ -1478,14 +1441,12 @@
       regDeptError.textContent = "";
     });
 
-    // подсмотр пароля
     regPassToggle.addEventListener("mouseenter", () => { regPass.type = "text"; });
     regPassToggle.addEventListener("mouseleave", () => { regPass.type = "password"; });
 
     loginPassToggle.addEventListener("mouseenter", () => { loginPass.type = "text"; });
     loginPassToggle.addEventListener("mouseleave", () => { loginPass.type = "password"; });
 
-    // аватар: обрезка до 500x500
     regAvatarInput.addEventListener("change", () => {
       regAvatarError.textContent = "";
       const file = regAvatarInput.files[0];
@@ -1528,7 +1489,6 @@
       reader.readAsDataURL(file);
     });
 
-    // переходы рег/логин
     toLoginLink.addEventListener("click", () => {
       showAuthScreen("login");
     });
@@ -1548,7 +1508,6 @@
       regNick.focus();
     });
 
-    // Создать личное дело с auth-экрана
     personalFileAuthBtn.addEventListener("click", () => {
       const now = Date.now();
       if (!currentUser) return;
@@ -1559,12 +1518,83 @@
         loginNick.focus();
         return;
       }
-      // уже авторизован в течение суток — сразу в панель и на личное дело
       goToPanel("personal");
     });
 
-    // регистрация
-    regForm.addEventListener("submit", (e) => {
+    async function uploadAvatarToSupabase(nick, avatarDataUrl) {
+      if (!avatarDataUrl) return null;
+      try {
+        const res = await fetch(avatarDataUrl);
+        const blob = await res.blob();
+        const fileName = `${nick}_avatar_${Date.now()}.png`;
+
+        const { data: storageData, error: storageError } = await supabase.storage
+          .from("avatars")
+          .upload(fileName, blob, {
+            contentType: "image/png",
+            upsert: true
+          });
+
+        if (storageError) {
+          console.error("Ошибка загрузки аватара:", storageError);
+          return null;
+        }
+        const { data: publicUrlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(storageData.path);
+        return publicUrlData.publicUrl;
+      } catch (e) {
+        console.error("Ошибка при конвертации аватара:", e);
+        return null;
+      }
+    }
+
+    async function registerOnServer(nick, password, department, avatarDataUrl) {
+      let avatar_url = null;
+      if (avatarDataUrl) {
+        avatar_url = await uploadAvatarToSupabase(nick, avatarDataUrl);
+      }
+
+      const { data, error } = await supabase
+        .from("users")
+        .insert({
+          nick,
+          department,
+          password_hash: password,
+          avatar_url
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Ошибка сохранения пользователя:", error);
+        alert("Не удалось сохранить регистрацию в Supabase: " + error.message);
+        return null;
+      }
+
+      return data;
+    }
+
+    async function loginOnServer(nick, password) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("nick", nick)
+        .single();
+
+      if (error) {
+        console.error("Ошибка поиска пользователя:", error);
+        return { ok: false, reason: "not_found" };
+      }
+
+      if (data.password_hash !== password) {
+        return { ok: false, reason: "bad_password" };
+      }
+
+      return { ok: true, user: data };
+    }
+
+    regForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       regNickError.textContent = "";
       regPassError.textContent = "";
@@ -1598,42 +1628,40 @@
 
       regNick.value = normalizedNick;
       const now = Date.now();
+
+      let serverUser = null;
+      try {
+        serverUser = await registerOnServer(normalizedNick, password, selectedDept, avatarDataUrl);
+      } catch (err) {
+        console.error("Ошибка при регистрации на сервере:", err);
+      }
+
       currentUser = {
         nick: normalizedNick,
         password: password,
         department: selectedDept,
-        avatar: avatarDataUrl || null,
+        avatar: avatarDataUrl || (serverUser ? serverUser.avatar_url : null),
         registeredAt: now,
         lastLoginAt: now,
         personalFile: null,
-        justRegistered: true
+        justRegistered: true,
+        serverId: serverUser ? serverUser.id : null
       };
       saveUser(currentUser);
       updatePersonalFileAuthBtn();
       goToPanel("home");
     });
 
-    // логин
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       loginNickError.textContent = "";
       loginPassError.textContent = "";
 
       const stored = loadUser();
-      if (!stored) {
-        loginNickError.textContent = "Пользователь не найден. Зарегистрируйтесь сначала.";
-        return;
-      }
-
       const normalizedNick = normalizeNick(loginNick.value);
       if (!normalizedNick) {
         loginNickError.textContent =
           "Ник должен быть в формате Имя_Фамилия, только буквы.";
-        return;
-      }
-
-      if (normalizedNick !== stored.nick) {
-        loginNickError.textContent = "Такой ник не зарегистрирован.";
         return;
       }
 
@@ -1642,8 +1670,51 @@
         return;
       }
 
+      let serverResult = null;
+      try {
+        serverResult = await loginOnServer(normalizedNick, loginPass.value);
+      } catch (err) {
+        console.error("Ошибка логина на сервере:", err);
+      }
+
+      if (serverResult && serverResult.ok) {
+        const now = Date.now();
+        const serverUser = serverResult.user;
+
+        currentUser = {
+          nick: serverUser.nick,
+          password: loginPass.value,
+          department: serverUser.department,
+          avatar: serverUser.avatar_url || null,
+          registeredAt: stored?.registeredAt || now,
+          lastLoginAt: now,
+          personalFile: stored?.personalFile || null,
+          justRegistered: false,
+          serverId: serverUser.id
+        };
+        saveUser(currentUser);
+        updatePersonalFileAuthBtn();
+        goToPanel("home");
+        return;
+      }
+
+      if (serverResult && serverResult.reason === "bad_password") {
+        loginPassError.textContent = "Неверный пароль (Supabase).";
+        return;
+      }
+
+      if (!stored) {
+        loginNickError.textContent = "Пользователь не найден. Зарегистрируйтесь сначала.";
+        return;
+      }
+
+      if (normalizedNick !== stored.nick) {
+        loginNickError.textContent = "Такой ник не зарегистрирован (локально).";
+        return;
+      }
+
       if (loginPass.value !== stored.password) {
-        loginPassError.textContent = "Неверный пароль.";
+        loginPassError.textContent = "Неверный пароль (локальный).";
         return;
       }
 
@@ -1654,8 +1725,6 @@
       updatePersonalFileAuthBtn();
       goToPanel("home");
     });
-
-    // ---------- ПАНЕЛЬ: элементы ----------
 
     const topNick = document.getElementById("top-nick");
     const topDept = document.getElementById("top-dept");
@@ -1678,7 +1747,6 @@
     const rookieModal = document.getElementById("rookie-modal");
     const rookieClose = document.getElementById("rookie-close");
 
-    // личное дело элементы
     const pfDept = document.getElementById("pf-dept");
     const pfNick = document.getElementById("pf-nick");
     const pfAccount = document.getElementById("pf-account");
@@ -1744,7 +1812,6 @@
     pfDept.addEventListener("change", updateHeaderPreview);
     pfNick.addEventListener("input", updateHeaderPreview);
     pfAccount.addEventListener("input", (e) => {
-      // только цифры
       e.target.value = e.target.value.replace(/\D+/g, "");
       updateHeaderPreview();
     });
@@ -1786,34 +1853,46 @@
       fileInput.type = "file";
       fileInput.accept = "image/*";
 
-      if (data && data.hasScreenshot) {
-        const label = document.createElement("span");
-        label.style.fontSize = "11px";
-        label.style.color = "#9ca3af";
-        label.textContent = "Скрин загружен (локально)";
-        const wrap = document.createElement("div");
-        wrap.style.display = "flex";
-        wrap.style.flexDirection = "column";
-        wrap.appendChild(fileInput);
-        wrap.appendChild(label);
-        row.appendChild(dateInput);
-        row.appendChild(rankSelect);
-        row.appendChild(wrap);
-      } else {
-        row.appendChild(dateInput);
-        row.appendChild(rankSelect);
-        row.appendChild(fileInput);
-      }
+      row.appendChild(dateInput);
+      row.appendChild(rankSelect);
+      row.appendChild(fileInput);
 
       promoList.appendChild(row);
     }
 
     addPromoBtn.addEventListener("click", () => addPromotionRow());
 
-    function renderPersonalFilesList() {
+    async function fetchPersonalFilesFromServer() {
+      try {
+        const { data, error } = await supabase
+          .from("personal_files")
+          .select("forum_dept, forum_nick, account_number, rank")
+          .order("updated_at", { ascending: false });
+
+        if (error) {
+          console.error("Ошибка загрузки списка личных дел:", error);
+          return [];
+        }
+
+        return data.map(row => ({
+          dept: row.forum_dept,
+          nick: row.forum_nick,
+          account: row.account_number,
+          rank: row.rank || ""
+        }));
+      } catch (e) {
+        console.error("Ошибка fetchPersonalFilesFromServer:", e);
+        return [];
+      }
+    }
+
+    async function renderPersonalFilesList() {
       if (!personalFilesList) return;
 
-      const list = loadPersonalFilesIndex();
+      personalFilesList.innerHTML = "Загрузка списка личных дел...";
+
+      const list = await fetchPersonalFilesFromServer();
+
       personalFilesList.innerHTML = "";
 
       if (!list.length) {
@@ -1902,6 +1981,82 @@
       renderPersonalFilesList();
     }
 
+    async function savePersonalFileOnServer() {
+      if (!currentUser || !currentUser.personalFile) return;
+
+      let userId = currentUser.serverId;
+      if (!userId) {
+        const { data: userRow, error: userError } = await supabase
+          .from("users")
+          .select("id")
+          .eq("nick", currentUser.nick)
+          .single();
+        if (userError || !userRow) {
+          console.error("Не найден пользователь в БД для личного дела", userError);
+          return;
+        }
+        userId = userRow.id;
+        currentUser.serverId = userId;
+        saveUser(currentUser);
+      }
+
+      const pf = currentUser.personalFile;
+
+      const { data: existing, error: pfError } = await supabase
+        .from("personal_files")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      let personalFileId;
+      if (pfError || !existing) {
+        const { data: created, error: createError } = await supabase
+          .from("personal_files")
+          .insert({
+            user_id: userId,
+            forum_dept: pf.dept,
+            forum_nick: pf.nick,
+            account_number: pf.account,
+            birth_date: pf.birth,
+            badge_link: pf.badgeLink,
+            rank: pf.rank,
+            phone: pf.phone,
+            contact: pf.contact
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error("Ошибка создания личного дела:", createError);
+          return;
+        }
+        personalFileId = created.id;
+      } else {
+        personalFileId = existing.id;
+        const { error: updateError } = await supabase
+          .from("personal_files")
+          .update({
+            forum_dept: pf.dept,
+            forum_nick: pf.nick,
+            account_number: pf.account,
+            birth_date: pf.birth,
+            badge_link: pf.badgeLink,
+            rank: pf.rank,
+            phone: pf.phone,
+            contact: pf.contact,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", personalFileId);
+
+        if (updateError) {
+          console.error("Ошибка обновления личного дела:", updateError);
+          return;
+        }
+      }
+
+      // NOTE: загрузку скринов повышений в Supabase Storage можно будет добавить отдельно.
+    }
+
     savePersonalBtn.addEventListener("click", async () => {
       personalSaveNote.style.color = "#9ca3af";
       personalSaveNote.textContent = "";
@@ -1931,11 +2086,7 @@
         const rank = rankSelect.value;
         if (!date && !rank && (!fileInput || !fileInput.files.length)) continue;
 
-        let hasScreenshot = false;
-        if (fileInput && fileInput.files && fileInput.files[0]) {
-          hasScreenshot = true;
-        }
-        promotions.push({ date, rank, hasScreenshot });
+        promotions.push({ date, rank, hasScreenshot: !!(fileInput && fileInput.files && fileInput.files[0]) });
       }
 
       currentUser.personalFile = {
@@ -1952,17 +2103,17 @@
 
       currentUser.nick = nickNormalized;
 
-      upsertPersonalFileIndex({
-        dept,
-        nick: nickNormalized,
-        account,
-        rank: pfRank.value.trim()
-      });
-
       saveUser(currentUser);
       updateTopBar();
       updatePersonalFileNavButton();
       updatePersonalFileAuthBtn();
+
+      try {
+        await savePersonalFileOnServer();
+      } catch (err) {
+        console.error("Ошибка синхронизации личного дела с сервером:", err);
+      }
+
       renderPersonalFilesList();
 
       personalSaveNote.style.color = "#22c55e";
@@ -1972,10 +2123,9 @@
       }, 3000);
     });
 
-    // кнопки навигации
     downloadBinderBtn.addEventListener("click", () => {
       const a = document.createElement("a");
-      a.href = "binder.zip"; // положи binder.zip рядом с index.html
+      a.href = "binder.zip";
       a.download = "binder.zip";
       document.body.appendChild(a);
       a.click();
@@ -1988,7 +2138,6 @@
       setActiveSection("personal");
     });
 
-    // из модалки обучения к биндеру
     stepOpenBinder.addEventListener("click", () => {
       onboardingModal.classList.remove("active");
       setActiveSection("home");
@@ -2010,7 +2159,6 @@
       onboardingModal.classList.remove("active");
     });
 
-    // инфа для рядовых
     rookieBtn.addEventListener("click", () => {
       rookieModal.classList.add("active");
     });
@@ -2018,7 +2166,6 @@
       rookieModal.classList.remove("active");
     });
 
-    // выход из панели
     sidebarLogout.addEventListener("click", () => {
       showAuthRoot();
       showAuthScreen("login");
@@ -2028,7 +2175,6 @@
       loginNick.focus();
     });
 
-    // переход в панель
     function goToPanel(initialSection) {
       showPanelRoot();
       updateTopBar();
@@ -2052,7 +2198,6 @@
       }
     }
 
-    // ---------- INIT ----------
     (function init() {
       updatePersonalFileAuthBtn();
       const user = currentUser;
@@ -2079,4 +2224,3 @@
   </script>
 </body>
 </html>
-
