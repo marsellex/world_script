@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Панель управления</title>
+  <title>Панель биндеров</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
@@ -15,14 +15,9 @@
     body {
       min-height: 100vh;
       background:
-        radial-gradient(circle at 10% 0, #0f95a5 0, transparent 55%),
-        radial-gradient(circle at 90% 0, #0f95a5 0, transparent 55%),
-        linear-gradient(135deg, #031520, #031f27, #031520);
-      /* если захочешь фон-картинку:
-         background-image: url('background.jpg');
-         background-size: cover;
-         background-position: center;
-      */
+        radial-gradient(circle at 10% 0, #0891b2 0, transparent 55%),
+        radial-gradient(circle at 90% 0, #0ea5e9 0, transparent 55%),
+        linear-gradient(135deg, #020617, #020b18, #020617);
       color: #f9fafb;
       display: flex;
       justify-content: center;
@@ -35,20 +30,21 @@
       max-width: 1320px;
       height: 720px;
       max-height: 95vh;
-      background: radial-gradient(circle at top, rgba(255,255,255,0.05), transparent 60%);
-      border-radius: 16px;
-      border: 1px solid rgba(15, 23, 42, 0.8);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      background: radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 60%);
+      border-radius: 18px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.95);
       overflow: hidden;
       display: grid;
       grid-template-columns: 230px 1fr 230px;
       position: relative;
+      backdrop-filter: blur(6px);
     }
 
     /* боковые панели */
 
     .side {
-      background: linear-gradient(180deg, rgba(3,37,54,0.95), rgba(2,22,35,0.98));
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(8, 47, 73, 0.98));
       padding: 22px 18px;
       display: flex;
       flex-direction: column;
@@ -59,26 +55,27 @@
       align-items: flex-end;
     }
 
-    .side-title-empty {
+    .side-spacer {
       flex: 1;
     }
 
     .side-button {
       width: 100%;
       padding: 14px 14px;
-      border-radius: 10px;
-      border: 1px solid rgba(0,0,0,0.4);
-      background: linear-gradient(135deg, rgba(7, 89, 133, 0.9), rgba(8, 47, 73, 0.95));
+      border-radius: 12px;
+      border: 1px solid rgba(15, 23, 42, 0.95);
+      background: radial-gradient(circle at top left, rgba(45, 212, 191, 0.1), transparent 55%),
+                  linear-gradient(145deg, rgba(6, 78, 59, 0.92), rgba(5, 46, 59, 0.98));
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.02),
-        0 10px 20px rgba(0,0,0,0.7);
+        inset 0 0 0 1px rgba(148, 163, 184, 0.2),
+        0 12px 24px rgba(0,0,0,0.85);
       color: #e5e7eb;
       font-size: 14px;
       display: flex;
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease, filter 0.1s ease;
     }
 
     .side-button.small {
@@ -93,10 +90,10 @@
 
     .side-button:hover {
       transform: translateY(-1px);
+      filter: brightness(1.05);
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.03),
-        0 14px 24px rgba(0,0,0,0.9);
-      background: linear-gradient(135deg, rgba(8, 145, 178, 0.95), rgba(8, 47, 73, 0.98));
+        inset 0 0 0 1px rgba(248, 250, 252, 0.26),
+        0 18px 32px rgba(0,0,0,0.95);
     }
 
     .side-button.new-label::before {
@@ -122,34 +119,60 @@
 
     .top-panel {
       height: 430px;
-      background: radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 65%);
       border-radius: 18px;
-      border: 1px solid rgba(15,23,42,0.8);
-      background-color: rgba(15, 23, 42, 0.93);
+      background:
+        linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.96)),
+        radial-gradient(circle at center, rgba(15,23,42,0.5), transparent 60%);
+      border: 1px solid rgba(30, 64, 175, 0.7);
       box-shadow:
-        inset 0 0 0 1px rgba(148, 163, 184, 0.25),
-        0 18px 30px rgba(0, 0, 0, 0.9);
+        inset 0 0 0 1px rgba(148, 163, 184, 0.4),
+        0 18px 34px rgba(0, 0, 0, 0.95);
       padding: 18px 22px 14px;
       display: flex;
       flex-direction: column;
       gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .top-panel::before {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background:
+        radial-gradient(circle at 50% -20%, rgba(148,163,184,0.14), transparent 65%);
+      mix-blend-mode: screen;
+      pointer-events: none;
     }
 
     .columns {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
+      position: relative;
+      z-index: 1;
     }
 
     .column-card {
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(30, 64, 95, 0.9), rgba(15, 23, 42, 0.95));
-      border: 1px solid rgba(15, 23, 42, 0.9);
-      box-shadow: inset 0 0 0 1px rgba(148,163,184,0.2);
+      border-radius: 14px;
+      background: radial-gradient(circle at top, rgba(148,163,184,0.2), transparent 70%),
+                  linear-gradient(180deg, rgba(31,41,55,0.96), rgba(15,23,42,0.98));
+      border: 1px solid rgba(55, 65, 81, 0.95);
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.27);
       padding: 10px 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      cursor: pointer;
+      transition: box-shadow 0.12s ease, transform 0.08s ease, border-color 0.12s ease;
+    }
+
+    .column-card.active-card {
+      box-shadow:
+        0 0 0 1px rgba(34, 211, 238, 0.4),
+        0 0 22px rgba(56, 189, 248, 0.55);
+      border-color: rgba(56, 189, 248, 0.9);
+      transform: translateY(-2px);
     }
 
     .column-title {
@@ -157,10 +180,10 @@
       text-transform: uppercase;
       letter-spacing: 0.16em;
       text-align: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
-    .column-title.active { color: #f973d3; }
+    .column-title.active { color: #e879f9; }
     .column-title.codes { color: #38bdf8; }
     .column-title.items { color: #fb7185; }
 
@@ -177,9 +200,21 @@
       align-items: center;
       gap: 6px;
       padding: 3px 4px;
-      border-radius: 6px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid rgba(15, 23, 42, 0.9);
+      border-radius: 7px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(15, 23, 42, 0.95);
+      transition: background 0.1s ease, transform 0.06s ease, box-shadow 0.08s ease;
+    }
+
+    .player-list li:hover {
+      background: rgba(30, 64, 175, 0.8);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.9);
+    }
+
+    .player-list li.selected {
+      background: rgba(22, 163, 74, 0.75);
+      box-shadow: 0 0 0 1px rgba(34,197,94,0.6);
     }
 
     .medal {
@@ -188,6 +223,7 @@
       border-radius: 999px;
       background: radial-gradient(circle at 30% 0, #fde047, #f97316 55%, #b91c1c);
       box-shadow: 0 0 6px rgba(250, 204, 21, 0.9);
+      flex-shrink: 0;
     }
 
     .center button.full-rating {
@@ -204,6 +240,8 @@
       cursor: pointer;
       box-shadow: inset 0 0 0 1px rgba(148,163,184,0.4);
       transition: background 0.1s ease, transform 0.08s ease, box-shadow 0.1s ease;
+      position: relative;
+      z-index: 1;
     }
 
     .center button.full-rating:hover {
@@ -211,17 +249,64 @@
       transform: translateY(-1px);
       box-shadow:
         inset 0 0 0 1px rgba(248, 250, 252, 0.22),
-        0 8px 16px rgba(0,0,0,0.9);
+        0 8px 16px rgba(0,0,0,0.95);
     }
 
     .large-area {
       flex: 1;
       margin-top: 6px;
-      border-radius: 14px;
-      background: radial-gradient(circle at top, rgba(148, 163, 184, 0.18), transparent 70%);
-      background-color: rgba(15, 23, 42, 0.92);
-      border: 1px solid rgba(51, 65, 85, 0.9);
-      box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.95);
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at top, rgba(148, 163, 184, 0.2), transparent 70%),
+        linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.98));
+      border: 1px solid rgba(51, 65, 85, 0.95);
+      box-shadow:
+        inset 0 0 40px rgba(15, 23, 42, 0.95);
+      position: relative;
+      overflow: hidden;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 1;
+    }
+
+    .large-title {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .large-main {
+      font-size: 14px;
+      color: #e5e7eb;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .large-footer {
+      font-size: 12px;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .large-footer span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-soft {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.9);
     }
 
     /* нижняя панель */
@@ -229,11 +314,11 @@
     .bottom-bar {
       height: 120px;
       border-radius: 14px;
-      background: linear-gradient(135deg, rgba(8, 145, 178, 0.92), rgba(14, 116, 144, 0.96));
-      border: 1px solid rgba(22, 78, 99, 0.9);
+      background: linear-gradient(135deg, rgba(8, 145, 178, 0.96), rgba(34, 197, 235, 0.98));
+      border: 1px solid rgba(22, 78, 99, 0.95);
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.04),
-        0 14px 26px rgba(0,0,0,0.85);
+        inset 0 0 0 1px rgba(255,255,255,0.08),
+        0 14px 26px rgba(0,0,0,0.9);
       padding: 12px 18px 10px;
       display: flex;
       flex-direction: column;
@@ -250,10 +335,10 @@
     .bottom-tile {
       min-width: 160px;
       padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid rgba(0,0,0,0.5);
-      background: rgba(6, 78, 99, 0.8);
-      box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.25);
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.6);
+      background: rgba(6, 78, 99, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -267,8 +352,8 @@
 
     .bottom-tile:hover {
       transform: translateY(-1px);
-      background: rgba(8, 145, 178, 0.95);
-      box-shadow: 0 10px 18px rgba(0,0,0,0.8);
+      background: rgba(8, 145, 178, 0.98);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.85);
     }
 
     .bottom-tile .icon {
@@ -289,7 +374,7 @@
       color: #facc15;
     }
 
-    /* адаптив: просто сжимаем, без идеальной мобильной версии */
+    /* адаптив: просто масштабируем, чтобы UI оставался игровым */
     @media (max-width: 1100px) {
       .frame {
         transform: scale(0.9);
@@ -341,50 +426,63 @@
         <span>Изменить статьи УКАК</span>
       </button>
 
-      <div class="side-title-empty"></div>
+      <div class="side-spacer"></div>
     </aside>
 
     <!-- центр -->
     <main class="center">
       <div class="top-panel">
         <div class="columns">
-          <div class="column-card">
+          <div class="column-card active-card" data-panel="active">
             <div class="column-title active">активные</div>
             <ul class="player-list">
-              <li><div class="medal"></div> Marsello_Nelson</li>
-              <li><div class="medal"></div> Алексей_Местный</li>
-              <li><div class="medal"></div> Kain_Insurmentable</li>
-              <li><div class="medal"></div> Train_Chackendrain</li>
-              <li><div class="medal"></div> Murian_Draick</li>
+              <li data-name="Marsello_Nelson"><div class="medal"></div> Marsello_Nelson</li>
+              <li data-name="Алексей_Местный"><div class="medal"></div> Алексей_Местный</li>
+              <li data-name="Kain_Insurmentable"><div class="medal"></div> Kain_Insurmentable</li>
+              <li data-name="Train_Chackendrain"><div class="medal"></div> Train_Chackendrain</li>
+              <li data-name="Murian_Draick"><div class="medal"></div> Murian_Draick</li>
             </ul>
           </div>
 
-          <div class="column-card">
+          <div class="column-card" data-panel="codes">
             <div class="column-title codes">коды</div>
             <ul class="player-list">
-              <li><div class="medal"></div> Marsello_Nelson</li>
-              <li><div class="medal"></div> Алексей_Местный</li>
-              <li><div class="medal"></div> Kain_Insurmentable</li>
-              <li><div class="medal"></div> Train_Chackendrain</li>
-              <li><div class="medal"></div> Murian_Draick</li>
+              <li data-name="Marsello_Nelson"><div class="medal"></div> Marsello_Nelson</li>
+              <li data-name="Алексей_Местный"><div class="medal"></div> Алексей_Местный</li>
+              <li data-name="Kain_Insurmentable"><div class="medal"></div> Kain_Insurmentable</li>
+              <li data-name="Train_Chackendrain"><div class="medal"></div> Train_Chackendrain</li>
+              <li data-name="Murian_Draick"><div class="medal"></div> Murian_Draick</li>
             </ul>
           </div>
 
-          <div class="column-card">
+          <div class="column-card" data-panel="items">
             <div class="column-title items">предметы</div>
             <ul class="player-list">
-              <li><div class="medal"></div> Marsello_Nelson</li>
-              <li><div class="medal"></div> Алексей_Местный</li>
-              <li><div class="medal"></div> Kain_Insurmentable</li>
-              <li><div class="medal"></div> Train_Chackendrain</li>
-              <li><div class="medal"></div> Murian_Draick</li>
+              <li data-name="Marsello_Nelson"><div class="medal"></div> Marsello_Nelson</li>
+              <li data-name="Алексей_Местный"><div class="medal"></div> Алексей_Местный</li>
+              <li data-name="Kain_Insurmentable"><div class="medal"></div> Kain_Insurmentable</li>
+              <li data-name="Train_Chackendrain"><div class="medal"></div> Train_Chackendrain</li>
+              <li data-name="Murian_Draick"><div class="medal"></div> Murian_Draick</li>
             </ul>
           </div>
         </div>
 
         <button class="full-rating">полный рейтинг</button>
 
-        <div class="large-area"></div>
+        <div class="large-area">
+          <div>
+            <div class="large-title" id="panel-title">АКТИВНЫЕ ОПЕРАТОРЫ</div>
+            <div class="large-main" id="panel-text">
+              Наведи курсор и кликай по колоночкам или никам, чтобы смотреть краткую информацию.
+              В этой зоне может быть описание выбранной категории, статистика, подсказки по биндеру
+              или мини-лог последних действий.
+            </div>
+          </div>
+          <div class="large-footer">
+            <span><span class="dot-soft"></span> Выбран игрок: <span id="selected-player">нет</span></span>
+            <span><span class="dot-soft"></span> Текущий раздел: <span id="selected-section">Активные</span></span>
+          </div>
+        </div>
       </div>
 
       <div class="bottom-bar">
@@ -409,7 +507,7 @@
 
         <div class="status-row">
           <span>Доступ к биндеру: <strong>полный</strong></span>
-          <span>Версия биндеров: <strong>7.0</strong></span>
+          <span>Версия биндера: <strong>7.0</strong></span>
           <span>Уровень пользователя: <strong>1</strong></span>
           <span>Опыт: <strong>167 / 1000</strong></span>
           <span>Время игры: <strong>1ч 20мин</strong></span>
@@ -437,8 +535,60 @@
         <span>Отчитать разраба</span>
       </button>
 
-      <div class="side-title-empty"></div>
+      <div class="side-spacer"></div>
     </aside>
   </div>
+
+  <script>
+    // переключение секций (Активные / Коды / Предметы)
+    const cards = document.querySelectorAll(".column-card");
+    const panelTitle = document.getElementById("panel-title");
+    const panelText = document.getElementById("panel-text");
+    const selectedSection = document.getElementById("selected-section");
+    const selectedPlayerSpan = document.getElementById("selected-player");
+
+    const panelDescriptions = {
+      active: {
+        title: "АКТИВНЫЕ ОПЕРАТОРЫ",
+        text: "Список игроков, которые сейчас активны. Здесь может отображаться онлайн, последняя активность и быстрые действия: выдать задачу, открыть профиль, отправить сообщение."
+      },
+      codes: {
+        title: "РАБОТА С КОДАМИ",
+        text: "Раздел управления кодовыми фразами и шаблонами. Можно хранить быстрые бинды для раций, докладов и стандартных ответов. В будущем сюда можно прикрутить редактор кодов."
+      },
+      items: {
+        title: "ПРЕДМЕТЫ И СНАРЯЖЕНИЕ",
+        text: "Инвентарь или список доступных предметов. Тут можно вывести экипировку, статусы доступа к SWAT, ограничения и подсказки по использованию специальных средств."
+      }
+    };
+
+    cards.forEach(card => {
+      card.addEventListener("click", () => {
+        cards.forEach(c => c.classList.remove("active-card"));
+        card.classList.add("active-card");
+
+        const key = card.getAttribute("data-panel");
+        const data = panelDescriptions[key];
+        if (data) {
+          panelTitle.textContent = data.title;
+          panelText.textContent = data.text;
+          selectedSection.textContent = data.title.replace(/_/g, " ").toLowerCase().replace(/^\w/, c => c.toUpperCase());
+        }
+      });
+
+      // клики по никам
+      const players = card.querySelectorAll(".player-list li");
+      players.forEach(player => {
+        player.addEventListener("click", (e) => {
+          e.stopPropagation(); // чтобы клик по нику не переключал карточку
+          cards.forEach(c => {
+            c.querySelectorAll(".player-list li").forEach(li => li.classList.remove("selected"));
+          });
+          player.classList.add("selected");
+          selectedPlayerSpan.textContent = player.getAttribute("data-name");
+        });
+      });
+    });
+  </script>
 </body>
 </html>
