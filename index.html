@@ -1318,7 +1318,18 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
+    const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
+  
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+
+  <script>
+    const { data, error } = await supabase
+    .from("users")
+    .select("*");
     const DAY_MS = 24 * 60 * 60 * 1000;
     const STORAGE_KEY = "pp_user";
     const STORAGE_PF_LIST = "pp_personal_files";
@@ -2068,3 +2079,4 @@
   </script>
 </body>
 </html>
+
