@@ -2,8 +2,13 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Панель биндеров</title>
+  <title>Police Platinum</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ИКОНКА САЙТА: POLICE BADGE -->
+  <!-- Файл police-badge.svg должен лежать рядом с index.html -->
+  <link rel="icon" type="image/svg+xml" href="police-badge.svg" />
+
   <style>
     * {
       box-sizing: border-box;
@@ -374,7 +379,7 @@
       color: #facc15;
     }
 
-    /* адаптив: просто масштабируем, чтобы UI оставался игровым */
+    /* адаптив: масштабируем */
     @media (max-width: 1100px) {
       .frame {
         transform: scale(0.9);
@@ -471,10 +476,10 @@
 
         <div class="large-area">
           <div>
-            <div class="large-title" id="panel-title">АКТИВНЫЕ ОПЕРАТОРЫ</div>
+            <div class="large-title" id="panel-title">АКТИВНЫЕ ОПЕРАТОРЫ — POLICE PLATINUM</div>
             <div class="large-main" id="panel-text">
-              Наведи курсор и кликай по колоночкам или никам, чтобы смотреть краткую информацию.
-              В этой зоне может быть описание выбранной категории, статистика, подсказки по биндеру
+              Панель Police Platinum. Щёлкай по колонкам и никам, чтобы смотреть краткую информацию.
+              Здесь может быть описание выбранной категории, статистика, подсказки по биндеру
               или мини-лог последних действий.
             </div>
           </div>
@@ -549,15 +554,15 @@
 
     const panelDescriptions = {
       active: {
-        title: "АКТИВНЫЕ ОПЕРАТОРЫ",
+        title: "АКТИВНЫЕ ОПЕРАТОРЫ — POLICE PLATINUM",
         text: "Список игроков, которые сейчас активны. Здесь может отображаться онлайн, последняя активность и быстрые действия: выдать задачу, открыть профиль, отправить сообщение."
       },
       codes: {
-        title: "РАБОТА С КОДАМИ",
+        title: "РАБОТА С КОДАМИ — POLICE PLATINUM",
         text: "Раздел управления кодовыми фразами и шаблонами. Можно хранить быстрые бинды для раций, докладов и стандартных ответов. В будущем сюда можно прикрутить редактор кодов."
       },
       items: {
-        title: "ПРЕДМЕТЫ И СНАРЯЖЕНИЕ",
+        title: "ПРЕДМЕТЫ И СНАРЯЖЕНИЕ — POLICE PLATINUM",
         text: "Инвентарь или список доступных предметов. Тут можно вывести экипировку, статусы доступа к SWAT, ограничения и подсказки по использованию специальных средств."
       }
     };
@@ -572,7 +577,7 @@
         if (data) {
           panelTitle.textContent = data.title;
           panelText.textContent = data.text;
-          selectedSection.textContent = data.title.replace(/_/g, " ").toLowerCase().replace(/^\w/, c => c.toUpperCase());
+          selectedSection.textContent = data.title.split("—")[0].toLowerCase().replace(/^\w/, c => c.toUpperCase());
         }
       });
 
