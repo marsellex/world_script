@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Панель управления</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 0, #0f95a5 0, transparent 55%),
+        radial-gradient(circle at 90% 0, #0f95a5 0, transparent 55%),
+        linear-gradient(135deg, #031520, #031f27, #031520);
+      /* если захочешь фон-картинку:
+         background-image: url('background.jpg');
+         background-size: cover;
+         background-position: center;
+      */
+      color: #f9fafb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .frame {
+      width: 100%;
+      max-width: 1320px;
+      height: 720px;
+      max-height: 95vh;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.05), transparent 60%);
+      border-radius: 16px;
+      border: 1px solid rgba(15, 23, 42, 0.8);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 230px 1fr 230px;
+      position: relative;
+    }
+
+    /* боковые панели */
+
+    .side {
+      background: linear-gradient(180deg, rgba(3,37,54,0.95), rgba(2,22,35,0.98));
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .side-right {
+      align-items: flex-end;
+    }
+
+    .side-title-empty {
+      flex: 1;
+    }
+
+    .side-button {
+      width: 100%;
+      padding: 14px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.4);
+      background: linear-gradient(135deg, rgba(7, 89, 133, 0.9), rgba(8, 47, 73, 0.95));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.02),
+        0 10px 20px rgba(0,0,0,0.7);
+      color: #e5e7eb;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease;
+    }
+
+    .side-button.small {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .side-button span.icon {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    .side-button:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.03),
+        0 14px 24px rgba(0,0,0,0.9);
+      background: linear-gradient(135deg, rgba(8, 145, 178, 0.95), rgba(8, 47, 73, 0.98));
+    }
+
+    .side-button.new-label::before {
+      content: "NEW!";
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: #f97316;
+      color: #0b1120;
+      margin-right: 4px;
+    }
+
+    /* центральная колонка */
+
+    .center {
+      display: flex;
+      flex-direction: column;
+      padding: 18px 18px 12px;
+      gap: 12px;
+    }
+
+    .top-panel {
+      height: 430px;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 65%);
+      border-radius: 18px;
+      border: 1px solid rgba(15,23,42,0.8);
+      background-color: rgba(15, 23, 42, 0.93);
+      box-shadow:
+        inset 0 0 0 1px rgba(148, 163, 184, 0.25),
+        0 18px 30px rgba(0, 0, 0, 0.9);
+      padding: 18px 22px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .column-card {
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(30, 64, 95, 0.9), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(148,163,184,0.2);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .column-title {
+      font-size: 17px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .column-title.active { color: #f973d3; }
+    .column-title.codes { color: #38bdf8; }
+    .column-title.items { color: #fb7185; }
+
+    .player-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+    }
+
+    .player-list li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 4px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .medal {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #fde047, #f97316 55%, #b91c1c);
+      box-shadow: 0 0 6px rgba(250, 204, 21, 0.9);
+    }
+
+    .center button.full-rating {
+      align-self: center;
+      margin-top: 4px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(148,163,184,0.4);
+      transition: background 0.1s ease, transform 0.08s ease, box-shadow 0.1s ease;
+    }
+
+    .center button.full-rating:hover {
+      background: rgba(15, 23, 42, 0.99);
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 0 0 1px rgba(248, 250, 252, 0.22),
+        0 8px 16px rgba(0,0,0,0.9);
+    }
+
+    .large-area {
+      flex: 1;
+      margin-top: 6px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top, rgba(148, 163, 184, 0.18), transparent 70%);
+      background-color: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.95);
+    }
+
+    /* нижняя панель */
+
+    .bottom-bar {
+      height: 120px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(8, 145, 178, 0.92), rgba(14, 116, 144, 0.96));
+      border: 1px solid rgba(22, 78, 99, 0.9);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.04),
+        0 14px 26px rgba(0,0,0,0.85);
+      padding: 12px 18px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .bottom-buttons {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .bottom-tile {
+      min-width: 160px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.5);
+      background: rgba(6, 78, 99, 0.8);
+      box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease;
+    }
+
+    .bottom-tile:hover {
+      transform: translateY(-1px);
+      background: rgba(8, 145, 178, 0.95);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.8);
+    }
+
+    .bottom-tile .icon {
+      font-size: 20px;
+    }
+
+    .status-row {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #022c22;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-row span strong {
+      color: #facc15;
+    }
+
+    /* адаптив: просто сжимаем, без идеальной мобильной версии */
+    @media (max-width: 1100px) {
+      .frame {
+        transform: scale(0.9);
+        transform-origin: center;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        align-items: flex-start;
+      }
+      .frame {
+        transform: scale(0.8);
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 8px;
+      }
+      .frame {
+        transform: scale(0.7);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <!-- левая панель -->
+    <aside class="side side-left">
+      <button class="side-button new-label">
+        <span class="icon">✏</span>
+        <span>Создать отыгровки</span>
+      </button>
+      <button class="side-button">
+        <span class="icon">👤</span>
+        <span>Твой профиль</span>
+      </button>
+      <button class="side-button">
+        <span class="icon">📜</span>
+        <span>Основные отыгровки</span>
+      </button>
+      <button class="side-button">
+        <span class="icon">🎯</span>
+        <span>Обучиться биндеру</span>
+      </button>
+      <button class="side-button">
+        <span class="icon">✉</span>
+        <span>Изменить статьи УКАК</span>
+      </button>
+
+      <div class="side-title-empty"></div>
+    </aside>
+
+    <!-- центр -->
+    <main class="center">
+      <div class="top-panel">
+        <div class="columns">
+          <div class="column-card">
+            <div class="column-title active">активные</div>
+            <ul class="player-list">
+              <li><div class="medal"></div> Marsello_Nelson</li>
+              <li><div class="medal"></div> Алексей_Местный</li>
+              <li><div class="medal"></div> Kain_Insurmentable</li>
+              <li><div class="medal"></div> Train_Chackendrain</li>
+              <li><div class="medal"></div> Murian_Draick</li>
+            </ul>
+          </div>
+
+          <div class="column-card">
+            <div class="column-title codes">коды</div>
+            <ul class="player-list">
+              <li><div class="medal"></div> Marsello_Nelson</li>
+              <li><div class="medal"></div> Алексей_Местный</li>
+              <li><div class="medal"></div> Kain_Insurmentable</li>
+              <li><div class="medal"></div> Train_Chackendrain</li>
+              <li><div class="medal"></div> Murian_Draick</li>
+            </ul>
+          </div>
+
+          <div class="column-card">
+            <div class="column-title items">предметы</div>
+            <ul class="player-list">
+              <li><div class="medal"></div> Marsello_Nelson</li>
+              <li><div class="medal"></div> Алексей_Местный</li>
+              <li><div class="medal"></div> Kain_Insurmentable</li>
+              <li><div class="medal"></div> Train_Chackendrain</li>
+              <li><div class="medal"></div> Murian_Draick</li>
+            </ul>
+          </div>
+        </div>
+
+        <button class="full-rating">полный рейтинг</button>
+
+        <div class="large-area"></div>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="bottom-buttons">
+          <div class="bottom-tile">
+            <span class="icon">VK</span>
+            <span>Связь с сообществом</span>
+          </div>
+          <div class="bottom-tile">
+            <span class="icon">📊</span>
+            <span>Таблицы рекордов</span>
+          </div>
+          <div class="bottom-tile">
+            <span class="icon">⟳</span>
+            <span>Обновить биндер</span>
+          </div>
+          <div class="bottom-tile">
+            <span class="icon">⏰</span>
+            <span>Напоминание</span>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <span>Доступ к биндеру: <strong>полный</strong></span>
+          <span>Версия биндеров: <strong>7.0</strong></span>
+          <span>Уровень пользователя: <strong>1</strong></span>
+          <span>Опыт: <strong>167 / 1000</strong></span>
+          <span>Время игры: <strong>1ч 20мин</strong></span>
+          <span>Подключение: <strong>Marsello_Nelson</strong></span>
+          <span>Рейтинг активности: <strong>1.5</strong></span>
+        </div>
+      </div>
+    </main>
+
+    <!-- правая панель -->
+    <aside class="side side-right">
+      <button class="side-button small">
+        <span>Действия с чатом</span>
+      </button>
+      <button class="side-button small">
+        <span>Автодоклады в чат</span>
+      </button>
+      <button class="side-button small">
+        <span>Регулировать активаторы</span>
+      </button>
+      <button class="side-button small">
+        <span>Доступ к SWAT</span>
+      </button>
+      <button class="side-button small">
+        <span>Отчитать разраба</span>
+      </button>
+
+      <div class="side-title-empty"></div>
+    </aside>
+  </div>
+</body>
+</html>
