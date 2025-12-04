@@ -459,6 +459,10 @@
       background: rgba(30,64,175,0.95);
     }
 
+    #admin-panel-btn {
+      display: none;
+    }
+
     .sidebar-footer {
       margin-top: auto;
       font-size: 11px;
@@ -799,6 +803,8 @@
       color: #9ca3af;
     }
 
+    /* Кнопка рядовых */
+
     #rookie-info-btn {
       position: absolute;
       bottom: 10px;
@@ -926,6 +932,127 @@
       text-decoration: underline;
     }
 
+    /* Админ-панель */
+
+    #section-admin .admin-note {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
+    .admin-users-list {
+      margin-top: 10px;
+      max-height: 340px;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .admin-user-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.95);
+      align-items: center;
+    }
+
+    .admin-user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.9);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+
+    .admin-user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .admin-user-main {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .admin-user-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .admin-user-nick {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .admin-role-badge {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.96);
+      color: #e5e7eb;
+    }
+
+    .admin-role-badge.admin {
+      border-color: rgba(248,250,252,0.9);
+      background: linear-gradient(135deg, #f97316, #ef4444);
+    }
+
+    .admin-role-badge.moderator {
+      border-color: rgba(96,165,250,0.9);
+      background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
+    }
+
+    .admin-user-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .admin-user-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .admin-btn-sm {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.96);
+      color: #e5e7eb;
+      font-size: 11px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .admin-btn-sm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 10px rgba(15,23,42,0.9);
+      background: rgba(30,64,175,0.96);
+    }
+
+    .admin-avatar-input {
+      font-size: 11px;
+    }
+
     @media (max-width: 1024px) {
       #panel-root.active .frame { transform: scale(0.9); transform-origin: center; }
     }
@@ -996,7 +1123,7 @@
             <label for="reg-avatar">Аватарка</label>
             <input id="reg-avatar" type="file" accept="image/*" />
             <div class="hint">
-              Картинка будет обрезана до 500×500 и сохранена локально и на сервере Supabase.
+              Картинка будет обрезана до 500×500 и сохранена локально и в Supabase (хранилище).
             </div>
             <div class="error" id="reg-avatar-error"></div>
             <div class="avatar-preview" id="reg-avatar-preview">
@@ -1009,7 +1136,7 @@
           </button>
 
           <p class="small-note">
-            Локально данные хранятся в браузере, а также дублируются в Supabase (онлайн база).
+            Локально данные в браузере, плюс серверная копия в Supabase (users + личные дела).
           </p>
 
           <div class="auth-link" id="to-login-link">
@@ -1149,6 +1276,11 @@
           <span id="personal-file-btn-text">Личное дело</span>
         </button>
 
+        <button class="nav-btn" id="admin-panel-btn">
+          <span class="icon">⚙️</span>
+          <span>Админ-панель</span>
+        </button>
+
         <div class="sidebar-section-title">СЕССИЯ</div>
 
         <div class="sidebar-footer">
@@ -1167,7 +1299,7 @@
               <div class="top-user-text-sub" id="top-dept">Департамент</div>
             </div>
           </div>
-          <div class="top-pill">
+          <div class="top-pill" id="top-role-pill">
             <span class="top-dot"></span>
             Статус: в сети
           </div>
@@ -1300,8 +1432,20 @@
             </div>
           </div>
 
+          <!-- секция "админка" -->
+          <div id="section-admin" class="panel-body section">
+            <div class="personal-label"><strong>Админ-панель</strong></div>
+            <div class="admin-note">
+              Здесь можно смотреть список зарегистрированных пользователей, менять им роль и аватарки.
+              ⚠ Технически это всё на фронте, так что не храните тут суперсекреты.
+            </div>
+            <div id="admin-users-list" class="admin-users-list">
+              Загрузка списка пользователей...
+            </div>
+          </div>
+
           <div class="panel-footer">
-            <span>Версия панели: 0.4 (Supabase: пользователи + личные дела).</span>
+            <span>Версия панели: 0.5 (Supabase: роли, админ-панель, смена аватарок).</span>
             <span>Биндер: положи файл <code>binder.zip</code> рядом с сайтом для рабочей кнопки.</span>
           </div>
         </div>
@@ -1365,6 +1509,7 @@
       return result;
     }
 
+    // Пользовательские элементы
     const authRoot = document.getElementById("auth-root");
     const panelRoot = document.getElementById("panel-root");
 
@@ -1447,7 +1592,34 @@
     loginPassToggle.addEventListener("mouseenter", () => { loginPass.type = "text"; });
     loginPassToggle.addEventListener("mouseleave", () => { loginPass.type = "password"; });
 
-    regAvatarInput.addEventListener("change", () => {
+    // Кроп файла → dataURL 500x500
+    function cropImageFileToDataUrl(file, size = 500) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement("canvas");
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+
+            const scale = Math.max(size / img.width, size / img.height);
+            const x = (size - img.width * scale) / 2;
+            const y = (size - img.height * scale) / 2;
+
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+            resolve(canvas.toDataURL("image/png"));
+          };
+          img.onerror = () => reject(new Error("Ошибка загрузки изображения"));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    regAvatarInput.addEventListener("change", async () => {
       regAvatarError.textContent = "";
       const file = regAvatarInput.files[0];
       if (!file) {
@@ -1456,37 +1628,16 @@
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-          const canvas = document.createElement("canvas");
-          const size = 500;
-          canvas.width = size;
-          canvas.height = size;
-          const ctx = canvas.getContext("2d");
-
-          const scale = Math.max(size / img.width, size / img.height);
-          const x = (size - img.width * scale) / 2;
-          const y = (size - img.height * scale) / 2;
-
-          ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-          avatarDataUrl = canvas.toDataURL("image/png");
-
-          regAvatarPreview.innerHTML = "";
-          const previewImg = document.createElement("img");
-          previewImg.src = avatarDataUrl;
-          regAvatarPreview.appendChild(previewImg);
-        };
-        img.onerror = function () {
-          regAvatarError.textContent = "Не удалось загрузить изображение.";
-        };
-        img.src = e.target.result;
-      };
-      reader.onerror = function () {
-        regAvatarError.textContent = "Ошибка чтения файла.";
-      };
-      reader.readAsDataURL(file);
+      try {
+        avatarDataUrl = await cropImageFileToDataUrl(file, 500);
+        regAvatarPreview.innerHTML = "";
+        const previewImg = document.createElement("img");
+        previewImg.src = avatarDataUrl;
+        regAvatarPreview.appendChild(previewImg);
+      } catch {
+        regAvatarError.textContent = "Не удалось обработать изображение.";
+        avatarDataUrl = null;
+      }
     });
 
     toLoginLink.addEventListener("click", () => {
@@ -1561,7 +1712,8 @@
           nick,
           department,
           password_hash: password,
-          avatar_url
+          avatar_url,
+          role: "user"
         })
         .select()
         .single();
@@ -1645,7 +1797,8 @@
         lastLoginAt: now,
         personalFile: null,
         justRegistered: true,
-        serverId: serverUser ? serverUser.id : null
+        serverId: serverUser ? serverUser.id : null,
+        role: serverUser ? serverUser.role || "user" : "user"
       };
       saveUser(currentUser);
       updatePersonalFileAuthBtn();
@@ -1685,12 +1838,13 @@
           nick: serverUser.nick,
           password: loginPass.value,
           department: serverUser.department,
-          avatar: serverUser.avatar_url || null,
+          avatar: serverUser.avatar_url || stored?.avatar || null,
           registeredAt: stored?.registeredAt || now,
           lastLoginAt: now,
           personalFile: stored?.personalFile || null,
           justRegistered: false,
-          serverId: serverUser.id
+          serverId: serverUser.id,
+          role: serverUser.role || "user"
         };
         saveUser(currentUser);
         updatePersonalFileAuthBtn();
@@ -1726,17 +1880,21 @@
       goToPanel("home");
     });
 
+    // Панель
     const topNick = document.getElementById("top-nick");
     const topDept = document.getElementById("top-dept");
     const topAvatar = document.getElementById("top-avatar");
+    const topRolePill = document.getElementById("top-role-pill");
 
     const downloadBinderBtn = document.getElementById("download-binder-btn");
     const personalFileBtn = document.getElementById("personal-file-btn");
     const personalFileBtnText = document.getElementById("personal-file-btn-text");
+    const adminPanelBtn = document.getElementById("admin-panel-btn");
     const sidebarLogout = document.getElementById("sidebar-logout");
 
     const sectionHome = document.getElementById("section-home");
     const sectionPersonal = document.getElementById("section-personal");
+    const sectionAdmin = document.getElementById("section-admin");
 
     const onboardingModal = document.getElementById("onboarding-modal");
     const onboardingClose = document.getElementById("onboarding-close");
@@ -1747,6 +1905,7 @@
     const rookieModal = document.getElementById("rookie-modal");
     const rookieClose = document.getElementById("rookie-close");
 
+    // личное дело
     const pfDept = document.getElementById("pf-dept");
     const pfNick = document.getElementById("pf-nick");
     const pfAccount = document.getElementById("pf-account");
@@ -1762,12 +1921,18 @@
     const personalSaveNote = document.getElementById("personal-save-note");
     const personalFilesList = document.getElementById("personal-files-list");
 
+    // админка
+    const adminUsersList = document.getElementById("admin-users-list");
+
     function setActiveSection(section) {
       sectionHome.classList.remove("active");
       sectionPersonal.classList.remove("active");
+      sectionAdmin.classList.remove("active");
 
       if (section === "personal") {
         sectionPersonal.classList.add("active");
+      } else if (section === "admin") {
+        sectionAdmin.classList.add("active");
       } else {
         sectionHome.classList.add("active");
       }
@@ -1775,6 +1940,15 @@
       if (section === "personal") {
         fillPersonalFileForm();
       }
+      if (section === "admin") {
+        renderAdminUsers();
+      }
+    }
+
+    function roleLabel(role) {
+      if (role === "admin") return "Администратор";
+      if (role === "moderator") return "Модератор";
+      return "Офицер";
     }
 
     function updateTopBar() {
@@ -1788,6 +1962,27 @@
         topAvatar.appendChild(img);
       } else {
         topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
+      }
+
+      const role = currentUser.role || "user";
+      topRolePill.innerHTML = "";
+      const dot = document.createElement("span");
+      dot.className = "top-dot";
+      const text = document.createElement("span");
+      text.textContent = roleLabel(role);
+      topRolePill.appendChild(dot);
+      topRolePill.appendChild(text);
+    }
+
+    function isAdmin() {
+      return currentUser && (currentUser.role === "admin" || currentUser.role === "moderator");
+    }
+
+    function updateAdminVisibility() {
+      if (isAdmin()) {
+        adminPanelBtn.style.display = "flex";
+      } else {
+        adminPanelBtn.style.display = "none";
       }
     }
 
@@ -2008,9 +2203,8 @@
         .eq("user_id", userId)
         .single();
 
-      let personalFileId;
       if (pfError || !existing) {
-        const { data: created, error: createError } = await supabase
+        const { error: createError } = await supabase
           .from("personal_files")
           .insert({
             user_id: userId,
@@ -2022,17 +2216,13 @@
             rank: pf.rank,
             phone: pf.phone,
             contact: pf.contact
-          })
-          .select()
-          .single();
+          });
 
         if (createError) {
           console.error("Ошибка создания личного дела:", createError);
           return;
         }
-        personalFileId = created.id;
       } else {
-        personalFileId = existing.id;
         const { error: updateError } = await supabase
           .from("personal_files")
           .update({
@@ -2046,15 +2236,13 @@
             contact: pf.contact,
             updated_at: new Date().toISOString()
           })
-          .eq("id", personalFileId);
+          .eq("id", existing.id);
 
         if (updateError) {
           console.error("Ошибка обновления личного дела:", updateError);
           return;
         }
       }
-
-      // NOTE: загрузку скринов повышений в Supabase Storage можно будет добавить отдельно.
     }
 
     savePersonalBtn.addEventListener("click", async () => {
@@ -2123,6 +2311,208 @@
       }, 3000);
     });
 
+    // Админка
+
+    async function fetchAllUsersForAdmin() {
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("id, nick, department, role, avatar_url, created_at")
+          .order("created_at", { ascending: true });
+
+        if (error) {
+          console.error("Ошибка загрузки юзеров для админки:", error);
+          return [];
+        }
+
+        return data || [];
+      } catch (e) {
+        console.error("Ошибка fetchAllUsersForAdmin:", e);
+        return [];
+      }
+    }
+
+    async function updateUserRole(userId, newRole) {
+      try {
+        const { error } = await supabase
+          .from("users")
+          .update({ role: newRole })
+          .eq("id", userId);
+
+        if (error) {
+          console.error("Ошибка обновления роли:", error);
+          alert("Не удалось обновить роль: " + error.message);
+          return false;
+        }
+        return true;
+      } catch (e) {
+        console.error("Ошибка updateUserRole:", e);
+        return false;
+      }
+    }
+
+    async function adminChangeAvatarForUser(user, file) {
+      try {
+        const dataUrl = await cropImageFileToDataUrl(file, 500);
+        const url = await uploadAvatarToSupabase(user.nick, dataUrl);
+        if (!url) {
+          alert("Не удалось загрузить аватар.";
+          return;
+        }
+
+        const { error } = await supabase
+          .from("users")
+          .update({ avatar_url: url })
+          .eq("id", user.id);
+
+        if (error) {
+          console.error("Ошибка обновления avatar_url:", error);
+          alert("Не удалось обновить аватар в БД: " + error.message);
+          return;
+        }
+
+        if (currentUser && currentUser.serverId === user.id) {
+          currentUser.avatar = dataUrl;
+          saveUser(currentUser);
+          updateTopBar();
+        }
+
+        await renderAdminUsers();
+      } catch (e) {
+        console.error("Ошибка adminChangeAvatarForUser:", e);
+        alert("Ошибка при обработке аватара.");
+      }
+    }
+
+    async function renderAdminUsers() {
+      if (!adminUsersList) return;
+      adminUsersList.textContent = "Загрузка списка пользователей...";
+
+      if (!isAdmin()) {
+        adminUsersList.textContent = "У вас нет прав для просмотра админ-панели.";
+        return;
+      }
+
+      const users = await fetchAllUsersForAdmin();
+      adminUsersList.innerHTML = "";
+
+      if (!users.length) {
+        adminUsersList.textContent = "Пользователей пока нет.";
+        return;
+      }
+
+      users.forEach(user => {
+        const card = document.createElement("div");
+        card.className = "admin-user-card";
+
+        const avatar = document.createElement("div");
+        avatar.className = "admin-user-avatar";
+        if (user.avatar_url) {
+          const img = document.createElement("img");
+          img.src = user.avatar_url;
+          avatar.appendChild(img);
+        } else {
+          avatar.textContent = user.nick ? user.nick[0] : "?";
+        }
+
+        const main = document.createElement("div");
+        main.className = "admin-user-main";
+
+        const header = document.createElement("div");
+        header.className = "admin-user-header";
+
+        const nickEl = document.createElement("div");
+        nickEl.className = "admin-user-nick";
+        nickEl.textContent = user.nick;
+
+        const roleBadge = document.createElement("div");
+        roleBadge.className = "admin-role-badge " + (user.role || "user");
+        roleBadge.textContent = roleLabel(user.role || "user");
+
+        header.appendChild(nickEl);
+        header.appendChild(roleBadge);
+
+        const meta = document.createElement("div");
+        meta.className = "admin-user-meta";
+        meta.textContent =
+          `Департамент: ${user.department || "—"} · Создан: ${user.created_at ? new Date(user.created_at).toLocaleString() : "—"}`;
+
+        const actions = document.createElement("div");
+        actions.className = "admin-user-actions";
+
+        const makeUserBtn = document.createElement("button");
+        makeUserBtn.className = "admin-btn-sm";
+        makeUserBtn.textContent = "Обычный";
+        makeUserBtn.addEventListener("click", async () => {
+          if (await updateUserRole(user.id, "user")) {
+            if (currentUser && currentUser.serverId === user.id) {
+              currentUser.role = "user";
+              saveUser(currentUser);
+              updateTopBar();
+              updateAdminVisibility();
+            }
+            renderAdminUsers();
+          }
+        });
+
+        const makeModBtn = document.createElement("button");
+        makeModBtn.className = "admin-btn-sm";
+        makeModBtn.textContent = "Модератор";
+        makeModBtn.addEventListener("click", async () => {
+          if (await updateUserRole(user.id, "moderator")) {
+            if (currentUser && currentUser.serverId === user.id) {
+              currentUser.role = "moderator";
+              saveUser(currentUser);
+              updateTopBar();
+              updateAdminVisibility();
+            }
+            renderAdminUsers();
+          }
+        });
+
+        const makeAdminBtn = document.createElement("button");
+        makeAdminBtn.className = "admin-btn-sm";
+        makeAdminBtn.textContent = "Админ";
+        makeAdminBtn.addEventListener("click", async () => {
+          if (!confirm(`Сделать ${user.nick} администратором?`)) return;
+          if (await updateUserRole(user.id, "admin")) {
+            if (currentUser && currentUser.serverId === user.id) {
+              currentUser.role = "admin";
+              saveUser(currentUser);
+              updateTopBar();
+              updateAdminVisibility();
+            }
+            renderAdminUsers();
+          }
+        });
+
+        const avatarInput = document.createElement("input");
+        avatarInput.type = "file";
+        avatarInput.accept = "image/*";
+        avatarInput.className = "admin-avatar-input";
+        avatarInput.addEventListener("change", () => {
+          const file = avatarInput.files[0];
+          if (!file) return;
+          adminChangeAvatarForUser(user, file);
+        });
+
+        actions.appendChild(makeUserBtn);
+        actions.appendChild(makeModBtn);
+        actions.appendChild(makeAdminBtn);
+        actions.appendChild(avatarInput);
+
+        main.appendChild(header);
+        main.appendChild(meta);
+        main.appendChild(actions);
+
+        card.appendChild(avatar);
+        card.appendChild(main);
+
+        adminUsersList.appendChild(card);
+      });
+    }
+
+    // навигация
     downloadBinderBtn.addEventListener("click", () => {
       const a = document.createElement("a");
       a.href = "binder.zip";
@@ -2134,14 +2524,23 @@
 
     personalFileBtn.addEventListener("click", () => {
       downloadBinderBtn.classList.remove("active-tab");
+      adminPanelBtn.classList.remove("active-tab");
       personalFileBtn.classList.add("active-tab");
       setActiveSection("personal");
+    });
+
+    adminPanelBtn.addEventListener("click", () => {
+      downloadBinderBtn.classList.remove("active-tab");
+      personalFileBtn.classList.remove("active-tab");
+      adminPanelBtn.classList.add("active-tab");
+      setActiveSection("admin");
     });
 
     stepOpenBinder.addEventListener("click", () => {
       onboardingModal.classList.remove("active");
       setActiveSection("home");
       personalFileBtn.classList.remove("active-tab");
+      adminPanelBtn.classList.remove("active-tab");
       downloadBinderBtn.classList.add("active-tab");
       downloadBinderBtn.scrollIntoView({ behavior: "smooth", block: "center" });
       downloadBinderBtn.focus();
@@ -2178,14 +2577,19 @@
     function goToPanel(initialSection) {
       showPanelRoot();
       updateTopBar();
+      updateAdminVisibility();
       updatePersonalFileNavButton();
 
       downloadBinderBtn.classList.remove("active-tab");
       personalFileBtn.classList.remove("active-tab");
+      adminPanelBtn.classList.remove("active-tab");
 
       if (initialSection === "personal") {
         personalFileBtn.classList.add("active-tab");
         setActiveSection("personal");
+      } else if (initialSection === "admin") {
+        adminPanelBtn.classList.add("active-tab");
+        setActiveSection("admin");
       } else {
         downloadBinderBtn.classList.add("active-tab");
         setActiveSection("home");
