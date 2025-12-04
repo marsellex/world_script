@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Police Platinum — Регистрация</title>
+  <title>Police Platinum — Вход</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
@@ -33,7 +33,7 @@
       border-radius: 20px;
       border: 1px solid rgba(30,64,175,0.7);
       box-shadow: 0 18px 40px rgba(0,0,0,0.9);
-      padding: 22px 22px 20px;
+      padding: 22px 22px 34px;
       position: relative;
       overflow: hidden;
     }
@@ -88,13 +88,8 @@
       box-shadow: 0 0 6px rgba(34,197,94,0.9);
     }
 
-    .screen {
-      display: none;
-    }
-
-    .screen.active {
-      display: block;
-    }
+    .screen { display: none; }
+    .screen.active { display: block; }
 
     form {
       display: flex;
@@ -178,16 +173,13 @@
       color: #6b7280;
     }
 
-    /* пароль с кнопкой "подсмотреть" */
     .password-row {
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .password-row input {
-      flex: 1;
-    }
+    .password-row input { flex: 1; }
 
     .password-toggle {
       width: 40px;
@@ -212,7 +204,6 @@
       box-shadow: 0 10px 22px rgba(15,23,42,0.95);
     }
 
-    /* департаменты как кнопки */
     .departments {
       display: flex;
       gap: 6px;
@@ -252,7 +243,6 @@
       background: rgba(15,23,42,1);
     }
 
-    /* аватар */
     input[type="file"] {
       font-size: 12px;
       color: #e5e7eb;
@@ -279,78 +269,6 @@
       object-fit: cover;
     }
 
-    /* главное меню / логин */
-
-    .welcome {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(22,163,74,0.8);
-      background: rgba(22,163,74,0.15);
-      font-size: 13px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .welcome-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 999px;
-      overflow: hidden;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.9);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #9ca3af;
-    }
-
-    .welcome-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .menu-actions {
-      margin-top: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .menu-btn {
-      padding: 9px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.95);
-      color: #e5e7eb;
-      font-size: 14px;
-      cursor: pointer;
-      text-align: left;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.12s ease;
-    }
-
-    .menu-btn:hover {
-      transform: translateY(-1px);
-      background: rgba(30,64,175,0.9);
-      box-shadow: 0 10px 18px rgba(15,23,42,0.85);
-    }
-
-    .logout {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #9ca3af;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .logout span {
-      text-decoration: underline;
-    }
-
     .link {
       font-size: 12px;
       color: #93c5fd;
@@ -359,8 +277,53 @@
       text-align: right;
     }
 
-    .link:hover {
+    .link:hover { text-decoration: underline; }
+
+    .logout-text {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .logout-text span {
       text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* кнопка "Создать личное дело" */
+    #personal-file-btn {
+      position: absolute;
+      left: 18px;
+      bottom: 12px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.9);
+      background:
+        radial-gradient(circle at 0 0, rgba(56,189,248,0.35), transparent 60%),
+        rgba(15,23,42,0.98);
+      color: #e5e7eb;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(56,189,248,0.6),
+        0 0 18px rgba(56,189,248,0.8);
+      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.15s ease;
+    }
+
+    #personal-file-btn:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(129,230,217,0.8),
+        0 0 28px rgba(56,189,248,1);
+    }
+
+    #personal-file-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -375,7 +338,7 @@
 
       <div class="pill">
         <span class="pill-dot"></span>
-        Ник строго в формате: <strong>Имя_Фамилия</strong> (без цифр)
+        Ник строго в формате: <strong>Имя_Фамилия</strong> (только буквы, без цифр)
       </div>
 
       <form id="register-form" novalidate>
@@ -383,7 +346,7 @@
           <label for="reg-nick">Ник</label>
           <input id="reg-nick" type="text" placeholder="Marsello_Nelson" autocomplete="off" />
           <div class="hint">
-            Разрешены только буквы (рус/англ) и подчёркивание. Будет приведён к виду <code>Имя_Фамилия</code>.
+            Русские или английские буквы и подчёркивание. Пример: <code>John_Smith</code>.
           </div>
           <div class="error" id="reg-nick-error"></div>
         </div>
@@ -424,7 +387,7 @@
           </div>
           <div class="error" id="reg-avatar-error"></div>
           <div class="avatar-preview" id="reg-avatar-preview">
-            Аватар еще не выбран
+            Аватар ещё не выбран
           </div>
         </div>
 
@@ -469,57 +432,29 @@
       </form>
     </section>
 
-    <!-- главное меню -->
-    <section id="menu-screen" class="screen">
-      <h1>Главное меню</h1>
-      <p class="subtitle">Доступ к панели Police Platinum.</p>
-
-      <div class="welcome">
-        <div class="welcome-avatar" id="menu-avatar">
-          PP
-        </div>
-        <div>
-          Добро пожаловать, <strong id="menu-nick"></strong>.<br />
-          Департамент: <strong id="menu-department"></strong>.
-        </div>
-      </div>
-
-      <div class="menu-actions">
-        <button class="menu-btn">👤 Открыть профиль офицера (заглушка)</button>
-        <button class="menu-btn">📋 Задачи на смену (заглушка)</button>
-        <button class="menu-btn">📊 Панель статистики (заглушка)</button>
-      </div>
-
-      <div class="logout" id="logout">
-        Не вы? <span>Выйти и войти под другим ником</span>
-      </div>
-    </section>
+    <button id="personal-file-btn" class="hidden">
+      📂 Создать личное дело
+    </button>
   </div>
 
   <script>
     const DAY_MS = 24 * 60 * 60 * 1000;
     const STORAGE_KEY = "pp_user";
 
-    // экраны
     const registerScreen = document.getElementById("register-screen");
     const loginScreen = document.getElementById("login-screen");
-    const menuScreen = document.getElementById("menu-screen");
+    const personalFileBtn = document.getElementById("personal-file-btn");
 
     function showScreen(id) {
-      [registerScreen, loginScreen, menuScreen].forEach(el => el.classList.remove("active"));
+      [registerScreen, loginScreen].forEach(el => el.classList.remove("active"));
       if (id === "register") registerScreen.classList.add("active");
       if (id === "login") loginScreen.classList.add("active");
-      if (id === "menu") menuScreen.classList.add("active");
     }
 
     function loadUser() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return null;
-      try {
-        return JSON.parse(raw);
-      } catch {
-        return null;
-      }
+      try { return JSON.parse(raw); } catch { return null; }
     }
 
     function saveUser(user) {
@@ -530,13 +465,11 @@
       localStorage.removeItem(STORAGE_KEY);
     }
 
-    // НОРМАЛИЗАЦИЯ НИКА: Имя_Фамилия (только буквы, без цифр)
+    // нормализация ника: Имя_Фамилия, только буквы
     function normalizeNick(raw) {
       if (!raw) return null;
       let s = raw.trim();
-      // оставляем только буквы и _
       s = s.replace(/[^A-Za-zА-Яа-яЁё_]+/g, "");
-      // схлопываем несколько _
       s = s.replace(/_+/g, "_");
       const parts = s.split("_").filter(Boolean);
       if (parts.length < 2) return null;
@@ -558,7 +491,7 @@
       return result;
     }
 
-    // --------- Регистрация ---------
+    // элементы регистрации
     const regForm = document.getElementById("register-form");
     const regNick = document.getElementById("reg-nick");
     const regPass = document.getElementById("reg-password");
@@ -586,31 +519,22 @@
 
     // подсмотр пароля (регистрация)
     const regPassToggle = document.getElementById("reg-password-toggle");
-    regPassToggle.addEventListener("mouseenter", () => {
-      regPass.type = "text";
-    });
-    regPassToggle.addEventListener("mouseleave", () => {
-      regPass.type = "password";
-    });
+    regPassToggle.addEventListener("mouseenter", () => { regPass.type = "text"; });
+    regPassToggle.addEventListener("mouseleave", () => { regPass.type = "password"; });
 
     // подсмотр пароля (логин)
     const loginPass = document.getElementById("login-password");
     const loginPassToggle = document.getElementById("login-password-toggle");
-    loginPassToggle.addEventListener("mouseenter", () => {
-      loginPass.type = "text";
-    });
-    loginPassToggle.addEventListener("mouseleave", () => {
-      loginPass.type = "password";
-    });
+    loginPassToggle.addEventListener("mouseenter", () => { loginPass.type = "text"; });
+    loginPassToggle.addEventListener("mouseleave", () => { loginPass.type = "password"; });
 
-    // загрузка аватара и обрезка до 500x500
+    // аватар: обрезка до 500x500
     regAvatarInput.addEventListener("change", () => {
       regAvatarError.textContent = "";
       const file = regAvatarInput.files[0];
       if (!file) {
         avatarDataUrl = null;
-        regAvatarPreview.textContent = "Аватар еще не выбран";
-        regAvatarPreview.innerHTML = "Аватар еще не выбран";
+        regAvatarPreview.innerHTML = "Аватар ещё не выбран";
         return;
       }
 
@@ -647,6 +571,27 @@
       reader.readAsDataURL(file);
     });
 
+    function updatePersonalFileButton(user) {
+      if (user && user.hasPersonalFile === true) {
+        personalFileBtn.classList.add("hidden");
+      } else if (user) {
+        personalFileBtn.classList.remove("hidden");
+      } else {
+        personalFileBtn.classList.add("hidden");
+      }
+    }
+
+    personalFileBtn.addEventListener("click", () => {
+      const user = loadUser();
+      if (!user) return;
+      user.hasPersonalFile = true;
+      saveUser(user);
+      personalFileBtn.textContent = "📂 Личное дело создано (заглушка)";
+      setTimeout(() => {
+        personalFileBtn.classList.add("hidden");
+      }, 1200);
+    });
+
     regForm.addEventListener("submit", (e) => {
       e.preventDefault();
       regNickError.textContent = "";
@@ -679,7 +624,6 @@
 
       if (!valid) return;
 
-      // подправляем ник в поле до красивого вида
       regNick.value = normalizedNick;
 
       const now = Date.now();
@@ -690,14 +634,18 @@
         avatar: avatarDataUrl || null,
         registeredAt: now,
         lastLoginAt: now,
+        hasPersonalFile: false,
+        justRegistered: true
       };
 
       saveUser(user);
-      fillMenu(user);
-      showScreen("menu");
+      updatePersonalFileButton(user);
+
+      // сразу уходим на панель
+      window.location.href = "panel.html";
     });
 
-    // --------- Логин ---------
+    // логин
     const loginForm = document.getElementById("login-form");
     const loginNick = document.getElementById("login-nick");
     const loginNickError = document.getElementById("login-nick-error");
@@ -738,9 +686,11 @@
       }
 
       stored.lastLoginAt = Date.now();
+      stored.justRegistered = false;
       saveUser(stored);
-      fillMenu(stored);
-      showScreen("menu");
+      updatePersonalFileButton(stored);
+
+      window.location.href = "panel.html";
     });
 
     loginReset.addEventListener("click", () => {
@@ -748,62 +698,39 @@
       selectedDept = null;
       avatarDataUrl = null;
       regForm.reset();
-      regAvatarPreview.innerHTML = "Аватар еще не выбран";
+      regAvatarPreview.innerHTML = "Аватар ещё не выбран";
       Array.from(deptContainer.querySelectorAll(".dept-option")).forEach(el =>
         el.classList.remove("active")
       );
       showScreen("register");
+      updatePersonalFileButton(null);
       regNick.focus();
     });
 
-    // --------- Меню ---------
-    const menuNick = document.getElementById("menu-nick");
-    const menuDept = document.getElementById("menu-department");
-    const menuAvatar = document.getElementById("menu-avatar");
-    const logout = document.getElementById("logout");
-
-    function fillMenu(user) {
-      menuNick.textContent = user.nick;
-      menuDept.textContent = user.department;
-      menuAvatar.innerHTML = "";
-      if (user.avatar) {
-        const img = document.createElement("img");
-        img.src = user.avatar;
-        menuAvatar.appendChild(img);
-      } else {
-        menuAvatar.textContent = user.nick[0] || "P";
-      }
-    }
-
-    logout.addEventListener("click", () => {
-      showScreen("login");
-      loginNick.value = "";
-      loginPass.value = "";
-      loginNickError.textContent = "";
-      loginPassError.textContent = "";
-      loginNick.focus();
-    });
-
-    // --------- Стартовая логика ---------
+    // стартовая логика
     (function init() {
       const user = loadUser();
+      const now = Date.now();
+
       if (!user) {
         showScreen("register");
+        updatePersonalFileButton(null);
         regNick.focus();
         return;
       }
 
-      const now = Date.now();
-      if (!user.lastLoginAt || now - user.lastLoginAt >= DAY_MS) {
-        // не было больше суток — просим вход
-        showScreen("login");
-        loginNick.value = user.nick;
-        loginNick.focus();
-      } else {
-        // заходил меньше суток назад — сразу в меню
-        fillMenu(user);
-        showScreen("menu");
+      // если заходил меньше суток назад — сразу на панель
+      if (user.lastLoginAt && now - user.lastLoginAt < DAY_MS) {
+        window.location.href = "panel.html";
+        return;
       }
+
+      // больше суток не был — требуем вход
+      showScreen("login");
+      loginNick.value = user.nick;
+      loginNick.focus();
+      // показываем кнопку личного дела, если надо
+      updatePersonalFileButton(user);
     })();
   </script>
 </body>
