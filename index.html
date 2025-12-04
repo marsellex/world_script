@@ -343,12 +343,11 @@
       box-shadow: 0 22px 55px rgba(0, 0, 0, 0.95);
       display: grid;
       grid-template-columns: 230px 1fr;
-      overflow-y: auto;      /* ✅ вместо hidden даём вертикальный скролл */
-      overflow-x: hidden;    /* горизонталь всё ещё режем */
+      overflow-y: auto;   /* скролл панели */
+      overflow-x: hidden;
       position: relative;
       backdrop-filter: blur(6px);
     }
-
 
     .sidebar {
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(8, 47, 73, 0.98));
@@ -571,9 +570,7 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
-      /* overflow-y можно убрать, если скролл теперь у .frame */
     }
-
 
     .panel-title {
       font-size: 16px;
@@ -760,6 +757,49 @@
       font-size: 11px;
       color: #9ca3af;
       margin-top: 4px;
+    }
+
+    .personal-files-list-wrapper {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(55,65,81,0.8);
+    }
+
+    .personal-files-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .personal-file-item {
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.95);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .personal-file-item.me {
+      border-color: rgba(56,189,248,0.9);
+      box-shadow:
+        0 0 0 1px rgba(56,189,248,0.5),
+        0 0 12px rgba(56,189,248,0.6);
+    }
+
+    .personal-file-item-title {
+      font-weight: 500;
+    }
+
+    .personal-file-item-meta {
+      font-size: 11px;
+      color: #9ca3af;
     }
 
     /* Кнопка для рядовых снизу */
@@ -1251,11 +1291,21 @@
                 💾 Сохранить личное дело
               </button>
               <div class="personal-note" id="personal-save-note"></div>
+
+              <div class="personal-files-list-wrapper">
+                <div class="personal-label">
+                  <strong>Список созданных личных дел</strong>
+                </div>
+                <div class="personal-note">
+                  Ваше личное дело всегда отображается вверху списка и подсвечивается для вас.
+                </div>
+                <div id="personal-files-list" class="personal-files-list"></div>
+              </div>
             </div>
           </div>
 
           <div class="panel-footer">
-            <span>Версия панели: 0.2 (личные дела, биндер, обучение).</span>
+            <span>Версия панели: 0.3 (личные дела, биндер, обучение, список дел).</span>
             <span>Биндер: положи файл <code>binder.zip</code> рядом с сайтом для рабочей кнопки.</span>
           </div>
         </div>
@@ -1271,6 +1321,7 @@
   <script>
     const DAY_MS = 24 * 60 * 60 * 1000;
     const STORAGE_KEY = "pp_user";
+    const STORAGE_PF_LIST = "pp_personal_files";
 
     function loadUser() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -1284,6 +1335,32 @@
 
     function clearUser() {
       localStorage.removeItem(STORAGE_KEY);
+    }
+
+    function loadPersonalFilesIndex() {
+      const raw = localStorage.getItem(STORAGE_PF_LIST);
+      if (!raw) return [];
+      try {
+        const data = JSON.parse(raw);
+        return Array.isArray(data) ? data : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function savePersonalFilesIndex(list) {
+      localStorage.setItem(STORAGE_PF_LIST, JSON.stringify(list));
+    }
+
+    function upsertPersonalFileIndex(entry) {
+      const list = loadPersonalFilesIndex();
+      const idx = list.findIndex(it => it.nick === entry.nick);
+      if (idx >= 0) {
+        list[idx] = { ...list[idx], ...entry, updatedAt: Date.now() };
+      } else {
+        list.push({ ...entry, updatedAt: Date.now() });
+      }
+      savePersonalFilesIndex(list);
     }
 
     // Нормализация ника: Имя_Фамилия, только буквы
@@ -1604,16 +1681,20 @@
     const addPromoBtn = document.getElementById("add-promo-btn");
     const savePersonalBtn = document.getElementById("save-personal-btn");
     const personalSaveNote = document.getElementById("personal-save-note");
+    const personalFilesList = document.getElementById("personal-files-list");
 
     function setActiveSection(section) {
       sectionHome.classList.remove("active");
       sectionPersonal.classList.remove("active");
-      sectionHome.parentElement.parentElement.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
 
       if (section === "personal") {
         sectionPersonal.classList.add("active");
       } else {
         sectionHome.classList.add("active");
+      }
+
+      if (section === "personal") {
+        fillPersonalFileForm();
       }
     }
 
@@ -1638,48 +1719,6 @@
       } else {
         personalFileBtnText.textContent = "Создать личное дело";
         personalFileBtn.classList.add("primary");
-      }
-    }
-
-    function fillPersonalFileForm() {
-      personalSaveNote.textContent = "";
-      promoList.innerHTML = "";
-      if (!currentUser || !currentUser.personalFile) {
-        // попытка подставить из данных игрока
-        if (currentUser) {
-          pfDept.value = "";
-          pfNick.value = currentUser.nick || "";
-          pfAccount.value = "";
-        } else {
-          pfDept.value = "";
-          pfNick.value = "";
-          pfAccount.value = "";
-        }
-        pfBirth.value = "";
-        pfBadgeLink.value = "";
-        pfRank.value = "";
-        pfPhone.value = "";
-        pfContact.value = "";
-        updateHeaderPreview();
-        // хотя бы одна строка повышений пустая
-        addPromotionRow();
-        return;
-      }
-      const pf = currentUser.personalFile;
-      pfDept.value = pf.dept || "";
-      pfNick.value = pf.nick || "";
-      pfAccount.value = pf.account || "";
-      pfBirth.value = pf.birth || "";
-      pfBadgeLink.value = pf.badgeLink || "";
-      pfRank.value = pf.rank || "";
-      pfPhone.value = pf.phone || "";
-      pfContact.value = pf.contact || "";
-      updateHeaderPreview();
-      promoList.innerHTML = "";
-      if (pf.promotions && pf.promotions.length) {
-        pf.promotions.forEach(p => addPromotionRow(p));
-      } else {
-        addPromotionRow();
       }
     }
 
@@ -1736,7 +1775,6 @@
       fileInput.type = "file";
       fileInput.accept = "image/*";
 
-      // если есть сохранённый скрин, можем просто отметить, что он есть
       if (data && data.hasScreenshot) {
         const label = document.createElement("span");
         label.style.fontSize = "11px";
@@ -1761,6 +1799,98 @@
 
     addPromoBtn.addEventListener("click", () => addPromotionRow());
 
+    function renderPersonalFilesList() {
+      if (!personalFilesList) return;
+
+      const list = loadPersonalFilesIndex();
+      personalFilesList.innerHTML = "";
+
+      if (!list.length) {
+        const empty = document.createElement("div");
+        empty.className = "personal-note";
+        empty.textContent = "Пока нет ни одного созданного личного дела.";
+        personalFilesList.appendChild(empty);
+        return;
+      }
+
+      const myNick =
+        currentUser && currentUser.personalFile
+          ? currentUser.personalFile.nick
+          : currentUser
+          ? currentUser.nick
+          : null;
+
+      list.sort((a, b) => {
+        if (myNick && a.nick === myNick && b.nick !== myNick) return -1;
+        if (myNick && b.nick === myNick && a.nick !== myNick) return 1;
+        return (a.nick || "").localeCompare(b.nick || "", "ru");
+      });
+
+      list.forEach(entry => {
+        const item = document.createElement("div");
+        item.className = "personal-file-item";
+        if (myNick && entry.nick === myNick) {
+          item.classList.add("me");
+        }
+
+        const title = document.createElement("div");
+        title.className = "personal-file-item-title";
+        const dept = entry.dept || "Отдел";
+        const nick = entry.nick || "Имя_Фамилия";
+        const account = entry.account || "номер";
+        title.textContent = `[${dept}] ${nick} [${account}]`;
+
+        const meta = document.createElement("div");
+        meta.className = "personal-file-item-meta";
+        const rank = entry.rank ? `Звание: ${entry.rank}` : "";
+        meta.textContent = rank || "Звание не указано";
+
+        item.appendChild(title);
+        item.appendChild(meta);
+        personalFilesList.appendChild(item);
+      });
+    }
+
+    function fillPersonalFileForm() {
+      personalSaveNote.textContent = "";
+      promoList.innerHTML = "";
+      if (!currentUser || !currentUser.personalFile) {
+        if (currentUser) {
+          pfDept.value = "";
+          pfNick.value = currentUser.nick || "";
+          pfAccount.value = "";
+        } else {
+          pfDept.value = "";
+          pfNick.value = "";
+          pfAccount.value = "";
+        }
+        pfBirth.value = "";
+        pfBadgeLink.value = "";
+        pfRank.value = "";
+        pfPhone.value = "";
+        pfContact.value = "";
+        updateHeaderPreview();
+        addPromotionRow();
+      } else {
+        const pf = currentUser.personalFile;
+        pfDept.value = pf.dept || "";
+        pfNick.value = pf.nick || "";
+        pfAccount.value = pf.account || "";
+        pfBirth.value = pf.birth || "";
+        pfBadgeLink.value = pf.badgeLink || "";
+        pfRank.value = pf.rank || "";
+        pfPhone.value = pf.phone || "";
+        pfContact.value = pf.contact || "";
+        updateHeaderPreview();
+        if (pf.promotions && pf.promotions.length) {
+          pf.promotions.forEach(p => addPromotionRow(p));
+        } else {
+          addPromotionRow();
+        }
+      }
+      renderPersonalFilesList();
+    }
+
     savePersonalBtn.addEventListener("click", async () => {
       personalSaveNote.style.color = "#9ca3af";
       personalSaveNote.textContent = "";
@@ -1778,7 +1908,6 @@
         return;
       }
 
-      // собираем повышений
       const promotions = [];
       const rows = promoList.querySelectorAll(".promo-row");
       for (const row of rows) {
@@ -1793,7 +1922,6 @@
 
         let hasScreenshot = false;
         if (fileInput && fileInput.files && fileInput.files[0]) {
-          // для простоты: не храним сам скрин, только флаг
           hasScreenshot = true;
         }
         promotions.push({ date, rank, hasScreenshot });
@@ -1811,16 +1939,23 @@
         promotions
       };
 
-      // синхронизируем ник игрока, если изменился
       currentUser.nick = nickNormalized;
+
+      upsertPersonalFileIndex({
+        dept,
+        nick: nickNormalized,
+        account,
+        rank: pfRank.value.trim()
+      });
 
       saveUser(currentUser);
       updateTopBar();
       updatePersonalFileNavButton();
       updatePersonalFileAuthBtn();
+      renderPersonalFilesList();
 
       personalSaveNote.style.color = "#22c55e";
-      personalSaveNote.textContent = "Личное дело сохранено. Можно переносить данные на форум.";
+      personalSaveNote.textContent = "Личное дело сохранено. Ваше дело закреплено вверху списка.";
       setTimeout(() => {
         personalSaveNote.textContent = "";
       }, 3000);
@@ -1837,16 +1972,17 @@
     });
 
     personalFileBtn.addEventListener("click", () => {
-      setActiveSection("personal");
-      personalFileBtn.classList.add("active-tab");
       downloadBinderBtn.classList.remove("active-tab");
-      fillPersonalFileForm();
+      personalFileBtn.classList.add("active-tab");
+      setActiveSection("personal");
     });
 
     // из модалки обучения к биндеру
     stepOpenBinder.addEventListener("click", () => {
       onboardingModal.classList.remove("active");
       setActiveSection("home");
+      personalFileBtn.classList.remove("active-tab");
+      downloadBinderBtn.classList.add("active-tab");
       downloadBinderBtn.scrollIntoView({ behavior: "smooth", block: "center" });
       downloadBinderBtn.focus();
     });
@@ -1887,20 +2023,17 @@
       updateTopBar();
       updatePersonalFileNavButton();
 
-      // секция по умолчанию
       downloadBinderBtn.classList.remove("active-tab");
       personalFileBtn.classList.remove("active-tab");
 
       if (initialSection === "personal") {
-        setActiveSection("personal");
         personalFileBtn.classList.add("active-tab");
-        fillPersonalFileForm();
+        setActiveSection("personal");
       } else {
-        setActiveSection("home");
         downloadBinderBtn.classList.add("active-tab");
+        setActiveSection("home");
       }
 
-      // модалка обучения для только что зарегистрированных
       if (currentUser && currentUser.justRegistered) {
         onboardingModal.classList.add("active");
       } else {
@@ -1921,14 +2054,12 @@
         return;
       }
 
-      // если заходил меньше суток назад — сразу в панель
       if (user.lastLoginAt && now - user.lastLoginAt < DAY_MS) {
         showPanelRoot();
         goToPanel("home");
         return;
       }
 
-      // больше суток не был — логин
       showAuthRoot();
       showAuthScreen("login");
       loginNick.value = user.nick || "";
@@ -1937,5 +2068,3 @@
   </script>
 </body>
 </html>
-
-
