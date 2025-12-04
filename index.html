@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Police Platinum — Вход</title>
+  <title>Police Platinum — Офицерская панель</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
@@ -25,9 +25,15 @@
       color: #e5e7eb;
     }
 
-    .app {
+    /* ---------- ЭКРАН АВТОРИЗАЦИИ ---------- */
+
+    #auth-root {
       width: 100%;
       max-width: 520px;
+    }
+
+    .app-card {
+      width: 100%;
       background: radial-gradient(circle at top, rgba(148,163,184,0.15), transparent 65%),
                   rgba(15,23,42,0.97);
       border-radius: 20px;
@@ -88,8 +94,8 @@
       box-shadow: 0 0 6px rgba(34,197,94,0.9);
     }
 
-    .screen { display: none; }
-    .screen.active { display: block; }
+    .auth-screen { display: none; }
+    .auth-screen.active { display: block; }
 
     form {
       display: flex;
@@ -126,6 +132,11 @@
       border-color: #38bdf8;
       box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
       background: rgba(15,23,42,0.98);
+    }
+
+    input[type="file"] {
+      font-size: 12px;
+      color: #e5e7eb;
     }
 
     .hint {
@@ -243,11 +254,6 @@
       background: rgba(15,23,42,1);
     }
 
-    input[type="file"] {
-      font-size: 12px;
-      color: #e5e7eb;
-    }
-
     .avatar-preview {
       margin-top: 8px;
       width: 120px;
@@ -269,7 +275,7 @@
       object-fit: cover;
     }
 
-    .link {
+    .auth-link {
       font-size: 12px;
       color: #93c5fd;
       cursor: pointer;
@@ -277,22 +283,10 @@
       text-align: right;
     }
 
-    .link:hover { text-decoration: underline; }
+    .auth-link:hover { text-decoration: underline; }
 
-    .logout-text {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #9ca3af;
-      text-align: center;
-    }
-
-    .logout-text span {
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    /* кнопка "Создать личное дело" */
-    #personal-file-btn {
+    /* кнопка "Создать личное дело" на экране авторизации */
+    #personal-file-auth-btn {
       position: absolute;
       left: 18px;
       bottom: 12px;
@@ -314,142 +308,966 @@
       transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.15s ease;
     }
 
-    #personal-file-btn:hover {
+    #personal-file-auth-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #personal-file-auth-btn:hover {
       transform: translateY(-1px);
       box-shadow:
         0 0 0 1px rgba(129,230,217,0.8),
         0 0 28px rgba(56,189,248,1);
     }
 
-    #personal-file-btn.hidden {
+    /* ---------- ПАНЕЛЬ ---------- */
+
+    #panel-root {
+      display: none;
+      width: 100%;
+      max-width: 1240px;
+    }
+
+    #panel-root.active {
+      display: block;
+    }
+
+    .frame {
+      width: 100%;
+      height: 680px;
+      max-height: 95vh;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 60%);
+      border-radius: 20px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.95);
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      overflow: hidden;
+      position: relative;
+      backdrop-filter: blur(6px);
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(8, 47, 73, 0.98));
+      padding: 18px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-right: 1px solid rgba(30,64,175,0.9);
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #facc15, #f97316 50%, #b91c1c);
+      box-shadow: 0 0 14px rgba(250,204,21,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #111827;
+      border: 2px solid #fef9c3;
+      flex-shrink: 0;
+    }
+
+    .logo-text-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .logo-text-sub {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .sidebar-section-title {
+      margin-top: 12px;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #6b7280;
+    }
+
+    .nav-btn {
+      margin-top: 6px;
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15,23,42,0.96);
+      color: #e5e7eb;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-btn span.icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .nav-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent, rgba(56,189,248,0.45), transparent);
       opacity: 0;
+      transform: translateX(-120%);
+      transition: transform 0.45s ease, opacity 0.45s ease;
       pointer-events: none;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(30,64,175,0.96);
+      border-color: rgba(56,189,248,0.8);
+      box-shadow: 0 12px 22px rgba(15,23,42,0.9);
+    }
+
+    .nav-btn:hover::after {
+      opacity: 1;
+      transform: translateX(120%);
+    }
+
+    .nav-btn.primary {
+      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.35), transparent 60%),
+                  rgba(15,23,42,0.98);
+      border-color: rgba(56,189,248,0.9);
+      box-shadow:
+        0 0 0 1px rgba(56,189,248,0.5),
+        0 0 18px rgba(56,189,248,0.8);
+    }
+
+    .nav-btn.active-tab {
+      border-color: rgba(59,130,246,0.9);
+      background: rgba(30,64,175,0.95);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-footer button {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      text-align: left;
+      padding: 0;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .sidebar-footer button:hover {
+      text-decoration: underline;
+      color: #e5e7eb;
+    }
+
+    .main {
+      padding: 16px 18px 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .top-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.9);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+
+    .top-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .top-user-text-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .top-user-text-sub {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .top-pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.65);
+      background: rgba(15,23,42,0.9);
+      color: #9ca3af;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .top-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34,197,94,0.9);
+    }
+
+    .panel-card {
+      flex: 1;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at top, rgba(148,163,184,0.2), transparent 70%),
+        linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.98));
+      border: 1px solid rgba(51, 65, 85, 0.95);
+      box-shadow:
+        inset 0 0 0 1px rgba(148, 163, 184, 0.4),
+        0 18px 34px rgba(0, 0, 0, 0.95);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    .panel-body {
+      font-size: 14px;
+      color: #e5e7eb;
+      max-width: 700px;
+      line-height: 1.6;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .panel-body ul {
+      margin-top: 10px;
+      margin-left: 18px;
+      list-style: disc;
+    }
+
+    .panel-body li {
+      margin-bottom: 4px;
+    }
+
+    .panel-footer {
+      margin-top: auto;
+      font-size: 11px;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* секции панели */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ЛИЧНОЕ ДЕЛО */
+    .rules-block {
+      font-size: 13px;
+      color: #e5e7eb;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .rules-block p { margin-bottom: 6px; }
+
+    .rules-block ul {
+      margin-left: 20px;
+      margin-bottom: 6px;
+      list-style: disc;
+    }
+
+    .personal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .personal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .personal-label {
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+
+    .personal-input, .personal-select, .personal-textarea {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.95);
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    .personal-input:focus,
+    .personal-select:focus,
+    .personal-textarea:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
+      background: rgba(15,23,42,0.98);
+    }
+
+    .personal-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .personal-header-preview {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-top: 4px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px dashed rgba(75,85,99,0.9);
+      background: rgba(15,23,42,0.8);
+    }
+
+    .promo-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .promo-row {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1.6fr) minmax(0, 1.5fr);
+      gap: 6px;
+      align-items: center;
+    }
+
+    .promo-row input[type="date"],
+    .promo-row select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.95);
+      color: #e5e7eb;
+      font-size: 12px;
+    }
+
+    .promo-row input[type="file"] {
+      font-size: 11px;
+    }
+
+    .promo-add-btn {
+      margin-top: 6px;
+      align-self: flex-start;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.8);
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .promo-add-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(15,23,42,0.8);
+      background: rgba(30,64,175,0.96);
+    }
+
+    .personal-save-btn {
+      margin-top: 10px;
+      align-self: flex-start;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      background: radial-gradient(circle at 0 0, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 12px 22px rgba(22,163,74,0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    .personal-save-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .personal-note {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* Кнопка для рядовых снизу */
+    #rookie-info-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(234,179,8,0.9);
+      background:
+        radial-gradient(circle at 0 0, rgba(250,204,21,0.3), transparent 60%),
+        rgba(15,23,42,0.98);
+      color: #fef9c3;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(250,204,21,0.7),
+        0 0 22px rgba(250,204,21,0.9);
+      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease;
+      z-index: 5;
+      text-align: center;
+    }
+
+    #rookie-info-btn span.note {
+      font-size: 11px;
+      color: #facc15;
+    }
+
+    #rookie-info-btn:hover {
+      transform: translateX(-50%) translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(252,211,77,0.9),
+        0 0 30px rgba(250,204,21,1);
+    }
+
+    /* Модалки */
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,23,42,0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .modal-backdrop.active { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      background: radial-gradient(circle at top, rgba(56,189,248,0.18), transparent 65%),
+                  rgba(15,23,42,0.98);
+      border-radius: 18px;
+      border: 1px solid rgba(56,189,248,0.8);
+      box-shadow: 0 22px 40px rgba(0,0,0,0.95);
+      padding: 18px 18px 14px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .modal-sub {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .modal-content {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e5e7eb;
+      overflow-y: auto;
+      padding-right: 4px;
+      max-height: 55vh;
+    }
+
+    .modal-content p { margin-bottom: 6px; }
+    .modal-content ul { margin-left: 18px; margin-bottom: 6px; list-style: disc; }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+      gap: 8px;
+    }
+
+    .modal-btn {
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.96);
+      color: #e5e7eb;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .modal-btn.primary {
+      background: radial-gradient(circle at 0 0, #f97316, #2563eb);
+      border-color: rgba(59,130,246,0.9);
+      box-shadow: 0 10px 24px rgba(37,99,235,0.8);
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(15,23,42,0.9);
+    }
+
+    .step-link {
+      font-size: 12px;
+      color: #93c5fd;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1024px) {
+      #panel-root.active .frame { transform: scale(0.9); transform-origin: center; }
+    }
+    @media (max-width: 860px) {
+      #panel-root.active .frame { transform: scale(0.8); }
+    }
+    @media (max-width: 720px) {
+      body { padding: 8px; }
+      #panel-root.active .frame { transform: scale(0.7); }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="badge">PP</div>
+  <!-- AUTH ROOT -->
+  <div id="auth-root">
+    <div class="app-card">
+      <div class="badge">PP</div>
 
-    <!-- регистрация -->
-    <section id="register-screen" class="screen">
-      <h1>Police Platinum</h1>
-      <p class="subtitle">Регистрация офицера для доступа к панели.</p>
+      <!-- Регистрация -->
+      <section id="register-screen" class="auth-screen">
+        <h1>Police Platinum</h1>
+        <p class="subtitle">Регистрация офицера для доступа к панели.</p>
 
-      <div class="pill">
-        <span class="pill-dot"></span>
-        Ник строго в формате: <strong>Имя_Фамилия</strong> (только буквы, без цифр)
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Ник строго в формате: <strong>Имя_Фамилия</strong> (только буквы, без цифр)
+        </div>
+
+        <form id="register-form" novalidate>
+          <div class="field">
+            <label for="reg-nick">Ник</label>
+            <input id="reg-nick" type="text" placeholder="Marsello_Nelson" autocomplete="off" />
+            <div class="hint">
+              Русские или английские буквы и подчёркивание. Пример: <code>John_Smith</code>.
+            </div>
+            <div class="error" id="reg-nick-error"></div>
+          </div>
+
+          <div class="field">
+            <label for="reg-password">Пароль</label>
+            <div class="password-row">
+              <input id="reg-password" type="password" placeholder="минимум 6 символов" />
+              <button type="button" class="password-toggle" id="reg-password-toggle" title="Показать пароль">👁</button>
+            </div>
+            <div class="error" id="reg-password-error"></div>
+          </div>
+
+          <div class="field">
+            <label>Департамент (игровой)</label>
+            <div class="departments" id="reg-departments">
+              <div class="dept-option" data-value="LSPD">
+                LSPD
+                <span>Los Santos PD</span>
+              </div>
+              <div class="dept-option" data-value="SFPD">
+                SFPD
+                <span>San Fierro PD</span>
+              </div>
+              <div class="dept-option" data-value="LVPD">
+                LVPD
+                <span>Las Venturas PD</span>
+              </div>
+            </div>
+            <div class="error" id="reg-department-error"></div>
+          </div>
+
+          <div class="field">
+            <label for="reg-avatar">Аватарка</label>
+            <input id="reg-avatar" type="file" accept="image/*" />
+            <div class="hint">
+              Картинка будет обрезана до 500×500 и сохранена локально. Если не выберешь — будет заглушка.
+            </div>
+            <div class="error" id="reg-avatar-error"></div>
+            <div class="avatar-preview" id="reg-avatar-preview">
+              Аватар ещё не выбран
+            </div>
+          </div>
+
+          <button type="submit" class="btn">
+            Завершить регистрацию
+          </button>
+
+          <p class="small-note">
+            Все данные хранятся только в этом браузере (localStorage), на сервер ничего не уходит.
+          </p>
+
+          <div class="auth-link" id="to-login-link">
+            Уже есть аккаунт? Войти
+          </div>
+        </form>
+      </section>
+
+      <!-- Логин -->
+      <section id="login-screen" class="auth-screen">
+        <h1>Police Platinum</h1>
+        <p class="subtitle">Вход в панель офицера.</p>
+
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="login-nick">Ник</label>
+            <input id="login-nick" type="text" placeholder="Имя_Фамилия" autocomplete="off" />
+            <div class="error" id="login-nick-error"></div>
+          </div>
+
+          <div class="field">
+            <label for="login-password">Пароль</label>
+            <div class="password-row">
+              <input id="login-password" type="password" placeholder="Ваш пароль" />
+              <button type="button" class="password-toggle" id="login-password-toggle" title="Показать пароль">👁</button>
+            </div>
+            <div class="error" id="login-password-error"></div>
+          </div>
+
+          <button type="submit" class="btn">
+            Войти
+          </button>
+
+          <div class="auth-link" id="login-reset">
+            Очистить регистрацию и создать новый аккаунт
+          </div>
+        </form>
+      </section>
+
+      <button id="personal-file-auth-btn" class="hidden">
+        📂 Создать личное дело
+      </button>
+    </div>
+  </div>
+
+  <!-- PANEL ROOT -->
+  <div id="panel-root">
+    <div class="frame">
+      <!-- модалка обучения копа -->
+      <div class="modal-backdrop" id="onboarding-modal">
+        <div class="modal">
+          <h2 class="modal-title">Давай обучимся игре за копа</h2>
+          <p class="modal-sub">
+            Перед тем как ворваться в патруль, настроим базовые вещи. Это займёт пару минут.
+          </p>
+          <div class="modal-content">
+            <ol>
+              <li>
+                <strong>Создай личное дело.</strong><br />
+                В левой панели нажми кнопку
+                <em>«Создать личное дело»</em>, если она подсвечивается.
+              </li>
+              <li>
+                <strong>Скачай биндер.</strong><br />
+                Используй кнопку <span class="step-link" id="step-open-binder">«Скачать биндер»</span> в левой панели.
+              </li>
+              <li>
+                <strong>Освой биндер.</strong><br />
+                Открой биндер, изучи горячие клавиши и пропиши под себя базовые фразы:
+                доклады, задержания, построения, вызовы диспетчеру.
+              </li>
+            </ol>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn" id="onboarding-close-soft">Напомнить позже</button>
+            <button class="modal-btn primary" id="onboarding-close">Погнали в панель</button>
+          </div>
+        </div>
       </div>
 
-      <form id="register-form" novalidate>
-        <div class="field">
-          <label for="reg-nick">Ник</label>
-          <input id="reg-nick" type="text" placeholder="Marsello_Nelson" autocomplete="off" />
-          <div class="hint">
-            Русские или английские буквы и подчёркивание. Пример: <code>John_Smith</code>.
+      <!-- модалка для рядовых -->
+      <div class="modal-backdrop" id="rookie-modal">
+        <div class="modal">
+          <h2 class="modal-title">Вся информация для рядовых</h2>
+          <p class="modal-sub">
+            Нажми, если ты только вступил в PD. Обязательно прочитай перед началом службы.
+          </p>
+          <div class="modal-content">
+            <p><strong>Police Academy [PA][1-2] — Полицейская академия</strong></p>
+            <p>
+              Police Academy [PA][1-2] (новобранцы) — отдел полицейской академии для обучения
+              новичков, только вступивших в ряды полицейского департамента. Сюда входят экзамены,
+              юридическая подготовка, обучение по обращению с оружием и правилам поведения
+              в патруле (со звания Сержант [2]).
+            </p>
+            <p>
+              Академия готовит новобранцев в отдел патрульного дивизиона (PD), в который они
+              будут направлены по окончанию успешно пройденных экзаменов.
+            </p>
+            <p>
+              В отдел зачисляются все сотрудники, которые проходят обучение в полицейской
+              академии (1–2 ранг).
+            </p>
+            <p><strong>Правила использования рации:</strong><br />
+              Позывной Police Academy: <code>[PA]</code><br />
+              Пример: <code>![PA] Прием...</code>
+            </p>
+            <p><strong>Отыгровка значка (пример):</strong><br />
+              <code>/me На поясе значок сотрудника полицейской академии LVPD с номером [номер аккаунта в квадратных скобках]</code>
+            </p>
           </div>
-          <div class="error" id="reg-nick-error"></div>
+          <div class="modal-footer">
+            <button class="modal-btn primary" id="rookie-close">Понял, принял</button>
+          </div>
         </div>
+      </div>
 
-        <div class="field">
-          <label for="reg-password">Пароль</label>
-          <div class="password-row">
-            <input id="reg-password" type="password" placeholder="минимум 6 символов" />
-            <button type="button" class="password-toggle" id="reg-password-toggle" title="Показать пароль">👁</button>
-          </div>
-          <div class="error" id="reg-password-error"></div>
-        </div>
-
-        <div class="field">
-          <label>Департамент</label>
-          <div class="departments" id="reg-departments">
-            <div class="dept-option" data-value="LSPD">
-              LSPD
-              <span>Los Santos PD</span>
-            </div>
-            <div class="dept-option" data-value="SFPD">
-              SFPD
-              <span>San Fierro PD</span>
-            </div>
-            <div class="dept-option" data-value="LVPD">
-              LVPD
-              <span>Las Venturas PD</span>
-            </div>
-          </div>
-          <div class="error" id="reg-department-error"></div>
-        </div>
-
-        <div class="field">
-          <label for="reg-avatar">Аватарка</label>
-          <input id="reg-avatar" type="file" accept="image/*" />
-          <div class="hint">
-            Картинка будет обрезана до 500×500 и сохранена локально. Если не выберешь — будет заглушка.
-          </div>
-          <div class="error" id="reg-avatar-error"></div>
-          <div class="avatar-preview" id="reg-avatar-preview">
-            Аватар ещё не выбран
+      <!-- левая панель -->
+      <aside class="sidebar">
+        <div class="logo-row">
+          <div class="logo-badge">PP</div>
+          <div>
+            <div class="logo-text-title">Police Platinum</div>
+            <div class="logo-text-sub">Панель офицера</div>
           </div>
         </div>
 
-        <button type="submit" class="btn">
-          Завершить регистрацию
+        <div class="sidebar-section-title">НАВИГАЦИЯ</div>
+
+        <button class="nav-btn primary" id="download-binder-btn">
+          <span class="icon">⬇</span>
+          <span>Скачать биндер</span>
         </button>
 
-        <p class="small-note">
-          Все данные хранятся только в этом браузере (localStorage), на сервер ничего не уходит.
-        </p>
-      </form>
-    </section>
-
-    <!-- логин -->
-    <section id="login-screen" class="screen">
-      <h1>Police Platinum</h1>
-      <p class="subtitle">Вход в панель офицера.</p>
-
-      <form id="login-form" novalidate>
-        <div class="field">
-          <label for="login-nick">Ник</label>
-          <input id="login-nick" type="text" placeholder="Имя_Фамилия" autocomplete="off" />
-          <div class="error" id="login-nick-error"></div>
-        </div>
-
-        <div class="field">
-          <label for="login-password">Пароль</label>
-          <div class="password-row">
-            <input id="login-password" type="password" placeholder="Ваш пароль" />
-            <button type="button" class="password-toggle" id="login-password-toggle" title="Показать пароль">👁</button>
-          </div>
-          <div class="error" id="login-password-error"></div>
-        </div>
-
-        <button type="submit" class="btn">
-          Войти
+        <button class="nav-btn" id="personal-file-btn">
+          <span class="icon">📂</span>
+          <span id="personal-file-btn-text">Личное дело</span>
         </button>
 
-        <div class="link" id="login-reset">
-          Очистить регистрацию и создать новый аккаунт
-        </div>
-      </form>
-    </section>
+        <div class="sidebar-section-title">СЕССИЯ</div>
 
-    <button id="personal-file-btn" class="hidden">
-      📂 Создать личное дело
-    </button>
+        <div class="sidebar-footer">
+          <button id="sidebar-logout">Выйти в окно входа</button>
+          <span>Если не заходишь больше суток — понадобится повторный вход по нику и паролю.</span>
+        </div>
+      </aside>
+
+      <!-- правая часть -->
+      <main class="main">
+        <div class="top-bar">
+          <div class="top-user">
+            <div class="top-avatar" id="top-avatar">PP</div>
+            <div>
+              <div class="top-user-text-title" id="top-nick">Офицер</div>
+              <div class="top-user-text-sub" id="top-dept">Департамент</div>
+            </div>
+          </div>
+          <div class="top-pill">
+            <span class="top-dot"></span>
+            Статус: в сети
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">главная панель</div>
+
+          <!-- секция "дом" -->
+          <div id="section-home" class="panel-body section active">
+            Это главная панель Police Platinum. Здесь будут собраны ссылки на биндер, личное дело,
+            задачи и статистику. Сейчас главное — настроить биндер и привести в порядок данные офицера.
+            <ul>
+              <li>Используй кнопку <strong>«Скачать биндер»</strong> слева, чтобы забрать архив с биндером.</li>
+              <li>Зайди в раздел <strong>«Личное дело»</strong>, чтобы оформить свою тему по форме.</li>
+              <li>Если ты только что вступил в PD — нажми кнопку <strong>«Вся информация для рядовых»</strong> внизу.</li>
+            </ul>
+          </div>
+
+          <!-- секция "личное дело" -->
+          <div id="section-personal" class="panel-body section">
+            <div class="rules-block">
+              <p><strong>Правила раздела личных дел</strong></p>
+              <p>
+                В данном разделе каждый сотрудник, вступивший на службу в полицейский департамент,
+                обязан создать личное дело строго по указанной форме и своевременно заполнять его.
+                Все последующие отчёты о работе (на повышение, премии, чистки) оформляются в этот раздел.
+              </p>
+              <ul>
+                <li>Каждый сотрудник обязан следить за актуальностью информации личного дела.</li>
+                <li>При увольнении личное дело закрывается и удаляется (архивируется).</li>
+                <li>При возвращении в ПД личное дело создаётся заново.</li>
+              </ul>
+              <p>
+                Проверкой отчётов в данном разделе занимаются офицеры со звания
+                <strong>Подполковник [8]</strong>.
+              </p>
+              <ul>
+                <li>При отказе в отчёте сотрудник отправляет исправление цитатой, не редактируя исходный пост.</li>
+                <li>Флуд, маты, оскорбления, Offtop — удаляются, аккаунты блокируются.</li>
+                <li>Темы не по форме — удаляются.</li>
+              </ul>
+              <p><strong>Оформляйте личное дело аккуратно и без ошибок. Графическое оформление приветствуется.</strong></p>
+            </div>
+
+            <div class="personal-form">
+              <div>
+                <div class="personal-label"><strong>Заголовок темы</strong> (формируется автоматически):</div>
+                <div class="personal-header-preview" id="personal-header-preview">
+                  [Отдел] Имя_Фамилия [Номер аккаунта]
+                </div>
+              </div>
+
+              <div class="personal-grid">
+                <div>
+                  <div class="personal-label">Отдел (форумный)</div>
+                  <select id="pf-dept" class="personal-select">
+                    <option value="">Выберите отдел…</option>
+                    <option value="SWAT">SWAT</option>
+                    <option value="PD">PD</option>
+                    <option value="PA">PA</option>
+                    <option value="CHIEF">CHIEF</option>
+                    <option value="IAG">IAG</option>
+                    <option value="Cmdr.SWAT">Cmdr.SWAT</option>
+                    <option value="DCmdr.SWAT">DCmdr.SWAT</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div class="personal-label">Имя_Фамилия (как в игре)</div>
+                  <input id="pf-nick" type="text" class="personal-input" placeholder="Имя_Фамилия" />
+                </div>
+
+                <div>
+                  <div class="personal-label">Номер аккаунта (только цифры)</div>
+                  <input id="pf-account" type="text" class="personal-input" placeholder="522501" />
+                </div>
+
+                <div>
+                  <div class="personal-label">Дата рождения</div>
+                  <input id="pf-birth" type="text" class="personal-input" placeholder="01.01.2000" />
+                </div>
+
+                <div>
+                  <div class="personal-label">Номер значка / аккаунта (ссылка)</div>
+                  <input id="pf-badge-link" type="text" class="personal-input" placeholder="Ссылка на аккаунт / профиль" />
+                </div>
+
+                <div>
+                  <div class="personal-label">Текущее звание</div>
+                  <input id="pf-rank" type="text" class="personal-input" placeholder="Сержант / Капитан / ..." />
+                </div>
+
+                <div>
+                  <div class="personal-label">Контактный номер телефона</div>
+                  <input id="pf-phone" type="text" class="personal-input" placeholder="Номер телефона" />
+                </div>
+
+                <div>
+                  <div class="personal-label">Альтернативное средство связи</div>
+                  <input id="pf-contact" type="text" class="personal-input" placeholder="VK / Discord" />
+                </div>
+              </div>
+
+              <div>
+                <div class="personal-label">История повышений</div>
+                <div class="personal-note">
+                  Указывайте дату повышения и прикрепляйте скриншот (скрин — необязателен, но рекомендован).
+                </div>
+                <div id="promo-list" class="promo-list"></div>
+                <button type="button" id="add-promo-btn" class="promo-add-btn">
+                  + Добавить запись о повышении
+                </button>
+              </div>
+
+              <button type="button" id="save-personal-btn" class="personal-save-btn">
+                💾 Сохранить личное дело
+              </button>
+              <div class="personal-note" id="personal-save-note"></div>
+            </div>
+          </div>
+
+          <div class="panel-footer">
+            <span>Версия панели: 0.2 (личные дела, биндер, обучение).</span>
+            <span>Биндер: положи файл <code>binder.zip</code> рядом с сайтом для рабочей кнопки.</span>
+          </div>
+        </div>
+
+        <button id="rookie-info-btn">
+          ℹ Вся информация для рядовых
+          <span class="note">(нажми, если ты только вступил в PD — обязательно)</span>
+        </button>
+      </main>
+    </div>
   </div>
 
   <script>
     const DAY_MS = 24 * 60 * 60 * 1000;
     const STORAGE_KEY = "pp_user";
-
-    const registerScreen = document.getElementById("register-screen");
-    const loginScreen = document.getElementById("login-screen");
-    const personalFileBtn = document.getElementById("personal-file-btn");
-
-    function showScreen(id) {
-      [registerScreen, loginScreen].forEach(el => el.classList.remove("active"));
-      if (id === "register") registerScreen.classList.add("active");
-      if (id === "login") loginScreen.classList.add("active");
-    }
 
     function loadUser() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -465,7 +1283,7 @@
       localStorage.removeItem(STORAGE_KEY);
     }
 
-    // нормализация ника: Имя_Фамилия, только буквы
+    // Нормализация ника: Имя_Фамилия, только буквы
     function normalizeNick(raw) {
       if (!raw) return null;
       let s = raw.trim();
@@ -491,7 +1309,13 @@
       return result;
     }
 
-    // элементы регистрации
+    // ---------- ЭЛЕМЕНТЫ AUTH ----------
+    const authRoot = document.getElementById("auth-root");
+    const panelRoot = document.getElementById("panel-root");
+
+    const registerScreen = document.getElementById("register-screen");
+    const loginScreen = document.getElementById("login-screen");
+
     const regForm = document.getElementById("register-form");
     const regNick = document.getElementById("reg-nick");
     const regPass = document.getElementById("reg-password");
@@ -503,9 +1327,55 @@
     const regAvatarPreview = document.getElementById("reg-avatar-preview");
     const deptContainer = document.getElementById("reg-departments");
 
+    const loginForm = document.getElementById("login-form");
+    const loginNick = document.getElementById("login-nick");
+    const loginNickError = document.getElementById("login-nick-error");
+    const loginPass = document.getElementById("login-password");
+    const loginPassError = document.getElementById("login-password-error");
+
+    const toLoginLink = document.getElementById("to-login-link");
+    const loginReset = document.getElementById("login-reset");
+
+    const regPassToggle = document.getElementById("reg-password-toggle");
+    const loginPassToggle = document.getElementById("login-password-toggle");
+
+    const personalFileAuthBtn = document.getElementById("personal-file-auth-btn");
+
     let selectedDept = null;
     let avatarDataUrl = null;
+    let currentUser = loadUser();
 
+    function showAuthScreen(which) {
+      registerScreen.classList.remove("active");
+      loginScreen.classList.remove("active");
+      if (which === "register") {
+        registerScreen.classList.add("active");
+      } else {
+        loginScreen.classList.add("active");
+      }
+    }
+
+    function showAuthRoot() {
+      authRoot.style.display = "block";
+      panelRoot.classList.remove("active");
+      panelRoot.style.display = "none";
+    }
+
+    function showPanelRoot() {
+      authRoot.style.display = "none";
+      panelRoot.style.display = "block";
+      panelRoot.classList.add("active");
+    }
+
+    function updatePersonalFileAuthBtn() {
+      if (currentUser && !currentUser.personalFile) {
+        personalFileAuthBtn.classList.remove("hidden");
+      } else {
+        personalFileAuthBtn.classList.add("hidden");
+      }
+    }
+
+    // департаменты при регистрации
     deptContainer.addEventListener("click", (e) => {
       const option = e.target.closest(".dept-option");
       if (!option) return;
@@ -517,14 +1387,10 @@
       regDeptError.textContent = "";
     });
 
-    // подсмотр пароля (регистрация)
-    const regPassToggle = document.getElementById("reg-password-toggle");
+    // подсмотр пароля
     regPassToggle.addEventListener("mouseenter", () => { regPass.type = "text"; });
     regPassToggle.addEventListener("mouseleave", () => { regPass.type = "password"; });
 
-    // подсмотр пароля (логин)
-    const loginPass = document.getElementById("login-password");
-    const loginPassToggle = document.getElementById("login-password-toggle");
     loginPassToggle.addEventListener("mouseenter", () => { loginPass.type = "text"; });
     loginPassToggle.addEventListener("mouseleave", () => { loginPass.type = "password"; });
 
@@ -571,27 +1437,42 @@
       reader.readAsDataURL(file);
     });
 
-    function updatePersonalFileButton(user) {
-      if (user && user.hasPersonalFile === true) {
-        personalFileBtn.classList.add("hidden");
-      } else if (user) {
-        personalFileBtn.classList.remove("hidden");
-      } else {
-        personalFileBtn.classList.add("hidden");
-      }
-    }
-
-    personalFileBtn.addEventListener("click", () => {
-      const user = loadUser();
-      if (!user) return;
-      user.hasPersonalFile = true;
-      saveUser(user);
-      personalFileBtn.textContent = "📂 Личное дело создано (заглушка)";
-      setTimeout(() => {
-        personalFileBtn.classList.add("hidden");
-      }, 1200);
+    // переходы рег/логин
+    toLoginLink.addEventListener("click", () => {
+      showAuthScreen("login");
     });
 
+    loginReset.addEventListener("click", () => {
+      clearUser();
+      currentUser = null;
+      selectedDept = null;
+      avatarDataUrl = null;
+      regForm.reset();
+      regAvatarPreview.innerHTML = "Аватар ещё не выбран";
+      Array.from(deptContainer.querySelectorAll(".dept-option")).forEach(el =>
+        el.classList.remove("active")
+      );
+      showAuthScreen("register");
+      updatePersonalFileAuthBtn();
+      regNick.focus();
+    });
+
+    // Создать личное дело с auth-экрана
+    personalFileAuthBtn.addEventListener("click", () => {
+      const now = Date.now();
+      if (!currentUser) return;
+      if (!currentUser.lastLoginAt || now - currentUser.lastLoginAt >= DAY_MS) {
+        alert("Сначала войди по нику и паролю, потом можно создать личное дело.");
+        showAuthScreen("login");
+        loginNick.value = currentUser.nick || "";
+        loginNick.focus();
+        return;
+      }
+      // уже авторизован в течение суток — сразу в панель и на личное дело
+      goToPanel("personal");
+    });
+
+    // регистрация
     regForm.addEventListener("submit", (e) => {
       e.preventDefault();
       regNickError.textContent = "";
@@ -625,33 +1506,23 @@
       if (!valid) return;
 
       regNick.value = normalizedNick;
-
       const now = Date.now();
-      const user = {
+      currentUser = {
         nick: normalizedNick,
         password: password,
         department: selectedDept,
         avatar: avatarDataUrl || null,
         registeredAt: now,
         lastLoginAt: now,
-        hasPersonalFile: false,
+        personalFile: null,
         justRegistered: true
       };
-
-      saveUser(user);
-      updatePersonalFileButton(user);
-
-      // сразу уходим на панель
-      window.location.href = "panel.html";
+      saveUser(currentUser);
+      updatePersonalFileAuthBtn();
+      goToPanel("home");
     });
 
     // логин
-    const loginForm = document.getElementById("login-form");
-    const loginNick = document.getElementById("login-nick");
-    const loginNickError = document.getElementById("login-nick-error");
-    const loginPassError = document.getElementById("login-password-error");
-    const loginReset = document.getElementById("login-reset");
-
     loginForm.addEventListener("submit", (e) => {
       e.preventDefault();
       loginNickError.textContent = "";
@@ -687,50 +1558,378 @@
 
       stored.lastLoginAt = Date.now();
       stored.justRegistered = false;
-      saveUser(stored);
-      updatePersonalFileButton(stored);
-
-      window.location.href = "panel.html";
+      currentUser = stored;
+      saveUser(currentUser);
+      updatePersonalFileAuthBtn();
+      goToPanel("home");
     });
 
-    loginReset.addEventListener("click", () => {
-      clearUser();
-      selectedDept = null;
-      avatarDataUrl = null;
-      regForm.reset();
-      regAvatarPreview.innerHTML = "Аватар ещё не выбран";
-      Array.from(deptContainer.querySelectorAll(".dept-option")).forEach(el =>
-        el.classList.remove("active")
-      );
-      showScreen("register");
-      updatePersonalFileButton(null);
-      regNick.focus();
+    // ---------- ПАНЕЛЬ: элементы ----------
+
+    const topNick = document.getElementById("top-nick");
+    const topDept = document.getElementById("top-dept");
+    const topAvatar = document.getElementById("top-avatar");
+
+    const downloadBinderBtn = document.getElementById("download-binder-btn");
+    const personalFileBtn = document.getElementById("personal-file-btn");
+    const personalFileBtnText = document.getElementById("personal-file-btn-text");
+    const sidebarLogout = document.getElementById("sidebar-logout");
+
+    const sectionHome = document.getElementById("section-home");
+    const sectionPersonal = document.getElementById("section-personal");
+
+    const onboardingModal = document.getElementById("onboarding-modal");
+    const onboardingClose = document.getElementById("onboarding-close");
+    const onboardingCloseSoft = document.getElementById("onboarding-close-soft");
+    const stepOpenBinder = document.getElementById("step-open-binder");
+
+    const rookieBtn = document.getElementById("rookie-info-btn");
+    const rookieModal = document.getElementById("rookie-modal");
+    const rookieClose = document.getElementById("rookie-close");
+
+    // личное дело элементы
+    const pfDept = document.getElementById("pf-dept");
+    const pfNick = document.getElementById("pf-nick");
+    const pfAccount = document.getElementById("pf-account");
+    const pfBirth = document.getElementById("pf-birth");
+    const pfBadgeLink = document.getElementById("pf-badge-link");
+    const pfRank = document.getElementById("pf-rank");
+    const pfPhone = document.getElementById("pf-phone");
+    const pfContact = document.getElementById("pf-contact");
+    const pfHeaderPreview = document.getElementById("personal-header-preview");
+    const promoList = document.getElementById("promo-list");
+    const addPromoBtn = document.getElementById("add-promo-btn");
+    const savePersonalBtn = document.getElementById("save-personal-btn");
+    const personalSaveNote = document.getElementById("personal-save-note");
+
+    function setActiveSection(section) {
+      sectionHome.classList.remove("active");
+      sectionPersonal.classList.remove("active");
+      sectionHome.parentElement.parentElement.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+
+      if (section === "personal") {
+        sectionPersonal.classList.add("active");
+      } else {
+        sectionHome.classList.add("active");
+      }
+    }
+
+    function updateTopBar() {
+      if (!currentUser) return;
+      topNick.textContent = currentUser.nick || "Офицер";
+      topDept.textContent = "Департамент: " + (currentUser.department || "—");
+      topAvatar.innerHTML = "";
+      if (currentUser.avatar) {
+        const img = document.createElement("img");
+        img.src = currentUser.avatar;
+        topAvatar.appendChild(img);
+      } else {
+        topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
+      }
+    }
+
+    function updatePersonalFileNavButton() {
+      if (currentUser && currentUser.personalFile) {
+        personalFileBtnText.textContent = "Личное дело";
+        personalFileBtn.classList.remove("primary");
+      } else {
+        personalFileBtnText.textContent = "Создать личное дело";
+        personalFileBtn.classList.add("primary");
+      }
+    }
+
+    function fillPersonalFileForm() {
+      personalSaveNote.textContent = "";
+      promoList.innerHTML = "";
+      if (!currentUser || !currentUser.personalFile) {
+        // попытка подставить из данных игрока
+        if (currentUser) {
+          pfDept.value = "";
+          pfNick.value = currentUser.nick || "";
+          pfAccount.value = "";
+        } else {
+          pfDept.value = "";
+          pfNick.value = "";
+          pfAccount.value = "";
+        }
+        pfBirth.value = "";
+        pfBadgeLink.value = "";
+        pfRank.value = "";
+        pfPhone.value = "";
+        pfContact.value = "";
+        updateHeaderPreview();
+        // хотя бы одна строка повышений пустая
+        addPromotionRow();
+        return;
+      }
+      const pf = currentUser.personalFile;
+      pfDept.value = pf.dept || "";
+      pfNick.value = pf.nick || "";
+      pfAccount.value = pf.account || "";
+      pfBirth.value = pf.birth || "";
+      pfBadgeLink.value = pf.badgeLink || "";
+      pfRank.value = pf.rank || "";
+      pfPhone.value = pf.phone || "";
+      pfContact.value = pf.contact || "";
+      updateHeaderPreview();
+      promoList.innerHTML = "";
+      if (pf.promotions && pf.promotions.length) {
+        pf.promotions.forEach(p => addPromotionRow(p));
+      } else {
+        addPromotionRow();
+      }
+    }
+
+    function updateHeaderPreview() {
+      const dept = pfDept.value || "Отдел";
+      const nickRaw = pfNick.value;
+      const normalized = normalizeNick(nickRaw) || nickRaw || "Имя_Фамилия";
+      const acc = pfAccount.value || "Номер аккаунта";
+      pfHeaderPreview.textContent = `[${dept}] ${normalized} [${acc}]`;
+    }
+
+    pfDept.addEventListener("change", updateHeaderPreview);
+    pfNick.addEventListener("input", updateHeaderPreview);
+    pfAccount.addEventListener("input", (e) => {
+      // только цифры
+      e.target.value = e.target.value.replace(/\D+/g, "");
+      updateHeaderPreview();
     });
 
-    // стартовая логика
+    function addPromotionRow(data) {
+      const row = document.createElement("div");
+      row.className = "promo-row";
+
+      const dateInput = document.createElement("input");
+      dateInput.type = "date";
+      dateInput.value = data && data.date ? data.date : "";
+
+      const rankSelect = document.createElement("select");
+      const ranks = [
+        "[1] Рядовой",
+        "[2] Сержант",
+        "[3] Ст. сержант",
+        "[4] Лейтенант",
+        "[5] Ст. лейтенант",
+        "[6] Капитан",
+        "[7] Майор",
+        "[8] Подполковник",
+        "[9] Полковник",
+        "[10] Генерал"
+      ];
+      const emptyOpt = document.createElement("option");
+      emptyOpt.value = "";
+      emptyOpt.textContent = "Выберите ранг…";
+      rankSelect.appendChild(emptyOpt);
+      ranks.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = r;
+        rankSelect.appendChild(opt);
+      });
+      rankSelect.value = data && data.rank ? data.rank : "";
+
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+
+      // если есть сохранённый скрин, можем просто отметить, что он есть
+      if (data && data.hasScreenshot) {
+        const label = document.createElement("span");
+        label.style.fontSize = "11px";
+        label.style.color = "#9ca3af";
+        label.textContent = "Скрин загружен (локально)";
+        const wrap = document.createElement("div");
+        wrap.style.display = "flex";
+        wrap.style.flexDirection = "column";
+        wrap.appendChild(fileInput);
+        wrap.appendChild(label);
+        row.appendChild(dateInput);
+        row.appendChild(rankSelect);
+        row.appendChild(wrap);
+      } else {
+        row.appendChild(dateInput);
+        row.appendChild(rankSelect);
+        row.appendChild(fileInput);
+      }
+
+      promoList.appendChild(row);
+    }
+
+    addPromoBtn.addEventListener("click", () => addPromotionRow());
+
+    savePersonalBtn.addEventListener("click", async () => {
+      personalSaveNote.style.color = "#9ca3af";
+      personalSaveNote.textContent = "";
+
+      if (!currentUser) return;
+
+      const dept = pfDept.value.trim();
+      const nickNormalized = normalizeNick(pfNick.value);
+      const account = pfAccount.value.trim();
+
+      if (!dept || !nickNormalized || !account) {
+        personalSaveNote.style.color = "#f97373";
+        personalSaveNote.textContent =
+          "Заполните минимум: Отдел, Имя_Фамилия в правильном формате и номер аккаунта (цифры).";
+        return;
+      }
+
+      // собираем повышений
+      const promotions = [];
+      const rows = promoList.querySelectorAll(".promo-row");
+      for (const row of rows) {
+        const inputs = row.querySelectorAll("input, select");
+        const dateInput = inputs[0];
+        const rankSelect = inputs[1];
+        const fileInput = inputs[2];
+
+        const date = dateInput.value;
+        const rank = rankSelect.value;
+        if (!date && !rank && (!fileInput || !fileInput.files.length)) continue;
+
+        let hasScreenshot = false;
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          // для простоты: не храним сам скрин, только флаг
+          hasScreenshot = true;
+        }
+        promotions.push({ date, rank, hasScreenshot });
+      }
+
+      currentUser.personalFile = {
+        dept,
+        nick: nickNormalized,
+        account,
+        birth: pfBirth.value.trim(),
+        badgeLink: pfBadgeLink.value.trim(),
+        rank: pfRank.value.trim(),
+        phone: pfPhone.value.trim(),
+        contact: pfContact.value.trim(),
+        promotions
+      };
+
+      // синхронизируем ник игрока, если изменился
+      currentUser.nick = nickNormalized;
+
+      saveUser(currentUser);
+      updateTopBar();
+      updatePersonalFileNavButton();
+      updatePersonalFileAuthBtn();
+
+      personalSaveNote.style.color = "#22c55e";
+      personalSaveNote.textContent = "Личное дело сохранено. Можно переносить данные на форум.";
+      setTimeout(() => {
+        personalSaveNote.textContent = "";
+      }, 3000);
+    });
+
+    // кнопки навигации
+    downloadBinderBtn.addEventListener("click", () => {
+      const a = document.createElement("a");
+      a.href = "binder.zip"; // положи binder.zip рядом с index.html
+      a.download = "binder.zip";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+
+    personalFileBtn.addEventListener("click", () => {
+      setActiveSection("personal");
+      personalFileBtn.classList.add("active-tab");
+      downloadBinderBtn.classList.remove("active-tab");
+      fillPersonalFileForm();
+    });
+
+    // из модалки обучения к биндеру
+    stepOpenBinder.addEventListener("click", () => {
+      onboardingModal.classList.remove("active");
+      setActiveSection("home");
+      downloadBinderBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+      downloadBinderBtn.focus();
+    });
+
+    onboardingClose.addEventListener("click", () => {
+      onboardingModal.classList.remove("active");
+      if (currentUser) {
+        currentUser.justRegistered = false;
+        saveUser(currentUser);
+      }
+    });
+
+    onboardingCloseSoft.addEventListener("click", () => {
+      onboardingModal.classList.remove("active");
+    });
+
+    // инфа для рядовых
+    rookieBtn.addEventListener("click", () => {
+      rookieModal.classList.add("active");
+    });
+    rookieClose.addEventListener("click", () => {
+      rookieModal.classList.remove("active");
+    });
+
+    // выход из панели
+    sidebarLogout.addEventListener("click", () => {
+      showAuthRoot();
+      showAuthScreen("login");
+      if (currentUser) {
+        loginNick.value = currentUser.nick || "";
+      }
+      loginNick.focus();
+    });
+
+    // переход в панель
+    function goToPanel(initialSection) {
+      showPanelRoot();
+      updateTopBar();
+      updatePersonalFileNavButton();
+
+      // секция по умолчанию
+      downloadBinderBtn.classList.remove("active-tab");
+      personalFileBtn.classList.remove("active-tab");
+
+      if (initialSection === "personal") {
+        setActiveSection("personal");
+        personalFileBtn.classList.add("active-tab");
+        fillPersonalFileForm();
+      } else {
+        setActiveSection("home");
+        downloadBinderBtn.classList.add("active-tab");
+      }
+
+      // модалка обучения для только что зарегистрированных
+      if (currentUser && currentUser.justRegistered) {
+        onboardingModal.classList.add("active");
+      } else {
+        onboardingModal.classList.remove("active");
+      }
+    }
+
+    // ---------- INIT ----------
     (function init() {
-      const user = loadUser();
+      updatePersonalFileAuthBtn();
+      const user = currentUser;
       const now = Date.now();
 
       if (!user) {
-        showScreen("register");
-        updatePersonalFileButton(null);
+        showAuthRoot();
+        showAuthScreen("register");
         regNick.focus();
         return;
       }
 
-      // если заходил меньше суток назад — сразу на панель
+      // если заходил меньше суток назад — сразу в панель
       if (user.lastLoginAt && now - user.lastLoginAt < DAY_MS) {
-        window.location.href = "panel.html";
+        showPanelRoot();
+        goToPanel("home");
         return;
       }
 
-      // больше суток не был — требуем вход
-      showScreen("login");
-      loginNick.value = user.nick;
+      // больше суток не был — логин
+      showAuthRoot();
+      showAuthScreen("login");
+      loginNick.value = user.nick || "";
       loginNick.focus();
-      // показываем кнопку личного дела, если надо
-      updatePersonalFileButton(user);
     })();
   </script>
 </body>
