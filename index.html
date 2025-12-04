@@ -27,10 +27,10 @@
 
     .app {
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       background: radial-gradient(circle at top, rgba(148,163,184,0.15), transparent 65%),
                   rgba(15,23,42,0.97);
-      border-radius: 18px;
+      border-radius: 20px;
       border: 1px solid rgba(30,64,175,0.7);
       box-shadow: 0 18px 40px rgba(0,0,0,0.9);
       padding: 22px 22px 20px;
@@ -88,16 +88,19 @@
       box-shadow: 0 0 6px rgba(34,197,94,0.9);
     }
 
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
     form {
       display: flex;
       flex-direction: column;
       gap: 12px;
       margin-top: 6px;
-    }
-
-    label {
-      font-size: 13px;
-      margin-bottom: 2px;
     }
 
     .field {
@@ -106,7 +109,13 @@
       gap: 4px;
     }
 
-    input, select {
+    label {
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
       padding: 8px 10px;
       border-radius: 10px;
@@ -118,7 +127,7 @@
       transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
 
-    input:focus, select:focus {
+    input:focus {
       border-color: #38bdf8;
       box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
       background: rgba(15,23,42,0.98);
@@ -169,11 +178,108 @@
       color: #6b7280;
     }
 
-    /* главный экран */
-
-    #menu-screen {
-      display: none;
+    /* пароль с кнопкой "подсмотреть" */
+    .password-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
+
+    .password-row input {
+      flex: 1;
+    }
+
+    .password-toggle {
+      width: 40px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: radial-gradient(circle at 30% 0, rgba(148,163,184,0.35), transparent 70%),
+                  rgba(15,23,42,0.95);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: #e5e7eb;
+      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    .password-toggle:hover {
+      transform: translateY(-1px);
+      background: radial-gradient(circle at 30% 0, rgba(56,189,248,0.65), transparent 70%),
+                  rgba(15,23,42,0.98);
+      box-shadow: 0 10px 22px rgba(15,23,42,0.95);
+    }
+
+    /* департаменты как кнопки */
+    .departments {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .dept-option {
+      flex: 1;
+      min-width: 0;
+      padding: 7px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.95);
+      font-size: 13px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.12s ease, border-color 0.12s ease;
+      user-select: none;
+    }
+
+    .dept-option span {
+      display: block;
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    .dept-option:hover {
+      transform: translateY(-1px);
+      background: rgba(30,64,175,0.9);
+      box-shadow: 0 8px 16px rgba(15,23,42,0.8);
+    }
+
+    .dept-option.active {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.5);
+      background: rgba(15,23,42,1);
+    }
+
+    /* аватар */
+    input[type="file"] {
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .avatar-preview {
+      margin-top: 8px;
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* главное меню / логин */
 
     .welcome {
       margin-top: 12px;
@@ -182,6 +288,30 @@
       border: 1px solid rgba(22,163,74,0.8);
       background: rgba(22,163,74,0.15);
       font-size: 13px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .welcome-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: rgba(15,23,42,0.9);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    .welcome-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .menu-actions {
@@ -220,45 +350,82 @@
     .logout span {
       text-decoration: underline;
     }
+
+    .link {
+      font-size: 12px;
+      color: #93c5fd;
+      cursor: pointer;
+      margin-top: 8px;
+      text-align: right;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="badge">PP</div>
 
-    <!-- экран регистрации -->
-    <section id="auth-screen">
+    <!-- регистрация -->
+    <section id="register-screen" class="screen">
       <h1>Police Platinum</h1>
       <p class="subtitle">Регистрация офицера для доступа к панели.</p>
 
       <div class="pill">
         <span class="pill-dot"></span>
-        Ник строго в формате: <strong>Nick_Name</strong>
+        Ник строго в формате: <strong>Имя_Фамилия</strong> (без цифр)
       </div>
 
       <form id="register-form" novalidate>
         <div class="field">
-          <label for="nick">Ник_Нейм</label>
-          <input id="nick" name="nick" type="text" placeholder="Marsello_Nelson" autocomplete="off"/>
-          <div class="hint">Две части через нижнее подчёркивание. Пример: <code>John_Smith</code></div>
-          <div class="error" id="nick-error"></div>
+          <label for="reg-nick">Ник</label>
+          <input id="reg-nick" type="text" placeholder="Marsello_Nelson" autocomplete="off" />
+          <div class="hint">
+            Разрешены только буквы (рус/англ) и подчёркивание. Будет приведён к виду <code>Имя_Фамилия</code>.
+          </div>
+          <div class="error" id="reg-nick-error"></div>
         </div>
 
         <div class="field">
-          <label for="password">Пароль</label>
-          <input id="password" name="password" type="password" placeholder="минимум 6 символов"/>
-          <div class="error" id="password-error"></div>
+          <label for="reg-password">Пароль</label>
+          <div class="password-row">
+            <input id="reg-password" type="password" placeholder="минимум 6 символов" />
+            <button type="button" class="password-toggle" id="reg-password-toggle" title="Показать пароль">👁</button>
+          </div>
+          <div class="error" id="reg-password-error"></div>
         </div>
 
         <div class="field">
-          <label for="department">Департамент</label>
-          <select id="department" name="department">
-            <option value="">Выберите департамент…</option>
-            <option value="LSPD">LSPD — Los Santos Police Department</option>
-            <option value="SFPD">SFPD — San Fierro Police Department</option>
-            <option value="LVPD">LVPD — Las Venturas Police Department</option>
-          </select>
-          <div class="error" id="department-error"></div>
+          <label>Департамент</label>
+          <div class="departments" id="reg-departments">
+            <div class="dept-option" data-value="LSPD">
+              LSPD
+              <span>Los Santos PD</span>
+            </div>
+            <div class="dept-option" data-value="SFPD">
+              SFPD
+              <span>San Fierro PD</span>
+            </div>
+            <div class="dept-option" data-value="LVPD">
+              LVPD
+              <span>Las Venturas PD</span>
+            </div>
+          </div>
+          <div class="error" id="reg-department-error"></div>
+        </div>
+
+        <div class="field">
+          <label for="reg-avatar">Аватарка</label>
+          <input id="reg-avatar" type="file" accept="image/*" />
+          <div class="hint">
+            Картинка будет обрезана до 500×500 и сохранена локально. Если не выберешь — будет заглушка.
+          </div>
+          <div class="error" id="reg-avatar-error"></div>
+          <div class="avatar-preview" id="reg-avatar-preview">
+            Аватар еще не выбран
+          </div>
         </div>
 
         <button type="submit" class="btn">
@@ -266,113 +433,378 @@
         </button>
 
         <p class="small-note">
-          Данные никуда не отправляются — всё работает только в браузере для теста интерфейса.
+          Все данные хранятся только в этом браузере (localStorage), на сервер ничего не уходит.
         </p>
       </form>
     </section>
 
-    <!-- экран главного меню -->
-    <section id="menu-screen">
+    <!-- логин -->
+    <section id="login-screen" class="screen">
+      <h1>Police Platinum</h1>
+      <p class="subtitle">Вход в панель офицера.</p>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="login-nick">Ник</label>
+          <input id="login-nick" type="text" placeholder="Имя_Фамилия" autocomplete="off" />
+          <div class="error" id="login-nick-error"></div>
+        </div>
+
+        <div class="field">
+          <label for="login-password">Пароль</label>
+          <div class="password-row">
+            <input id="login-password" type="password" placeholder="Ваш пароль" />
+            <button type="button" class="password-toggle" id="login-password-toggle" title="Показать пароль">👁</button>
+          </div>
+          <div class="error" id="login-password-error"></div>
+        </div>
+
+        <button type="submit" class="btn">
+          Войти
+        </button>
+
+        <div class="link" id="login-reset">
+          Очистить регистрацию и создать новый аккаунт
+        </div>
+      </form>
+    </section>
+
+    <!-- главное меню -->
+    <section id="menu-screen" class="screen">
       <h1>Главное меню</h1>
       <p class="subtitle">Доступ к панели Police Platinum.</p>
 
       <div class="welcome">
-        Добро пожаловать, <strong id="menu-nick"></strong>.<br/>
-        Ваш департамент: <strong id="menu-department"></strong>.
+        <div class="welcome-avatar" id="menu-avatar">
+          PP
+        </div>
+        <div>
+          Добро пожаловать, <strong id="menu-nick"></strong>.<br />
+          Департамент: <strong id="menu-department"></strong>.
+        </div>
       </div>
 
       <div class="menu-actions">
-        <button class="menu-btn">👤 Открыть профиль офицера</button>
-        <button class="menu-btn">📋 Задачи на смену</button>
+        <button class="menu-btn">👤 Открыть профиль офицера (заглушка)</button>
+        <button class="menu-btn">📋 Задачи на смену (заглушка)</button>
         <button class="menu-btn">📊 Панель статистики (заглушка)</button>
       </div>
 
       <div class="logout" id="logout">
-        Не вы? <span>Выйти и зарегистрироваться заново</span>
+        Не вы? <span>Выйти и войти под другим ником</span>
       </div>
     </section>
   </div>
 
   <script>
-    const form = document.getElementById("register-form");
-    const nickInput = document.getElementById("nick");
-    const passwordInput = document.getElementById("password");
-    const departmentSelect = document.getElementById("department");
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const STORAGE_KEY = "pp_user";
 
-    const nickError = document.getElementById("nick-error");
-    const passwordError = document.getElementById("password-error");
-    const departmentError = document.getElementById("department-error");
-
-    const authScreen = document.getElementById("auth-screen");
+    // экраны
+    const registerScreen = document.getElementById("register-screen");
+    const loginScreen = document.getElementById("login-screen");
     const menuScreen = document.getElementById("menu-screen");
+
+    function showScreen(id) {
+      [registerScreen, loginScreen, menuScreen].forEach(el => el.classList.remove("active"));
+      if (id === "register") registerScreen.classList.add("active");
+      if (id === "login") loginScreen.classList.add("active");
+      if (id === "menu") menuScreen.classList.add("active");
+    }
+
+    function loadUser() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function saveUser(user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    }
+
+    function clearUser() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // НОРМАЛИЗАЦИЯ НИКА: Имя_Фамилия (только буквы, без цифр)
+    function normalizeNick(raw) {
+      if (!raw) return null;
+      let s = raw.trim();
+      // оставляем только буквы и _
+      s = s.replace(/[^A-Za-zА-Яа-яЁё_]+/g, "");
+      // схлопываем несколько _
+      s = s.replace(/_+/g, "_");
+      const parts = s.split("_").filter(Boolean);
+      if (parts.length < 2) return null;
+      const first = parts[0];
+      const last = parts[1];
+
+      function capitalize(word) {
+        if (!word) return "";
+        const lower = word.toLowerCase();
+        return lower[0].toUpperCase() + lower.slice(1);
+      }
+
+      const name = capitalize(first);
+      const surname = capitalize(last);
+      const result = name + "_" + surname;
+
+      const finalPattern = /^[A-Za-zА-Яа-яЁё]+_[A-Za-zА-Яа-яЁё]+$/;
+      if (!finalPattern.test(result)) return null;
+      return result;
+    }
+
+    // --------- Регистрация ---------
+    const regForm = document.getElementById("register-form");
+    const regNick = document.getElementById("reg-nick");
+    const regPass = document.getElementById("reg-password");
+    const regNickError = document.getElementById("reg-nick-error");
+    const regPassError = document.getElementById("reg-password-error");
+    const regDeptError = document.getElementById("reg-department-error");
+    const regAvatarInput = document.getElementById("reg-avatar");
+    const regAvatarError = document.getElementById("reg-avatar-error");
+    const regAvatarPreview = document.getElementById("reg-avatar-preview");
+    const deptContainer = document.getElementById("reg-departments");
+
+    let selectedDept = null;
+    let avatarDataUrl = null;
+
+    deptContainer.addEventListener("click", (e) => {
+      const option = e.target.closest(".dept-option");
+      if (!option) return;
+      const value = option.getAttribute("data-value");
+      selectedDept = value;
+      Array.from(deptContainer.querySelectorAll(".dept-option")).forEach(el => {
+        el.classList.toggle("active", el === option);
+      });
+      regDeptError.textContent = "";
+    });
+
+    // подсмотр пароля (регистрация)
+    const regPassToggle = document.getElementById("reg-password-toggle");
+    regPassToggle.addEventListener("mouseenter", () => {
+      regPass.type = "text";
+    });
+    regPassToggle.addEventListener("mouseleave", () => {
+      regPass.type = "password";
+    });
+
+    // подсмотр пароля (логин)
+    const loginPass = document.getElementById("login-password");
+    const loginPassToggle = document.getElementById("login-password-toggle");
+    loginPassToggle.addEventListener("mouseenter", () => {
+      loginPass.type = "text";
+    });
+    loginPassToggle.addEventListener("mouseleave", () => {
+      loginPass.type = "password";
+    });
+
+    // загрузка аватара и обрезка до 500x500
+    regAvatarInput.addEventListener("change", () => {
+      regAvatarError.textContent = "";
+      const file = regAvatarInput.files[0];
+      if (!file) {
+        avatarDataUrl = null;
+        regAvatarPreview.textContent = "Аватар еще не выбран";
+        regAvatarPreview.innerHTML = "Аватар еще не выбран";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          const size = 500;
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+
+          const scale = Math.max(size / img.width, size / img.height);
+          const x = (size - img.width * scale) / 2;
+          const y = (size - img.height * scale) / 2;
+
+          ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+          avatarDataUrl = canvas.toDataURL("image/png");
+
+          regAvatarPreview.innerHTML = "";
+          const previewImg = document.createElement("img");
+          previewImg.src = avatarDataUrl;
+          regAvatarPreview.appendChild(previewImg);
+        };
+        img.onerror = function () {
+          regAvatarError.textContent = "Не удалось загрузить изображение.";
+        };
+        img.src = e.target.result;
+      };
+      reader.onerror = function () {
+        regAvatarError.textContent = "Ошибка чтения файла.";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    regForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      regNickError.textContent = "";
+      regPassError.textContent = "";
+      regDeptError.textContent = "";
+      regAvatarError.textContent = "";
+
+      let valid = true;
+
+      const normalizedNick = normalizeNick(regNick.value);
+      if (!normalizedNick) {
+        regNickError.textContent =
+          "Ник должен быть в формате Имя_Фамилия, только буквы, без цифр.";
+        valid = false;
+      }
+
+      const password = regPass.value;
+      if (!password) {
+        regPassError.textContent = "Введите пароль.";
+        valid = false;
+      } else if (password.length < 6) {
+        regPassError.textContent = "Пароль должен быть не короче 6 символов.";
+        valid = false;
+      }
+
+      if (!selectedDept) {
+        regDeptError.textContent = "Выберите департамент.";
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      // подправляем ник в поле до красивого вида
+      regNick.value = normalizedNick;
+
+      const now = Date.now();
+      const user = {
+        nick: normalizedNick,
+        password: password,
+        department: selectedDept,
+        avatar: avatarDataUrl || null,
+        registeredAt: now,
+        lastLoginAt: now,
+      };
+
+      saveUser(user);
+      fillMenu(user);
+      showScreen("menu");
+    });
+
+    // --------- Логин ---------
+    const loginForm = document.getElementById("login-form");
+    const loginNick = document.getElementById("login-nick");
+    const loginNickError = document.getElementById("login-nick-error");
+    const loginPassError = document.getElementById("login-password-error");
+    const loginReset = document.getElementById("login-reset");
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      loginNickError.textContent = "";
+      loginPassError.textContent = "";
+
+      const stored = loadUser();
+      if (!stored) {
+        loginNickError.textContent = "Пользователь не найден. Зарегистрируйтесь сначала.";
+        return;
+      }
+
+      const normalizedNick = normalizeNick(loginNick.value);
+      if (!normalizedNick) {
+        loginNickError.textContent =
+          "Ник должен быть в формате Имя_Фамилия, только буквы.";
+        return;
+      }
+
+      if (normalizedNick !== stored.nick) {
+        loginNickError.textContent = "Такой ник не зарегистрирован.";
+        return;
+      }
+
+      if (!loginPass.value) {
+        loginPassError.textContent = "Введите пароль.";
+        return;
+      }
+
+      if (loginPass.value !== stored.password) {
+        loginPassError.textContent = "Неверный пароль.";
+        return;
+      }
+
+      stored.lastLoginAt = Date.now();
+      saveUser(stored);
+      fillMenu(stored);
+      showScreen("menu");
+    });
+
+    loginReset.addEventListener("click", () => {
+      clearUser();
+      selectedDept = null;
+      avatarDataUrl = null;
+      regForm.reset();
+      regAvatarPreview.innerHTML = "Аватар еще не выбран";
+      Array.from(deptContainer.querySelectorAll(".dept-option")).forEach(el =>
+        el.classList.remove("active")
+      );
+      showScreen("register");
+      regNick.focus();
+    });
+
+    // --------- Меню ---------
     const menuNick = document.getElementById("menu-nick");
-    const menuDepartment = document.getElementById("menu-department");
+    const menuDept = document.getElementById("menu-department");
+    const menuAvatar = document.getElementById("menu-avatar");
     const logout = document.getElementById("logout");
 
-    // Регулярка: Первая часть + вторая часть, буквы/цифры, между ними "_"
-    // Разрешаю латиницу и кириллицу
-    const nickPattern = /^[A-ZА-Я][A-Za-zА-Яа-я0-9]+_[A-ZА-Я][A-Za-zА-Яа-я0-9]+$/;
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      let isValid = true;
-
-      // сброс ошибок
-      nickError.textContent = "";
-      passwordError.textContent = "";
-      departmentError.textContent = "";
-
-      const nick = nickInput.value.trim();
-      const password = passwordInput.value;
-      const department = departmentSelect.value;
-
-      // проверка ника
-      if (!nick) {
-        nickError.textContent = "Введите ник.";
-        isValid = false;
-      } else if (!nickPattern.test(nick)) {
-        nickError.textContent =
-          "Ник должен быть в формате Nick_Name, с заглавной буквы в каждой части.";
-        isValid = false;
+    function fillMenu(user) {
+      menuNick.textContent = user.nick;
+      menuDept.textContent = user.department;
+      menuAvatar.innerHTML = "";
+      if (user.avatar) {
+        const img = document.createElement("img");
+        img.src = user.avatar;
+        menuAvatar.appendChild(img);
+      } else {
+        menuAvatar.textContent = user.nick[0] || "P";
       }
-
-      // проверка пароля
-      if (!password) {
-        passwordError.textContent = "Введите пароль.";
-        isValid = false;
-      } else if (password.length < 6) {
-        passwordError.textContent = "Пароль должен быть не короче 6 символов.";
-        isValid = false;
-      }
-
-      // проверка департамента
-      if (!department) {
-        departmentError.textContent = "Выберите департамент.";
-        isValid = false;
-      }
-
-      if (!isValid) return;
-
-      // имитация "регистрации" и переход в меню
-      menuNick.textContent = nick;
-      menuDepartment.textContent = department;
-
-      authScreen.style.display = "none";
-      menuScreen.style.display = "block";
-    });
+    }
 
     logout.addEventListener("click", () => {
-      // сброс формы и возврат к регистрации
-      form.reset();
-      nickError.textContent = "";
-      passwordError.textContent = "";
-      departmentError.textContent = "";
-
-      menuScreen.style.display = "none";
-      authScreen.style.display = "block";
-      nickInput.focus();
+      showScreen("login");
+      loginNick.value = "";
+      loginPass.value = "";
+      loginNickError.textContent = "";
+      loginPassError.textContent = "";
+      loginNick.focus();
     });
+
+    // --------- Стартовая логика ---------
+    (function init() {
+      const user = loadUser();
+      if (!user) {
+        showScreen("register");
+        regNick.focus();
+        return;
+      }
+
+      const now = Date.now();
+      if (!user.lastLoginAt || now - user.lastLoginAt >= DAY_MS) {
+        // не было больше суток — просим вход
+        showScreen("login");
+        loginNick.value = user.nick;
+        loginNick.focus();
+      } else {
+        // заходил меньше суток назад — сразу в меню
+        fillMenu(user);
+        showScreen("menu");
+      }
+    })();
   </script>
 </body>
 </html>
