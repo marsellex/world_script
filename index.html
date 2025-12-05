@@ -5,14 +5,14 @@
   <title>Police Platinum</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- ===== ВСТАВИТЬ CSS СЮДА ===== -->
-  <style id="css-here">
-  {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: system-ui, sans-serif;
-  }
+  <style>
+    /* ----- БАЗА ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, sans-serif;
+    }
 
     body {
       background: #0f172a;
@@ -22,18 +22,26 @@
       align-items: center;
       justify-content: center;
     }
-    
+
     .auth-screen { display: none; }
     .auth-screen.active { display: block; }
-    
+
+    #auth-root {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .app-card {
       background: #1e293b;
       padding: 20px;
       width: 360px;
       border-radius: 14px;
       box-shadow: 0 0 25px rgba(0,0,0,.45);
+      position: relative;
     }
-    
+
     .badge {
       width: 46px;
       height: 46px;
@@ -45,27 +53,41 @@
       font-weight: 700;
       margin-bottom: 12px;
     }
-    
+
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #9ca3af; margin-bottom: 14px; }
+
+    .switch-link {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #93c5fd;
+      cursor: pointer;
+      text-align: right;
+    }
+    .switch-link:hover { text-decoration: underline; }
+
     /* ----- FORM ----- */
     .field {
       margin-bottom: 14px;
       display: flex;
       flex-direction: column;
     }
-    
+
     .field label {
       font-size: 14px;
       margin-bottom: 6px;
     }
-    
-    .field input, .field select {
+
+    .field input,
+    .field select {
       padding: 8px;
       background: #0f172a;
       border: 1px solid #475569;
       color: white;
       border-radius: 8px;
+      font-size: 14px;
     }
-    
+
     .btn {
       width: 100%;
       padding: 10px;
@@ -73,27 +95,32 @@
       border: none;
       border-radius: 8px;
       color: white;
-      margin-top: 10px;
+      margin-top: 6px;
       cursor: pointer;
+      font-size: 14px;
     }
     .btn:hover { background: #1d4ed8; }
-    
+
     /* ----- ПАНЕЛЬ ----- */
     #panel-root {
       display: none;
       width: 100%;
+      max-width: 1200px;
+      padding: 14px;
+      box-sizing: border-box;
     }
-    
+
     .frame {
       display: grid;
       grid-template-columns: 220px 1fr;
       width: 100%;
-      max-width: 1200px;
       background: #1e293b;
       border-radius: 14px;
       overflow: hidden;
+      box-shadow: 0 0 25px rgba(0,0,0,.6);
+      min-height: 460px;
     }
-    
+
     .sidebar {
       background: #111827;
       padding: 14px;
@@ -102,7 +129,17 @@
       gap: 12px;
       border-right: 1px solid #334155;
     }
-    
+
+    .user-nick {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .user-role {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
     .nav-btn {
       padding: 10px;
       background: #1e293b;
@@ -111,39 +148,63 @@
       color: #e2e8f0;
       cursor: pointer;
       text-align: left;
+      font-size: 14px;
     }
     .nav-btn:hover { background: #334155; }
-    
-    /* ----- СЕССИЯ ----- */
+    .nav-btn.active { background: #2563eb; border-color: #2563eb; }
+
     .logout {
       margin-top: auto;
       background: #ef4444;
     }
     .logout:hover { background: #dc2626; }
-    
+
     /* ----- СЕКЦИИ ----- */
-    .panel-section {
+    #panel-content {
       padding: 20px;
     }
-    
+
+    .panel-section {
+      display: none;
+    }
+
+    .panel-section h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    #section-home p {
+      font-size: 14px;
+    }
+
+    /* ----- ЛИЧНЫЕ ДЕЛА ----- */
     #section-personal .pf-item {
       padding: 10px;
       border: 1px solid #334155;
       border-radius: 8px;
       margin-bottom: 10px;
       cursor: pointer;
+      font-size: 14px;
     }
     #section-personal .pf-item:hover {
       background: #334155;
     }
-    
+
     .pf-view {
-      padding: 20px;
+      padding: 16px;
       background: #0f172a;
       border-radius: 10px;
       border: 1px solid #334155;
+      margin-top: 12px;
+      font-size: 14px;
     }
-    
+
+    .pf-view p { margin: 4px 0; }
+
+    .pf-form .field { margin-bottom: 10px; }
+
+    .pf-form label { font-size: 13px; }
+
     /* ----- ЛИДЕРЫ ----- */
     .leader-card {
       padding: 12px;
@@ -151,15 +212,37 @@
       border: 1px solid #475569;
       border-radius: 10px;
       margin-bottom: 10px;
+      font-size: 14px;
     }
     .leader-name {
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .leader-role {
+      font-size: 13px;
+      color: #9ca3af;
     }
     .leader-notes {
       margin-top: 6px;
       font-size: 13px;
+      white-space: pre-line;
     }
-    
+    .leader-btns {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+    }
+    .leader-btns .mini-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #e5e7eb;
+      cursor: pointer;
+    }
+    .leader-btns .mini-btn:hover { background: #1e293b; }
+
     /* ----- МОДАЛКА ----- */
     .modal-backdrop {
       position: fixed;
@@ -168,46 +251,60 @@
       display: none;
       align-items: center;
       justify-content: center;
+      z-index: 10;
     }
-    
+
     .modal-backdrop.active { display: flex; }
-    
+
     .modal {
       background: #1e293b;
       padding: 18px;
       width: 360px;
       border-radius: 12px;
       box-shadow: 0 0 25px rgba(0,0,0,.6);
+      font-size: 14px;
     }
-    
-    .modal input {
-      margin-bottom: 10px;
+
+    .modal h3 { margin-bottom: 10px; }
+
+    .modal input[type="text"] {
+      margin-bottom: 8px;
       padding: 8px;
       width: 100%;
       background: #0f172a;
       border-radius: 8px;
       border: 1px solid #475569;
       color: white;
+      font-size: 14px;
     }
-    
+
+    .modal-color {
+      margin: 6px 0 10px 0;
+      width: 100%;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      cursor: pointer;
+    }
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 12px;
+      gap: 8px;
+      margin-top: 8px;
     }
-    
+
     .modal-btn {
-      padding: 8px 12px;
+      padding: 7px 12px;
       border-radius: 6px;
-      background: #334155;
       border: none;
       cursor: pointer;
+      background: #334155;
       color: white;
+      font-size: 13px;
     }
-    .modal-btn.primary {
-      background: #2563eb;
-    }
+
+    .modal-btn.primary { background: #2563eb; }
   </style>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -222,10 +319,11 @@
     <h1>Police Platinum</h1>
     <div class="subtitle">Система сотрудников PD</div>
 
+    <!-- Вход -->
     <div id="auth-login" class="auth-screen active">
-      <form>
+      <form onsubmit="return false;">
         <div class="field">
-          <label>Ник</label>
+          <label>Ник (Имя_Фамилия)</label>
           <input type="text" id="login-nick">
         </div>
         <div class="field">
@@ -234,12 +332,14 @@
         </div>
         <button type="button" id="login-btn" class="btn">Войти</button>
       </form>
+      <div class="switch-link" id="link-to-register">Нет аккаунта? Регистрация</div>
     </div>
 
+    <!-- Регистрация -->
     <div id="auth-register" class="auth-screen">
-      <form>
+      <form onsubmit="return false;">
         <div class="field">
-          <label>Ник</label>
+          <label>Ник (Имя_Фамилия)</label>
           <input type="text" id="reg-nick">
         </div>
         <div class="field">
@@ -249,13 +349,14 @@
         <div class="field">
           <label>Департамент</label>
           <select id="reg-dept">
-            <option>LSPD</option>
-            <option>SFPD</option>
-            <option>LVPD</option>
+            <option value="LSPD">LSPD</option>
+            <option value="SFPD">SFPD</option>
+            <option value="LVPD">LVPD</option>
           </select>
         </div>
         <button type="button" id="reg-btn" class="btn">Создать аккаунт</button>
       </form>
+      <div class="switch-link" id="link-to-login">Уже есть аккаунт? Войти</div>
     </div>
   </div>
 </div>
@@ -281,19 +382,19 @@
     <main id="panel-content">
       <section id="section-home" class="panel-section">
         <h2>Главная панель</h2>
-        <p>Добро пожаловать в систему сотрудников PD!</p>
+        <p>Добро пожаловать в систему сотрудников PD. Используйте левое меню для работы с личными делами и руководством.</p>
       </section>
 
-      <section id="section-personal" class="panel-section" style="display:none"></section>
+      <section id="section-personal" class="panel-section"></section>
 
-      <section id="section-leadership" class="panel-section" style="display:none"></section>
+      <section id="section-leadership" class="panel-section"></section>
     </main>
 
   </div>
 </div>
 
 
-<!-- ===== МОДАЛКА ДЛЯ ЛИДЕРОВ ===== -->
+<!-- ===== МОДАЛКА ДЛЯ РУКОВОДСТВА ===== -->
 <div id="leader-edit-modal" class="modal-backdrop">
   <div class="modal">
     <h3>Редактирование подписей</h3>
@@ -312,275 +413,530 @@
   </div>
 </div>
 
-<!-- ===== ВСТАВИТЬ JS ЧАСТЬ 1 СЮДА ===== -->
-<script id="js-part1"></script>
-const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
-const SUPABASE_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
+<script>
+  /* ===========================
+     НАСТРОЙКА SUPABASE
+  =========================== */
+  const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
+  const SUPABASE_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  let CURRENT_USER = null;
+  let LEADERS_CACHE = [];
+  let EDITING_LEADER = null;
 
-let CURRENT_USER = null;
-
-function normalizeNick(n) {
-  if (!n) return null;
-  n = n.trim().replace(/[^A-Za-zА-Яа-яЁё_]/g, "");
-  if (!n.includes("_")) return null;
-  let [a, b] = n.split("_");
-  if (!a || !b) return null;
-  return a.charAt(0).toUpperCase() + a.slice(1).toLowerCase() + "_" +
-         b.charAt(0).toUpperCase() + b.slice(1).toLowerCase();
-}
-
-async function userExists(nick) {
-  let { data } = await db.from("users").select("id").eq("nick", nick);
-  return data && data.length > 0;
-}
-
-/* ===========================
-   АВТОРИЗАЦИЯ
-=========================== */
-document.getElementById("login-btn").onclick = login;
-document.getElementById("reg-btn").onclick = register;
-
-async function register() {
-  let nick = normalizeNick(document.getElementById("reg-nick").value);
-  let pass = document.getElementById("reg-pass").value;
-  let dept = document.getElementById("reg-dept").value;
-
-  if (!nick || pass.length < 4) {
-    alert("Неверный ник или короткий пароль");
-    return;
+  /* ===========================
+     УТИЛИТЫ
+  =========================== */
+  function normalizeNick(n) {
+    if (!n) return null;
+    n = n.trim().replace(/[^A-Za-zА-Яа-яЁё_]/g, "");
+    if (!n.includes("_")) return null;
+    const [a, b] = n.split("_");
+    if (!a || !b) return null;
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    return cap(a) + "_" + cap(b);
   }
 
-  if (await userExists(nick)) {
-    alert("Этот ник уже зарегистрирован");
-    return;
+  async function userExists(nick) {
+    const { data } = await db.from("users").select("id").eq("nick", nick);
+    return data && data.length > 0;
   }
 
-  let { error } = await db.from("users").insert({
-    nick, password: pass, department: dept, role: "user",
-    notes1: "", notes2: "", notes3: "", notes_color: "#ffffff"
-  });
-
-  if (error) return alert("Ошибка регистрации");
-
-  alert("Создано!");
-  switchToLogin();
-}
-
-async function login() {
-  let nick = normalizeNick(document.getElementById("login-nick").value);
-  let pass = document.getElementById("login-pass").value;
-
-  let { data } = await db
-    .from("users")
-    .select("*")
-    .eq("nick", nick)
-    .single();
-
-  if (!data || data.password !== pass) {
-    alert("Неверный логин/пароль");
-    return;
+  /* ===========================
+     ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
+  =========================== */
+  function switchToLogin() {
+    document.getElementById("auth-register").classList.remove("active");
+    document.getElementById("auth-login").classList.add("active");
+  }
+  function switchToRegister() {
+    document.getElementById("auth-login").classList.remove("active");
+    document.getElementById("auth-register").classList.add("active");
   }
 
-  CURRENT_USER = data;
-  localStorage.setItem("pd_user", JSON.stringify(CURRENT_USER));
-  openPanel();
-}
+  document.getElementById("link-to-register").onclick = switchToRegister;
+  document.getElementById("link-to-login").onclick = switchToLogin;
 
-/* ===========================
-   ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
-=========================== */
-function switchToLogin() {
-  document.getElementById("auth-register").classList.remove("active");
-  document.getElementById("auth-login").classList.add("active");
-}
+  /* ===========================
+     АВТОРИЗАЦИЯ
+  =========================== */
+  document.getElementById("reg-btn").onclick = async () => {
+    let nick = normalizeNick(document.getElementById("reg-nick").value);
+    let pass = document.getElementById("reg-pass").value;
+    let dept = document.getElementById("reg-dept").value;
 
-function openPanel() {
-  document.getElementById("auth-root").style.display = "none";
-  document.getElementById("panel-root").style.display = "block";
+    if (!nick) {
+      alert("Ник должен быть в формате Имя_Фамилия");
+      return;
+    }
+    if (pass.length < 4) {
+      alert("Пароль должен быть не короче 4 символов");
+      return;
+    }
 
-  document.getElementById("user-nick").textContent = CURRENT_USER.nick;
-  document.getElementById("user-role").textContent = CURRENT_USER.role;
+    if (await userExists(nick)) {
+      alert("Этот ник уже зарегистрирован");
+      return;
+    }
 
-  openTab("home");
-}
+    const { error } = await db.from("users").insert({
+      nick,
+      password: pass,
+      department: dept,
+      role: "user",
+      notes1: "",
+      notes2: "",
+      notes3: "",
+      notes_color: "#ffffff"
+    });
 
-function openTab(tab) {
-  document.querySelectorAll(".panel-section").forEach(s => s.style.display = "none");
+    if (error) {
+      console.error(error);
+      alert("Ошибка регистрации");
+      return;
+    }
 
-  if (tab === "home") document.getElementById("section-home").style.display = "block";
-  if (tab === "personal") loadPersonalFiles();
-  if (tab === "leadership") loadLeadership();
-}
+    alert("Аккаунт создан. Теперь войдите.");
+    switchToLogin();
+  };
 
-<!-- ===== ВСТАВИТЬ JS ЧАСТЬ 2 СЮДА ===== -->
-<script id="js-part2"></script>
-    /* =======================================
-   ЛИЧНЫЕ ДЕЛА — СПИСОК И ПРОСМОТР
-======================================= */
+  document.getElementById("login-btn").onclick = async () => {
+    let nick = normalizeNick(document.getElementById("login-nick").value);
+    let pass = document.getElementById("login-pass").value;
 
-async function loadPersonalFiles() {
-  document.getElementById("section-personal").innerHTML = "<h2>Личные дела</h2>";
+    if (!nick || !pass) {
+      alert("Введите ник и пароль");
+      return;
+    }
 
-  let { data } = await db.from("personal_files").select("*");
+    const { data, error } = await db
+      .from("users")
+      .select("*")
+      .eq("nick", nick)
+      .single();
 
-  let wrap = document.getElementById("section-personal");
+    if (error || !data || data.password !== pass) {
+      alert("Неверный логин/пароль");
+      return;
+    }
 
-  // Если у пользователя уже есть личное дело — не показываем форму создания
-  let mine = data.find(f => f.nick === CURRENT_USER.nick);
+    CURRENT_USER = data;
+    localStorage.setItem("pd_user", JSON.stringify(CURRENT_USER));
+    openPanel();
+  };
 
-  if (mine) {
-    let div = document.createElement("div");
-    div.className = "pf-view";
-    div.innerHTML = `
-      <h3>Ваше личное дело</h3>
-      <p><b>Ник:</b> ${mine.nick}</p>
-      <p><b>Звание:</b> ${mine.rank || "-"}</p>
-      <button onclick="deleteMyPersonalFile()" class="btn" style="background:#dc2626">Удалить личное дело</button>
-      <hr>
-    `;
-    wrap.appendChild(div);
+  document.getElementById("logout").onclick = () => {
+    localStorage.removeItem("pd_user");
+    CURRENT_USER = null;
+    document.getElementById("panel-root").style.display = "none";
+    document.getElementById("auth-root").style.display = "flex";
+    switchToLogin();
+  };
+
+  /* ===========================
+     ПАНЕЛЬ
+  =========================== */
+  function openPanel() {
+    document.getElementById("auth-root").style.display = "none";
+    document.getElementById("panel-root").style.display = "block";
+
+    document.getElementById("user-nick").textContent = CURRENT_USER.nick;
+    document.getElementById("user-role").textContent =
+      CURRENT_USER.role === "admin" ? "Администратор" :
+      CURRENT_USER.role === "moderator" ? "Модератор" :
+      "Сотрудник";
+
+    openTab("home");
   }
 
-  wrap.innerHTML += `<h3>Список личных дел</h3>`;
-
-  data.forEach(pf => {
-    let item = document.createElement("div");
-    item.className = "pf-item";
-    item.innerHTML = `[${pf.dept}] ${pf.nick} [${pf.account}]`;
-    item.onclick = () => openPersonalFile(pf);
-    wrap.appendChild(item);
-  });
-
-  document.getElementById("section-personal").style.display = "block";
-}
-
-async function deleteMyPersonalFile() {
-  if (!confirm("Удалить ваше личное дело?")) return;
-
-  await db.from("personal_files").delete().eq("nick", CURRENT_USER.nick);
-  alert("Удалено!");
-  loadPersonalFiles();
-}
-
-/* Открытие личного дела */
-
-function openPersonalFile(pf) {
-  let wrap = document.getElementById("section-personal");
-  wrap.innerHTML = `
-    <button class="btn" onclick="openTab('personal')">⬅ Назад</button>
-    <div class="pf-view">
-      <h2>${pf.nick}</h2>
-      <p><b>Отдел:</b> ${pf.dept}</p>
-      <p><b>Аккаунт:</b> ${pf.account}</p>
-      <p><b>Звание:</b> ${pf.rank}</p>
-      <p><b>Контакты:</b> ${pf.contact}</p>
-      <p><b>Дата рождения:</b> ${pf.birth}</p>
-      <hr>
-  `;
-
-  // Админ/модер может править
-  if (["admin", "moderator"].includes(CURRENT_USER.role)) {
-    wrap.innerHTML += `
-      <button class="btn" onclick="editPersonalFile('${pf.nick}')">Изменить данные</button>
-    `;
+  function setActiveNav(tab) {
+    ["home","personal","leadership"].forEach(t => {
+      const btn = document.getElementById("btn-" + t);
+      if (!btn) return;
+      btn.classList.toggle("active", t === tab);
+    });
   }
 
-  wrap.innerHTML += "</div>";
-}
+  function openTab(tab) {
+    document.querySelectorAll(".panel-section").forEach(s => s.style.display = "none");
+    setActiveNav(tab);
 
-function editPersonalFile(nick) {
-  // Позже сюда вставляется форма редактирования
-  alert("Редактирование будет добавлено (вписывается сюда)");
-}
+    if (tab === "home") {
+      document.getElementById("section-home").style.display = "block";
+    }
+    if (tab === "personal") {
+      loadPersonalFiles();
+    }
+    if (tab === "leadership") {
+      loadLeadership();
+    }
+  }
 
+  /* ===========================
+     ЛИЧНЫЕ ДЕЛА
+  =========================== */
+  async function loadPersonalFiles() {
+    const sec = document.getElementById("section-personal");
+    sec.innerHTML = "<h2>Личные дела</h2>";
 
-<!-- ===== ВСТАВИТЬ JS ЧАСТЬ 3 СЮДА ===== -->
-<script id="js-part3"></script>
-    /* =======================================
-   РУКОВОДСТВО ПОЛИЦИИ
-======================================= */
+    const { data, error } = await db.from("personal_files").select("*");
+    if (error) {
+      console.error(error);
+      sec.innerHTML += "<p>Ошибка загрузки личных дел.</p>";
+      sec.style.display = "block";
+      return;
+    }
 
-let EDITING_LEADER = null;
+    const list = data || [];
+    const mine = list.find(pf => pf.nick === CURRENT_USER.nick);
 
-async function loadLeadership() {
-  let sec = document.getElementById("section-leadership");
-  sec.innerHTML = "<h2>Руководство полиции</h2>";
+    // Если есть своё личное дело
+    if (mine) {
+      const mineDiv = document.createElement("div");
+      mineDiv.className = "pf-view";
+      mineDiv.innerHTML = `
+        <h3>Ваше личное дело</h3>
+        <p><b>Ник:</b> ${mine.nick}</p>
+        <p><b>Отдел:</b> ${mine.dept || "-"}</p>
+        <p><b>Аккаунт:</b> ${mine.account || "-"}</p>
+        <p><b>Звание:</b> ${mine.rank || "-"}</p>
+        <button class="btn" style="background:#dc2626;margin-top:10px" onclick="deleteMyPersonalFile()">Удалить личное дело</button>
+      `;
+      sec.appendChild(mineDiv);
+    } else {
+      // Форма создания личного дела
+      const form = document.createElement("div");
+      form.className = "pf-form pf-view";
+      form.innerHTML = `
+        <h3>Создать личное дело</h3>
+        <div class="field">
+          <label>Отдел</label>
+          <input id="pf-dept" placeholder="Например: PD">
+        </div>
+        <div class="field">
+          <label>Номер аккаунта</label>
+          <input id="pf-account" placeholder="Только цифры">
+        </div>
+        <div class="field">
+          <label>Звание</label>
+          <input id="pf-rank" placeholder="Например: Сержант">
+        </div>
+        <div class="field">
+          <label>Контакты</label>
+          <input id="pf-contact" placeholder="VK / Discord">
+        </div>
+        <div class="field">
+          <label>Дата рождения</label>
+          <input id="pf-birth" placeholder="01.01.2000">
+        </div>
+        <button class="btn" onclick="createPersonalFile()">Сохранить личное дело</button>
+      `;
+      sec.appendChild(form);
+    }
 
-  let { data } = await db.from("users").select("*");
+    // Список всех личных дел
+    sec.innerHTML += "<h3 style='margin-top:16px;'>Список личных дел</h3>";
 
-  let leaders = data.filter(u => ["admin", "moderator"].includes(u.role));
+    list.forEach(pf => {
+      const item = document.createElement("div");
+      item.className = "pf-item";
+      item.textContent = `[${pf.dept || "-"}] ${pf.nick} [${pf.account || "-"}]`;
+      item.onclick = () => openPersonalFile(pf);
+      sec.appendChild(item);
+    });
 
-  leaders.forEach(l => {
-    let card = document.createElement("div");
-    card.className = "leader-card";
+    sec.style.display = "block";
+  }
 
-    card.innerHTML = `
-      <div class="leader-name">${l.nick} (${l.role})</div>
-      <div class="leader-notes" style="color:${l.notes_color}">
-        ${l.notes1 || ""}<br>
-        ${l.notes2 || ""}<br>
-        ${l.notes3 || ""}
+  async function createPersonalFile() {
+    const dept = document.getElementById("pf-dept").value.trim();
+    const account = document.getElementById("pf-account").value.trim();
+    const rank = document.getElementById("pf-rank").value.trim();
+    const contact = document.getElementById("pf-contact").value.trim();
+    const birth = document.getElementById("pf-birth").value.trim();
+
+    if (!dept || !account.match(/^[0-9]+$/)) {
+      alert("Укажите отдел и числовой номер аккаунта");
+      return;
+    }
+
+    const { error } = await db.from("personal_files").insert({
+      nick: CURRENT_USER.nick,
+      dept,
+      account,
+      rank,
+      contact,
+      birth
+    });
+
+    if (error) {
+      console.error(error);
+      alert("Ошибка сохранения личного дела");
+      return;
+    }
+
+    alert("Личное дело создано");
+    loadPersonalFiles();
+  }
+
+  async function deleteMyPersonalFile() {
+    if (!confirm("Удалить ваше личное дело?")) return;
+    const { error } = await db.from("personal_files")
+      .delete()
+      .eq("nick", CURRENT_USER.nick);
+
+    if (error) {
+      console.error(error);
+      alert("Ошибка удаления");
+      return;
+    }
+
+    alert("Личное дело удалено");
+    loadPersonalFiles();
+  }
+
+  function openPersonalFile(pf) {
+    const sec = document.getElementById("section-personal");
+    sec.innerHTML = `
+      <button class="btn" style="width:auto;margin-bottom:10px" onclick="openTab('personal')">⬅ Назад к списку</button>
+      <div class="pf-view">
+        <h3>${pf.nick}</h3>
+        <p><b>Отдел:</b> ${pf.dept || "-"}</p>
+        <p><b>Аккаунт:</b> ${pf.account || "-"}</p>
+        <p><b>Звание:</b> ${pf.rank || "-"}</p>
+        <p><b>Контакты:</b> ${pf.contact || "-"}</p>
+        <p><b>Дата рождения:</b> ${pf.birth || "-"}</p>
       </div>
     `;
 
-    // Админ может редактировать только других, но не самого себя
-    if (CURRENT_USER.role === "admin" && CURRENT_USER.nick !== l.nick) {
-      let btn = document.createElement("button");
-      btn.textContent = "Редактировать";
+    if (CURRENT_USER.role === "admin" || CURRENT_USER.role === "moderator") {
+      const btn = document.createElement("button");
+      btn.textContent = "Изменить данные";
       btn.className = "btn";
       btn.style.marginTop = "10px";
-      btn.onclick = () => openLeaderEdit(l);
-      card.appendChild(btn);
+      btn.onclick = () => editPersonalFile(pf.nick);
+      sec.querySelector(".pf-view").appendChild(btn);
     }
 
-    sec.appendChild(card);
+    sec.style.display = "block";
+  }
+
+  async function editPersonalFile(nick) {
+    const { data, error } = await db.from("personal_files").select("*").eq("nick", nick).single();
+    if (error || !data) {
+      alert("Личное дело не найдено");
+      return;
+    }
+
+    const sec = document.getElementById("section-personal");
+    sec.innerHTML = `
+      <button class="btn" style="width:auto;margin-bottom:10px" onclick="openTab('personal')">⬅ Назад к списку</button>
+      <div class="pf-view pf-form">
+        <h3>Редактирование личного дела: ${data.nick}</h3>
+        <div class="field">
+          <label>Отдел</label>
+          <input id="edit-pf-dept" value="${data.dept || ""}">
+        </div>
+        <div class="field">
+          <label>Номер аккаунта</label>
+          <input id="edit-pf-account" value="${data.account || ""}">
+        </div>
+        <div class="field">
+          <label>Звание</label>
+          <input id="edit-pf-rank" value="${data.rank || ""}">
+        </div>
+        <div class="field">
+          <label>Контакты</label>
+          <input id="edit-pf-contact" value="${data.contact || ""}">
+        </div>
+        <div class="field">
+          <label>Дата рождения</label>
+          <input id="edit-pf-birth" value="${data.birth || ""}">
+        </div>
+        <button class="btn" onclick="savePersonalFileEdit('${data.nick}')">Сохранить</button>
+      </div>
+    `;
+  }
+
+  async function savePersonalFileEdit(nick) {
+    const dept = document.getElementById("edit-pf-dept").value.trim();
+    const account = document.getElementById("edit-pf-account").value.trim();
+    const rank = document.getElementById("edit-pf-rank").value.trim();
+    const contact = document.getElementById("edit-pf-contact").value.trim();
+    const birth = document.getElementById("edit-pf-birth").value.trim();
+
+    if (!dept || !account.match(/^[0-9]+$/)) {
+      alert("Укажите отдел и числовой аккаунт");
+      return;
+    }
+
+    const { error } = await db.from("personal_files")
+      .update({ dept, account, rank, contact, birth })
+      .eq("nick", nick);
+
+    if (error) {
+      console.error(error);
+      alert("Ошибка сохранения");
+      return;
+    }
+
+    alert("Изменения сохранены");
+    loadPersonalFiles();
+  }
+
+  /* ===========================
+     РУКОВОДСТВО ПОЛИЦИИ
+  =========================== */
+  async function loadLeadership() {
+    const sec = document.getElementById("section-leadership");
+    sec.innerHTML = "<h2>Руководство полиции</h2>";
+
+    const { data, error } = await db.from("users").select("*");
+    if (error) {
+      console.error(error);
+      sec.innerHTML += "<p>Ошибка загрузки руководства.</p>";
+      sec.style.display = "block";
+      return;
+    }
+
+    LEADERS_CACHE = (data || []).filter(u =>
+      u.role === "admin" || u.role === "moderator"
+    );
+
+    renderLeadership();
+    sec.style.display = "block";
+  }
+
+  function renderLeadership() {
+    const sec = document.getElementById("section-leadership");
+    sec.innerHTML = "<h2>Руководство полиции</h2>";
+
+    if (!LEADERS_CACHE.length) {
+      sec.innerHTML += "<p>Пока нет пользователей с ролью администратора или модератора.</p>";
+      return;
+    }
+
+    LEADERS_CACHE.forEach((l, index) => {
+      const card = document.createElement("div");
+      card.className = "leader-card";
+
+      const title = document.createElement("div");
+      title.className = "leader-name";
+      title.textContent = l.nick;
+
+      const role = document.createElement("div");
+      role.className = "leader-role";
+      role.textContent = l.role === "admin" ? "Администратор" : "Модератор";
+
+      const notes = document.createElement("div");
+      notes.className = "leader-notes";
+      notes.style.color = l.notes_color || "#ffffff";
+      notes.textContent = [l.notes1, l.notes2, l.notes3].filter(Boolean).join("\n");
+
+      card.appendChild(title);
+      card.appendChild(role);
+      card.appendChild(notes);
+
+      // Кнопки только для администратора (и не на себе самом)
+      if (CURRENT_USER && CURRENT_USER.role === "admin" && CURRENT_USER.nick !== l.nick) {
+        const btnRow = document.createElement("div");
+        btnRow.className = "leader-btns";
+
+        const upBtn = document.createElement("button");
+        upBtn.className = "mini-btn";
+        upBtn.textContent = "↑";
+        upBtn.onclick = () => moveLeader(index, -1);
+
+        const downBtn = document.createElement("button");
+        downBtn.className = "mini-btn";
+        downBtn.textContent = "↓";
+        downBtn.onclick = () => moveLeader(index, 1);
+
+        const editBtn = document.createElement("button");
+        editBtn.className = "mini-btn";
+        editBtn.textContent = "✏ Подписи";
+        editBtn.onclick = () => openLeaderEdit(l);
+
+        btnRow.appendChild(upBtn);
+        btnRow.appendChild(downBtn);
+        btnRow.appendChild(editBtn);
+
+        card.appendChild(btnRow);
+      }
+
+      sec.appendChild(card);
+    });
+  }
+
+  function moveLeader(index, dir) {
+    const newIndex = index + dir;
+    if (newIndex < 0 || newIndex >= LEADERS_CACHE.length) return;
+    const temp = LEADERS_CACHE[index];
+    LEADERS_CACHE[index] = LEADERS_CACHE[newIndex];
+    LEADERS_CACHE[newIndex] = temp;
+    renderLeadership(); // порядок не сохраняется в БД, но меняется на текущую сессию
+  }
+
+  function openLeaderEdit(l) {
+    EDITING_LEADER = l;
+    document.getElementById("led-note1").value = l.notes1 || "";
+    document.getElementById("led-note2").value = l.notes2 || "";
+    document.getElementById("led-note3").value = l.notes3 || "";
+    document.getElementById("led-color").value = l.notes_color || "#ffffff";
+    document.getElementById("leader-edit-modal").classList.add("active");
+  }
+
+  function closeLeaderEdit() {
+    EDITING_LEADER = null;
+    document.getElementById("leader-edit-modal").classList.remove("active");
+  }
+
+  async function saveLeaderNotes() {
+    if (!EDITING_LEADER) return;
+
+    const n1 = document.getElementById("led-note1").value.trim();
+    const n2 = document.getElementById("led-note2").value.trim();
+    const n3 = document.getElementById("led-note3").value.trim();
+    const col = document.getElementById("led-color").value;
+
+    const { error } = await db.from("users")
+      .update({
+        notes1: n1,
+        notes2: n2,
+        notes3: n3,
+        notes_color: col
+      })
+      .eq("nick", EDITING_LEADER.nick);
+
+    if (error) {
+      console.error(error);
+      alert("Ошибка сохранения подписей");
+      return;
+    }
+
+    closeLeaderEdit();
+    loadLeadership();
+  }
+
+  /* ===========================
+     ИНИЦИАЛИЗАЦИЯ
+  =========================== */
+  document.addEventListener("DOMContentLoaded", () => {
+    const saved = localStorage.getItem("pd_user");
+    if (saved) {
+      try {
+        CURRENT_USER = JSON.parse(saved);
+        openPanel();
+        return;
+      } catch {}
+    }
+    // если нет сохранённого пользователя
+    document.getElementById("auth-root").style.display = "flex";
+    document.getElementById("panel-root").style.display = "none";
+    switchToLogin();
   });
-
-  sec.style.display = "block";
-}
-
-/* ===== МОДАЛКА ===== */
-
-function openLeaderEdit(l) {
-  EDITING_LEADER = l;
-
-  document.getElementById("led-note1").value = l.notes1 || "";
-  document.getElementById("led-note2").value = l.notes2 || "";
-  document.getElementById("led-note3").value = l.notes3 || "";
-  document.getElementById("led-color").value = l.notes_color || "#ffffff";
-
-  document.getElementById("leader-edit-modal").classList.add("active");
-}
-
-function closeLeaderEdit() {
-  EDITING_LEADER = null;
-  document.getElementById("leader-edit-modal").classList.remove("active");
-}
-
-async function saveLeaderNotes() {
-  if (!EDITING_LEADER) return;
-
-  let n1 = document.getElementById("led-note1").value;
-  let n2 = document.getElementById("led-note2").value;
-  let n3 = document.getElementById("led-note3").value;
-  let col = document.getElementById("led-color").value;
-
-  await db.from("users")
-    .update({
-      notes1: n1,
-      notes2: n2,
-      notes3: n3,
-      notes_color: col
-    })
-    .eq("nick", EDITING_LEADER.nick);
-
-  closeLeaderEdit();
-  loadLeadership();
-}
-
-
+</script>
 </body>
 </html>
