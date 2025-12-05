@@ -2356,7 +2356,7 @@
         const dataUrl = await cropImageFileToDataUrl(file, 500);
         const url = await uploadAvatarToSupabase(user.nick, dataUrl);
         if (!url) {
-          alert("Не удалось загрузить аватар.";
+          alert("Не удалось загрузить аватар.");
           return;
         }
 
@@ -2628,3 +2628,4 @@
   </script>
 </body>
 </html>
+
