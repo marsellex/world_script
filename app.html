@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Police Platinum — Панель</title>
+
+  <link rel="stylesheet" href="styles_app.css">
+  <link rel="stylesheet" href="styles_main.css">
+
+  <script defer src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script defer src="db_supabase.js"></script>
+  <script defer src="logic_ui.js"></script>
+  <script defer src="logic_user.js"></script>
+  <script defer src="logic_personal.js"></script>
+  <script defer src="logic_admin.js"></script>
+  <script defer src="logic_utils.js"></script>
+</head>
+
+<body class="app-bg">
+
+  <aside class="sidebar glass">
+    <div class="user-top">
+      <img id="user-avatar" class="avatar" src="">
+      <div id="user-nick" class="user-nick"></div>
+      <div id="user-role" class="user-role"></div>
+    </div>
+
+    <nav class="menu">
+      <button class="nav-btn" data-page="home">?? Главная</button>
+      <button class="nav-btn" data-page="files">?? Личные дела</button>
+      <button class="nav-btn" data-page="guide">?? Руководство полиции</button>
+      <button id="admin-nav" class="nav-btn" data-page="admin">?? Админ-панель</button>
+    </nav>
+
+    <button id="logout" class="logout-btn">Выйти</button>
+  </aside>
+
+  <main id="content" class="content glass"></main>
+
+</body>
+</html>
