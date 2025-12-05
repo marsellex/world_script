@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Police Platinum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ====== CSS ====== -->
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter, sans-serif;}
+body{background:#001524;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;}
+.glass{background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:20px;}
+
+#auth-card{width:360px;padding:25px;}
+h1{text-align:center;margin-bottom:20px;font-size:26px;font-weight:700;}
+h1 span{color:#4dc2ff;}
+
+.auth-tabs{display:flex;gap:6px;margin-bottom:15px;}
+.tab{flex:1;padding:10px;border:none;border-radius:10px;background:rgba(255,255,255,0.1);color:white;cursor:pointer;font-weight:600;}
+.tab.active{background:#4dc2ff;color:black;}
+
+.auth-form{display:none;flex-direction:column;gap:12px;}
+.auth-form.active{display:flex;}
+
+.field{display:flex;flex-direction:column;font-size:14px;}
+.field input,.field select{
+ padding:10px;border:none;border-radius:10px;
+ background:rgba(255,255,255,0.1);color:white;
+}
+
+.btn{padding:12px;border:none;border-radius:10px;background:#4dc2ff;color:black;font-weight:700;cursor:pointer;}
+.error{min-height:18px;font-size:14px;color:#ff7070;text-align:center;margin-top:-5px;}
+
+#app{display:none;width:100%;height:100vh;display:flex;}
+#sidebar{width:240px;padding:20px;display:flex;flex-direction:column;gap:12px;}
+.nav-btn{padding:12px;border-radius:10px;background:rgba(255,255,255,0.08);border:none;color:white;text-align:left;cursor:pointer;}
+#logout{margin-top:auto;background:#ff6262;}
+
+#content{flex:1;padding:25px;margin:15px;border-radius:20px;}
+.pf-item{padding:12px;margin-bottom:10px;border-radius:12px;cursor:pointer;}
+.pf-item:hover{background:rgba(255,255,255,0.15);}
+</style>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ============= АВТОРИЗАЦИЯ ============= -->
+<div id="auth-card" class="glass">
+  <h1>POLICE <span>PLATINUM</span></h1>
+
+  <div class="auth-tabs">
+    <button class="tab active" data-tab="login">Вход</button>
+    <button class="tab" data-tab="register">Регистрация</button>
+  </div>
+
+  <form id="login-form" class="auth-form active">
+    <label class="field">Ник <input id="login-nick"></label>
+    <label class="field">Пароль <input type="password" id="login-pass"></label>
+    <button class="btn" id="login-btn">Войти</button>
+    <div class="error" id="login-error"></div>
+  </form>
+
+  <form id="register-form" class="auth-form">
+    <label class="field">Ник <input id="reg-nick"></label>
+    <label class="field">Пароль <input type="password" id="reg-pass"></label>
+    <label class="field">Департамент
+      <select id="reg-dept">
+        <option>LSPD</option>
+        <option>SFPD</option>
+        <option>LVPD</option>
+      </select>
+    </label>
+    <button class="btn" id="reg-btn">Создать аккаунт</button>
+    <div class="error" id="reg-error"></div>
+  </form>
+</div>
+
+<!-- ============= ПРИЛОЖЕНИЕ ============= -->
+<div id="app">
+  <aside id="sidebar" class="glass">
+    <div id="user-nick" style="font-size:20px;font-weight:700;"></div>
+    <div id="user-role" style="opacity:.7;font-size:13px;"></div>
+
+    <button class="nav-btn" onclick="loadHome()">?? Главная</button>
+    <button class="nav-btn" onclick="loadPF()">?? Личные дела</button>
+
+    <button id="logout" class="btn">Выйти</button>
+  </aside>
+
+  <main id="content" class="glass"></main>
+</div>
+
+<!-- ============= JS ЛОГИКА ============= -->
+<script>
+/* ===== Supabase подключение ===== */
+const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ===== Вспомогательное ===== */
+function normalizeNick(n){
+ if(!n.includes("_")) return null;
+ let [f,l]=n.split("_");
+ if(!f||!l) return null;
+ return f[0].toUpperCase()+f.slice(1).toLowerCase()+"_"+l[0].toUpperCase()+l.slice(1).toLowerCase();
+}
+
+document.querySelectorAll(".tab").forEach(t=>{
+ t.onclick=()=>{
+   document.querySelector(".tab.active").classList.remove("active");
+   t.classList.add("active");
+
+   document.querySelector(".auth-form.active").classList.remove("active");
+   document.getElementById(t.dataset.tab+"-form").classList.add("active");
+ };
+});
+
+/* ====== Вход ====== */
+login-btn.onclick=async(e)=>{
+ e.preventDefault();
+
+ let nick=normalizeNick(login-nick.value);
+ let pass=login-pass.value;
+ let err=login-error;
+
+ if(!nick){err.textContent="Неверный ник";return;}
+
+ let {data:user}=await db.from("users").select("*").eq("nick",nick).maybeSingle();
+ if(!user || user.password_hash!==pass){err.textContent="Неверные данные";return;}
+
+ localStorage.setItem("uid", user.id);
+ startApp();
+};
+
+/* ====== Регистрация ====== */
+reg-btn.onclick=async(e)=>{
+ e.preventDefault();
+
+ let nick=normalizeNick(reg-nick.value);
+ let pass=reg-pass.value;
+ let dept=reg-dept.value;
+ let err=reg-error;
+
+ if(!nick){err.textContent="Неверный формат ника";return;}
+
+ let {data:exists}=await db.from("users").select("id").eq("nick",nick).maybeSingle();
+ if(exists){err.textContent="Ник занят";return;}
+
+ let {data:u}=await db.from("users")
+  .insert({nick,password_hash:pass,department:dept,role:"user"})
+  .select()
+  .single();
+
+ localStorage.setItem("uid", u.id);
+ startApp();
+};
+
+/* ====== Инициализация приложения ====== */
+async function startApp(){
+ document.getElementById("auth-card").style.display="none";
+ document.getElementById("app").style.display="flex";
+
+ let uid=localStorage.getItem("uid");
+ let {data:user}=await db.from("users").select("*").eq("id",uid).single();
+
+ window.currentUser=user;
+ user-nick.textContent=user.nick;
+ user-role.textContent=user.role;
+
+ loadHome();
+}
+
+/* ====== Страницы ====== */
+function loadHome(){
+ content.innerHTML=`<h2>Добро пожаловать, ${currentUser.nick}</h2>`;
+}
+
+async function loadPF(){
+ content.innerHTML=`<h2>Личные дела</h2><div id="pf-box">Загрузка...</div>`;
+
+ let {data:list}=await db.from("personal_files").select("*");
+
+ let html="";
+ list.forEach(f=>{
+   html+=`<div class="pf-item glass" onclick="openPF('${f.id}')">
+     <strong>${f.forum_nick}</strong> [${f.forum_dept}]
+   </div>`;
+ });
+ document.getElementById("pf-box").innerHTML=html;
+}
+
+async function openPF(id){
+ let {data:f}=await db.from("personal_files").select("*").eq("id",id).single();
+
+ content.innerHTML=`
+ <button class="btn" onclick="loadPF()">< Назад</button>
+ <h2>${f.forum_nick}</h2>
+ <p><b>Отдел:</b> ${f.forum_dept}</p>
+ <p><b>Номер аккаунта:</b> ${f.account_number}</p>
+ <p><b>Ранг:</b> ${f.rank}</p>
+ `;
+}
+
+/* ====== Выход ====== */
+logout.onclick=()=>{
+ localStorage.removeItem("uid");
+ location.reload();
+};
+
+/* ====== Авто-вход ====== */
+if(localStorage.getItem("uid")) startApp();
+</script>
+
+</body>
+</html>
