@@ -1,2631 +1,586 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Police Platinum — Офицерская панель</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+  <meta charset="UTF-8">
+  <title>Police Platinum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- ===== ВСТАВИТЬ CSS СЮДА ===== -->
+  <style id="css-here">
+  {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: system-ui, sans-serif;
+  }
 
     body {
+      background: #0f172a;
+      color: #e2e8f0;
       min-height: 100vh;
-      background:
-        radial-gradient(circle at 10% 0, #0ea5e9 0, transparent 55%),
-        radial-gradient(circle at 90% 100%, #22c55e 0, transparent 55%),
-        linear-gradient(135deg, #020617, #020617);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-      color: #e5e7eb;
     }
-
-    /* ---------- ЭКРАН АВТОРИЗАЦИИ ---------- */
-
-    #auth-root {
-      width: 100%;
-      max-width: 520px;
-    }
-
-    .app-card {
-      width: 100%;
-      background: radial-gradient(circle at top, rgba(148,163,184,0.15), transparent 65%),
-                  rgba(15,23,42,0.97);
-      border-radius: 20px;
-      border: 1px solid rgba(30,64,175,0.7);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.9);
-      padding: 22px 22px 34px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .badge {
-      position: absolute;
-      right: 18px;
-      top: 18px;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 0, #facc15, #f97316 50%, #b91c1c);
-      box-shadow: 0 0 14px rgba(250,204,21,0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      color: #111827;
-      border: 2px solid #fef9c3;
-    }
-
-    h1 {
-      font-size: 24px;
-      margin-bottom: 4px;
-    }
-
-    .subtitle {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-bottom: 18px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      background: rgba(15,23,42,0.9);
-      color: #9ca3af;
-      margin-bottom: 14px;
-    }
-
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 6px rgba(34,197,94,0.9);
-    }
-
+    
     .auth-screen { display: none; }
     .auth-screen.active { display: block; }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 6px;
+    
+    .app-card {
+      background: #1e293b;
+      padding: 20px;
+      width: 360px;
+      border-radius: 14px;
+      box-shadow: 0 0 25px rgba(0,0,0,.45);
     }
-
+    
+    .badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #facc15, #e11d48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    /* ----- FORM ----- */
     .field {
+      margin-bottom: 14px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
     }
-
-    label {
-      font-size: 13px;
-      margin-bottom: 2px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.95);
-      color: #e5e7eb;
+    
+    .field label {
       font-size: 14px;
-      outline: none;
-      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      margin-bottom: 6px;
     }
-
-    input:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
-      background: rgba(15,23,42,0.98);
+    
+    .field input, .field select {
+      padding: 8px;
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: white;
+      border-radius: 8px;
     }
-
-    input[type="file"] {
-      font-size: 12px;
-      color: #e5e7eb;
-    }
-
-    .hint {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .error {
-      font-size: 11px;
-      color: #f97373;
-    }
-
+    
     .btn {
-      margin-top: 4px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      background: radial-gradient(circle at 0 0, #f97316, #2563eb);
-      color: #f9fafb;
-      box-shadow: 0 12px 24px rgba(37,99,235,0.7);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, filter 0.1s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05);
-      box-shadow: 0 16px 30px rgba(37,99,235,0.9);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-      box-shadow: 0 8px 16px rgba(15,23,42,0.9);
-    }
-
-    .small-note {
-      margin-top: 8px;
-      font-size: 11px;
-      color: #6b7280;
-    }
-
-    .password-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .password-row input { flex: 1; }
-
-    .password-toggle {
-      width: 40px;
-      height: 36px;
-      border-radius: 10px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: radial-gradient(circle at 30% 0, rgba(148,163,184,0.35), transparent 70%),
-                  rgba(15,23,42,0.95);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 17px;
-      color: #e5e7eb;
-      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease;
-    }
-
-    .password-toggle:hover {
-      transform: translateY(-1px);
-      background: radial-gradient(circle at 30% 0, rgba(56,189,248,0.65), transparent 70%),
-                  rgba(15,23,42,0.98);
-      box-shadow: 0 10px 22px rgba(15,23,42,0.95);
-    }
-
-    .departments {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .dept-option {
-      flex: 1;
-      min-width: 0;
-      padding: 7px 8px;
-      border-radius: 10px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.95);
-      font-size: 13px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.12s ease, border-color 0.12s ease;
-      user-select: none;
-    }
-
-    .dept-option span {
-      display: block;
-      font-size: 11px;
-      color: #9ca3af;
-      margin-top: 2px;
-    }
-
-    .dept-option:hover {
-      transform: translateY(-1px);
-      background: rgba(30,64,175,0.9);
-      box-shadow: 0 8px 16px rgba(15,23,42,0.8);
-    }
-
-    .dept-option.active {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 1px rgba(56,189,248,0.5);
-      background: rgba(15,23,42,1);
-    }
-
-    .avatar-preview {
-      margin-top: 8px;
-      width: 120px;
-      height: 120px;
-      border-radius: 16px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      font-size: 11px;
-      color: #6b7280;
-    }
-
-    .avatar-preview img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .auth-link {
-      font-size: 12px;
-      color: #93c5fd;
+      padding: 10px;
+      background: #2563eb;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      margin-top: 10px;
       cursor: pointer;
-      margin-top: 8px;
-      text-align: right;
     }
-
-    .auth-link:hover { text-decoration: underline; }
-
-    #personal-file-auth-btn {
-      position: absolute;
-      left: 18px;
-      bottom: 12px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(56,189,248,0.9);
-      background:
-        radial-gradient(circle at 0 0, rgba(56,189,248,0.35), transparent 60%),
-        rgba(15,23,42,0.98);
-      color: #e5e7eb;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      box-shadow:
-        0 0 0 1px rgba(56,189,248,0.6),
-        0 0 18px rgba(56,189,248,0.8);
-      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.15s ease;
-    }
-
-    #personal-file-auth-btn.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    #personal-file-auth-btn:hover {
-      transform: translateY(-1px);
-      box-shadow:
-        0 0 0 1px rgba(129,230,217,0.8),
-        0 0 28px rgba(56,189,248,1);
-    }
-
-    /* ---------- ПАНЕЛЬ ---------- */
-
+    .btn:hover { background: #1d4ed8; }
+    
+    /* ----- ПАНЕЛЬ ----- */
     #panel-root {
       display: none;
       width: 100%;
-      max-width: 1240px;
     }
-
-    #panel-root.active {
-      display: block;
-    }
-
+    
     .frame {
-      width: 100%;
-      max-width: 1240px;
-      height: 680px;
-      max-height: 95vh;
-      background: radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 60%);
-      border-radius: 20px;
-      border: 1px solid rgba(15, 23, 42, 0.9);
-      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.95);
       display: grid;
-      grid-template-columns: 230px 1fr;
-      overflow-y: auto;
-      overflow-x: hidden;
-      position: relative;
-      backdrop-filter: blur(6px);
+      grid-template-columns: 220px 1fr;
+      width: 100%;
+      max-width: 1200px;
+      background: #1e293b;
+      border-radius: 14px;
+      overflow: hidden;
     }
-
+    
     .sidebar {
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(8, 47, 73, 0.98));
-      padding: 18px 14px 16px;
+      background: #111827;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      border-right: 1px solid rgba(30,64,175,0.9);
+      gap: 12px;
+      border-right: 1px solid #334155;
     }
-
-    .logo-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 6px;
-    }
-
-    .logo-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 0, #facc15, #f97316 50%, #b91c1c);
-      box-shadow: 0 0 14px rgba(250,204,21,0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      color: #111827;
-      border: 2px solid #fef9c3;
-      flex-shrink: 0;
-    }
-
-    .logo-text-title {
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .logo-text-sub {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .sidebar-section-title {
-      margin-top: 12px;
-      font-size: 11px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #6b7280;
-    }
-
+    
     .nav-btn {
-      margin-top: 6px;
-      width: 100%;
-      padding: 9px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(55, 65, 81, 0.9);
-      background: rgba(15,23,42,0.96);
-      color: #e5e7eb;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      text-align: left;
-      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease, border-color 0.12s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .nav-btn span.icon {
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    .nav-btn::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, transparent, rgba(56,189,248,0.45), transparent);
-      opacity: 0;
-      transform: translateX(-120%);
-      transition: transform 0.45s ease, opacity 0.45s ease;
-      pointer-events: none;
-    }
-
-    .nav-btn:hover {
-      transform: translateY(-1px);
-      background: rgba(30,64,175,0.96);
-      border-color: rgba(56,189,248,0.8);
-      box-shadow: 0 12px 22px rgba(15,23,42,0.9);
-    }
-
-    .nav-btn:hover::after {
-      opacity: 1;
-      transform: translateX(120%);
-    }
-
-    .nav-btn.primary {
-      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.35), transparent 60%),
-                  rgba(15,23,42,0.98);
-      border-color: rgba(56,189,248,0.9);
-      box-shadow:
-        0 0 0 1px rgba(56,189,248,0.5),
-        0 0 18px rgba(56,189,248,0.8);
-    }
-
-    .nav-btn.active-tab {
-      border-color: rgba(59,130,246,0.9);
-      background: rgba(30,64,175,0.95);
-    }
-
-    #admin-panel-btn {
-      display: none;
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      font-size: 11px;
-      color: #6b7280;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .sidebar-footer button {
-      border: none;
-      background: transparent;
-      color: #9ca3af;
-      text-align: left;
-      padding: 0;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .sidebar-footer button:hover {
-      text-decoration: underline;
-      color: #e5e7eb;
-    }
-
-    .main {
-      padding: 16px 18px 50px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      position: relative;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .top-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .top-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.9);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #9ca3af;
-      flex-shrink: 0;
-    }
-
-    .top-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .top-user-text-title {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .top-user-text-sub {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .top-pill {
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.65);
-      background: rgba(15,23,42,0.9);
-      color: #9ca3af;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .top-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 6px rgba(34,197,94,0.9);
-    }
-
-    .panel-card {
-      flex: 1;
-      border-radius: 18px;
-      background:
-        radial-gradient(circle at top, rgba(148,163,184,0.2), transparent 70%),
-        linear-gradient(180deg, rgba(15,23,42,0.96), rgba(15,23,42,0.98));
-      border: 1px solid rgba(51, 65, 85, 0.95);
-      box-shadow:
-        inset 0 0 0 1px rgba(148, 163, 184, 0.4),
-        0 18px 34px rgba(0, 0, 0, 0.95);
-      padding: 16px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .panel-title {
-      font-size: 16px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #9ca3af;
-    }
-
-    .panel-body {
-      font-size: 14px;
-      color: #e5e7eb;
-      max-width: 700px;
-      line-height: 1.6;
-      padding-right: 6px;
-    }
-
-    .panel-body ul {
-      margin-top: 10px;
-      margin-left: 18px;
-      list-style: disc;
-    }
-
-    .panel-body li {
-      margin-bottom: 4px;
-    }
-
-    .panel-footer {
-      margin-top: auto;
-      font-size: 11px;
-      color: #6b7280;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .section { display: none; }
-    .section.active { display: block; }
-
-    .rules-block {
-      font-size: 13px;
-      color: #e5e7eb;
-      line-height: 1.6;
-      margin-bottom: 12px;
-    }
-
-    .rules-block p { margin-bottom: 6px; }
-
-    .rules-block ul {
-      margin-left: 20px;
-      margin-bottom: 6px;
-      list-style: disc;
-    }
-
-    .personal-form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .personal-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 10px;
-    }
-
-    .personal-label {
-      font-size: 12px;
-      margin-bottom: 2px;
-    }
-
-    .personal-input, .personal-select, .personal-textarea {
-      width: 100%;
-      padding: 7px 9px;
-      border-radius: 10px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.95);
-      color: #e5e7eb;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-    }
-
-    .personal-input:focus,
-    .personal-select:focus,
-    .personal-textarea:focus {
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 1px rgba(56,189,248,0.6);
-      background: rgba(15,23,42,0.98);
-    }
-
-    .personal-textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-
-    .personal-header-preview {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-top: 4px;
-      padding: 6px 8px;
-      border-radius: 10px;
-      border: 1px dashed rgba(75,85,99,0.9);
-      background: rgba(15,23,42,0.8);
-    }
-
-    .promo-list {
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .promo-row {
-      display: grid;
-      grid-template-columns: 130px minmax(0, 1.6fr) minmax(0, 1.5fr);
-      gap: 6px;
-      align-items: center;
-    }
-
-    .promo-row input[type="date"],
-    .promo-row select {
-      width: 100%;
-      padding: 6px 8px;
+      padding: 10px;
+      background: #1e293b;
+      border: 1px solid #475569;
       border-radius: 8px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.95);
-      color: #e5e7eb;
-      font-size: 12px;
-    }
-
-    .promo-row input[type="file"] {
-      font-size: 11px;
-    }
-
-    .promo-add-btn {
-      margin-top: 6px;
-      align-self: flex-start;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(56,189,248,0.8);
-      background: rgba(15,23,42,0.9);
-      color: #e5e7eb;
-      font-size: 12px;
+      color: #e2e8f0;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
+      text-align: left;
     }
-
-    .promo-add-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 16px rgba(15,23,42,0.8);
-      background: rgba(30,64,175,0.96);
+    .nav-btn:hover { background: #334155; }
+    
+    /* ----- СЕССИЯ ----- */
+    .logout {
+      margin-top: auto;
+      background: #ef4444;
     }
-
-    .personal-save-btn {
-      margin-top: 10px;
-      align-self: flex-start;
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: none;
+    .logout:hover { background: #dc2626; }
+    
+    /* ----- СЕКЦИИ ----- */
+    .panel-section {
+      padding: 20px;
+    }
+    
+    #section-personal .pf-item {
+      padding: 10px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      margin-bottom: 10px;
       cursor: pointer;
-      font-size: 13px;
-      background: radial-gradient(circle at 0 0, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 12px 22px rgba(22,163,74,0.8);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, filter 0.1s ease;
     }
-
-    .personal-save-btn:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05);
+    #section-personal .pf-item:hover {
+      background: #334155;
     }
-
-    .personal-note {
-      font-size: 11px;
-      color: #9ca3af;
-      margin-top: 4px;
-    }
-
-    .personal-files-list-wrapper {
-      margin-top: 16px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(55,65,81,0.8);
-    }
-
-    .personal-files-list {
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 180px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .personal-file-item {
-      padding: 7px 9px;
+    
+    .pf-view {
+      padding: 20px;
+      background: #0f172a;
       border-radius: 10px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.95);
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      border: 1px solid #334155;
     }
-
-    .personal-file-item.me {
-      border-color: rgba(56,189,248,0.9);
-      box-shadow:
-        0 0 0 1px rgba(56,189,248,0.5),
-        0 0 12px rgba(56,189,248,0.6);
+    
+    /* ----- ЛИДЕРЫ ----- */
+    .leader-card {
+      padding: 12px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      margin-bottom: 10px;
     }
-
-    .personal-file-item-title {
-      font-weight: 500;
+    .leader-name {
+      font-size: 18px;
     }
-
-    .personal-file-item-meta {
-      font-size: 11px;
-      color: #9ca3af;
+    .leader-notes {
+      margin-top: 6px;
+      font-size: 13px;
     }
-
-    /* Кнопка рядовых */
-
-    #rookie-info-btn {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: 1px solid rgba(234,179,8,0.9);
-      background:
-        radial-gradient(circle at 0 0, rgba(250,204,21,0.3), transparent 60%),
-        rgba(15,23,42,0.98);
-      color: #fef9c3;
-      font-size: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow:
-        0 0 0 1px rgba(250,204,21,0.7),
-        0 0 22px rgba(250,204,21,0.9);
-      transition: transform 0.1s ease, box-shadow 0.12s ease, background 0.12s ease;
-      z-index: 5;
-      text-align: center;
-    }
-
-    #rookie-info-btn span.note {
-      font-size: 11px;
-      color: #facc15;
-    }
-
-    #rookie-info-btn:hover {
-      transform: translateX(-50%) translateY(-1px);
-      box-shadow:
-        0 0 0 1px rgba(252,211,77,0.9),
-        0 0 30px rgba(250,204,21,1);
-    }
-
-    /* Модалки */
-
+    
+    /* ----- МОДАЛКА ----- */
     .modal-backdrop {
-      position: absolute;
+      position: fixed;
       inset: 0;
-      background: rgba(15,23,42,0.78);
+      background: rgba(0,0,0,.65);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 20;
     }
-
+    
     .modal-backdrop.active { display: flex; }
-
+    
     .modal {
+      background: #1e293b;
+      padding: 18px;
+      width: 360px;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0,0,0,.6);
+    }
+    
+    .modal input {
+      margin-bottom: 10px;
+      padding: 8px;
       width: 100%;
-      max-width: 520px;
-      max-height: 90vh;
-      background: radial-gradient(circle at top, rgba(56,189,248,0.18), transparent 65%),
-                  rgba(15,23,42,0.98);
-      border-radius: 18px;
-      border: 1px solid rgba(56,189,248,0.8);
-      box-shadow: 0 22px 40px rgba(0,0,0,0.95);
-      padding: 18px 18px 14px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      color: white;
     }
-
-    .modal-title {
-      font-size: 18px;
-      margin-bottom: 4px;
-    }
-
-    .modal-sub {
-      font-size: 13px;
-      color: #9ca3af;
-      margin-bottom: 6px;
-    }
-
-    .modal-content {
-      font-size: 13px;
-      line-height: 1.6;
-      color: #e5e7eb;
-      overflow-y: auto;
-      padding-right: 4px;
-      max-height: 55vh;
-    }
-
-    .modal-content p { margin-bottom: 6px; }
-    .modal-content ul { margin-left: 18px; margin-bottom: 6px; list-style: disc; }
-
+    
     .modal-footer {
       display: flex;
       justify-content: flex-end;
-      margin-top: 8px;
-      gap: 8px;
-    }
-
-    .modal-btn {
-      padding: 7px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: rgba(15,23,42,0.96);
-      color: #e5e7eb;
-      font-size: 13px;
-      cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
-    }
-
-    .modal-btn.primary {
-      background: radial-gradient(circle at 0 0, #f97316, #2563eb);
-      border-color: rgba(59,130,246,0.9);
-      box-shadow: 0 10px 24px rgba(37,99,235,0.8);
-    }
-
-    .modal-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 18px rgba(15,23,42,0.9);
-    }
-
-    .step-link {
-      font-size: 12px;
-      color: #93c5fd;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    /* Админ-панель */
-
-    #section-admin .admin-note {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-bottom: 10px;
-    }
-
-    .admin-users-list {
-      margin-top: 10px;
-      max-height: 340px;
-      overflow-y: auto;
-      padding-right: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .admin-user-card {
-      display: grid;
-      grid-template-columns: auto 1fr;
       gap: 10px;
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.95);
-      align-items: center;
+      margin-top: 12px;
     }
-
-    .admin-user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.9);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #9ca3af;
-      flex-shrink: 0;
-    }
-
-    .admin-user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .admin-user-main {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 12px;
-    }
-
-    .admin-user-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .admin-user-nick {
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .admin-role-badge {
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: rgba(15,23,42,0.96);
-      color: #e5e7eb;
-    }
-
-    .admin-role-badge.admin {
-      border-color: rgba(248,250,252,0.9);
-      background: linear-gradient(135deg, #f97316, #ef4444);
-    }
-
-    .admin-role-badge.moderator {
-      border-color: rgba(96,165,250,0.9);
-      background: linear-gradient(135deg, #1d4ed8, #0ea5e9);
-    }
-
-    .admin-user-meta {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .admin-user-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .admin-btn-sm {
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(55,65,81,0.9);
-      background: rgba(15,23,42,0.96);
-      color: #e5e7eb;
-      font-size: 11px;
+    
+    .modal-btn {
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #334155;
+      border: none;
       cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.1s ease, background 0.1s ease;
+      color: white;
     }
-
-    .admin-btn-sm:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 10px rgba(15,23,42,0.9);
-      background: rgba(30,64,175,0.96);
-    }
-
-    .admin-avatar-input {
-      font-size: 11px;
-    }
-
-    @media (max-width: 1024px) {
-      #panel-root.active .frame { transform: scale(0.9); transform-origin: center; }
-    }
-    @media (max-width: 860px) {
-      #panel-root.active .frame { transform: scale(0.8); }
-    }
-    @media (max-width: 720px) {
-      body { padding: 8px; }
-      #panel-root.active .frame { transform: scale(0.7); }
+    .modal-btn.primary {
+      background: #2563eb;
     }
   </style>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <!-- AUTH ROOT -->
-  <div id="auth-root">
-    <div class="app-card">
-      <div class="badge">PP</div>
 
-      <!-- Регистрация -->
-      <section id="register-screen" class="auth-screen">
-        <h1>Police Platinum</h1>
-        <p class="subtitle">Регистрация офицера для доступа к панели.</p>
+<!-- ======= ЭКРАН АВТОРИЗАЦИИ ======= -->
+<div id="auth-root">
+  <div class="app-card">
+    <div class="badge">PD</div>
 
-        <div class="pill">
-          <span class="pill-dot"></span>
-          Ник строго в формате: <strong>Имя_Фамилия</strong> (только буквы, без цифр)
+    <h1>Police Platinum</h1>
+    <div class="subtitle">Система сотрудников PD</div>
+
+    <div id="auth-login" class="auth-screen active">
+      <form>
+        <div class="field">
+          <label>Ник</label>
+          <input type="text" id="login-nick">
         </div>
+        <div class="field">
+          <label>Пароль</label>
+          <input type="password" id="login-pass">
+        </div>
+        <button type="button" id="login-btn" class="btn">Войти</button>
+      </form>
+    </div>
 
-        <form id="register-form" novalidate>
-          <div class="field">
-            <label for="reg-nick">Ник</label>
-            <input id="reg-nick" type="text" placeholder="Marsello_Nelson" autocomplete="off" />
-            <div class="hint">
-              Русские или английские буквы и подчёркивание. Пример: <code>John_Smith</code>.
-            </div>
-            <div class="error" id="reg-nick-error"></div>
-          </div>
-
-          <div class="field">
-            <label for="reg-password">Пароль</label>
-            <div class="password-row">
-              <input id="reg-password" type="password" placeholder="минимум 6 символов" />
-              <button type="button" class="password-toggle" id="reg-password-toggle" title="Показать пароль">👁</button>
-            </div>
-            <div class="error" id="reg-password-error"></div>
-          </div>
-
-          <div class="field">
-            <label>Департамент (игровой)</label>
-            <div class="departments" id="reg-departments">
-              <div class="dept-option" data-value="LSPD">
-                LSPD
-                <span>Los Santos PD</span>
-              </div>
-              <div class="dept-option" data-value="SFPD">
-                SFPD
-                <span>San Fierro PD</span>
-              </div>
-              <div class="dept-option" data-value="LVPD">
-                LVPD
-                <span>Las Venturas PD</span>
-              </div>
-            </div>
-            <div class="error" id="reg-department-error"></div>
-          </div>
-
-          <div class="field">
-            <label for="reg-avatar">Аватарка</label>
-            <input id="reg-avatar" type="file" accept="image/*" />
-            <div class="hint">
-              Картинка будет обрезана до 500×500 и сохранена локально и в Supabase (хранилище).
-            </div>
-            <div class="error" id="reg-avatar-error"></div>
-            <div class="avatar-preview" id="reg-avatar-preview">
-              Аватар ещё не выбран
-            </div>
-          </div>
-
-          <button type="submit" class="btn">
-            Завершить регистрацию
-          </button>
-
-          <p class="small-note">
-            Локально данные в браузере, плюс серверная копия в Supabase (users + личные дела).
-          </p>
-
-          <div class="auth-link" id="to-login-link">
-            Уже есть аккаунт? Войти
-          </div>
-        </form>
-      </section>
-
-      <!-- Логин -->
-      <section id="login-screen" class="auth-screen">
-        <h1>Police Platinum</h1>
-        <p class="subtitle">Вход в панель офицера.</p>
-
-        <form id="login-form" novalidate>
-          <div class="field">
-            <label for="login-nick">Ник</label>
-            <input id="login-nick" type="text" placeholder="Имя_Фамилия" autocomplete="off" />
-            <div class="error" id="login-nick-error"></div>
-          </div>
-
-          <div class="field">
-            <label for="login-password">Пароль</label>
-            <div class="password-row">
-              <input id="login-password" type="password" placeholder="Ваш пароль" />
-              <button type="button" class="password-toggle" id="login-password-toggle" title="Показать пароль">👁</button>
-            </div>
-            <div class="error" id="login-password-error"></div>
-          </div>
-
-          <button type="submit" class="btn">
-            Войти
-          </button>
-
-          <div class="auth-link" id="login-reset">
-            Очистить регистрацию и создать новый аккаунт
-          </div>
-        </form>
-      </section>
-
-      <button id="personal-file-auth-btn" class="hidden">
-        📂 Создать личное дело
-      </button>
+    <div id="auth-register" class="auth-screen">
+      <form>
+        <div class="field">
+          <label>Ник</label>
+          <input type="text" id="reg-nick">
+        </div>
+        <div class="field">
+          <label>Пароль</label>
+          <input type="password" id="reg-pass">
+        </div>
+        <div class="field">
+          <label>Департамент</label>
+          <select id="reg-dept">
+            <option>LSPD</option>
+            <option>SFPD</option>
+            <option>LVPD</option>
+          </select>
+        </div>
+        <button type="button" id="reg-btn" class="btn">Создать аккаунт</button>
+      </form>
     </div>
   </div>
+</div>
 
-  <!-- PANEL ROOT -->
-  <div id="panel-root">
-    <div class="frame">
-      <!-- модалка обучения копа -->
-      <div class="modal-backdrop" id="onboarding-modal">
-        <div class="modal">
-          <h2 class="modal-title">Давай обучимся игре за копа</h2>
-          <p class="modal-sub">
-            Перед тем как ворваться в патруль, настроим базовые вещи. Это займёт пару минут.
-          </p>
-          <div class="modal-content">
-            <ol>
-              <li>
-                <strong>Создай личное дело.</strong><br />
-                В левой панели нажми кнопку
-                <em>«Создать личное дело»</em>, если она подсвечивается.
-              </li>
-              <li>
-                <strong>Скачай биндер.</strong><br />
-                Используй кнопку <span class="step-link" id="step-open-binder">«Скачать биндер»</span> в левой панели.
-              </li>
-              <li>
-                <strong>Освой биндер.</strong><br />
-                Открой биндер, изучи горячие клавиши и пропиши под себя базовые фразы:
-                доклады, задержания, построения, вызовы диспетчеру.
-              </li>
-            </ol>
-          </div>
-          <div class="modal-footer">
-            <button class="modal-btn" id="onboarding-close-soft">Напомнить позже</button>
-            <button class="modal-btn primary" id="onboarding-close">Погнали в панель</button>
-          </div>
-        </div>
-      </div>
 
-      <!-- модалка для рядовых -->
-      <div class="modal-backdrop" id="rookie-modal">
-        <div class="modal">
-          <h2 class="modal-title">Вся информация для рядовых</h2>
-          <p class="modal-sub">
-            Нажми, если ты только вступил в PD. Обязательно прочитай перед началом службы.
-          </p>
-          <div class="modal-content">
-            <p><strong>Police Academy [PA][1-2] — Полицейская академия</strong></p>
-            <p>
-              Police Academy [PA][1-2] (новобранцы) — отдел полицейской академии для обучения
-              новичков, только вступивших в ряды полицейского департамента. Сюда входят экзамены,
-              юридическая подготовка, обучение по обращению с оружием и правилам поведения
-              в патруле (со звания Сержант [2]).
-            </p>
-            <p>
-              Академия готовит новобранцев в отдел патрульного дивизиона (PD), в который они
-              будут направлены по окончанию успешно пройденных экзаменов.
-            </p>
-            <p>
-              В отдел зачисляются все сотрудники, которые проходят обучение в полицейской
-              академии (1–2 ранг).
-            </p>
-            <p><strong>Правила использования рации:</strong><br />
-              Позывной Police Academy: <code>[PA]</code><br />
-              Пример: <code>![PA] Прием...</code>
-            </p>
-            <p><strong>Отыгровка значка (пример):</strong><br />
-              <code>/me На поясе значок сотрудника полицейской академии LVPD с номером [номер аккаунта в квадратных скобках]</code>
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button class="modal-btn primary" id="rookie-close">Понял, принял</button>
-          </div>
-        </div>
-      </div>
+<!-- ======= ОСНОВНАЯ ПАНЕЛЬ ======= -->
+<div id="panel-root">
+  <div class="frame">
+    
+    <!-- ===== ЛЕВАЯ НАВИГАЦИЯ ===== -->
+    <aside class="sidebar">
+      <div id="user-nick" class="user-nick"></div>
+      <div id="user-role" class="user-role"></div>
 
-      <!-- левая панель -->
-      <aside class="sidebar">
-        <div class="logo-row">
-          <div class="logo-badge">PP</div>
-          <div>
-            <div class="logo-text-title">Police Platinum</div>
-            <div class="logo-text-sub">Панель офицера</div>
-          </div>
-        </div>
+      <button class="nav-btn" id="btn-home" onclick="openTab('home')">🏠 Главная</button>
+      <button class="nav-btn" id="btn-personal" onclick="openTab('personal')">📂 Личные дела</button>
+      <button class="nav-btn" id="btn-leadership" onclick="openTab('leadership')">📘 Руководство полиции</button>
 
-        <div class="sidebar-section-title">НАВИГАЦИЯ</div>
+      <button id="logout" class="btn logout">Выйти</button>
+    </aside>
 
-        <button class="nav-btn primary" id="download-binder-btn">
-          <span class="icon">⬇</span>
-          <span>Скачать биндер</span>
-        </button>
+    <!-- ===== ПРАВАЯ ЧАСТЬ (КОНТЕНТ СЕКЦИИ) ===== -->
+    <main id="panel-content">
+      <section id="section-home" class="panel-section">
+        <h2>Главная панель</h2>
+        <p>Добро пожаловать в систему сотрудников PD!</p>
+      </section>
 
-        <button class="nav-btn" id="personal-file-btn">
-          <span class="icon">📂</span>
-          <span id="personal-file-btn-text">Личное дело</span>
-        </button>
+      <section id="section-personal" class="panel-section" style="display:none"></section>
 
-        <button class="nav-btn" id="admin-panel-btn">
-          <span class="icon">⚙️</span>
-          <span>Админ-панель</span>
-        </button>
+      <section id="section-leadership" class="panel-section" style="display:none"></section>
+    </main>
 
-        <div class="sidebar-section-title">СЕССИЯ</div>
+  </div>
+</div>
 
-        <div class="sidebar-footer">
-          <button id="sidebar-logout">Выйти в окно входа</button>
-          <span>Если не заходишь больше суток — понадобится повторный вход по нику и паролю.</span>
-        </div>
-      </aside>
 
-      <!-- правая часть -->
-      <main class="main">
-        <div class="top-bar">
-          <div class="top-user">
-            <div class="top-avatar" id="top-avatar">PP</div>
-            <div>
-              <div class="top-user-text-title" id="top-nick">Офицер</div>
-              <div class="top-user-text-sub" id="top-dept">Департамент</div>
-            </div>
-          </div>
-          <div class="top-pill" id="top-role-pill">
-            <span class="top-dot"></span>
-            Статус: в сети
-          </div>
-        </div>
+<!-- ===== МОДАЛКА ДЛЯ ЛИДЕРОВ ===== -->
+<div id="leader-edit-modal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Редактирование подписей</h3>
 
-        <div class="panel-card">
-          <div class="panel-title">главная панель</div>
+    <input type="text" id="led-note1" placeholder="Подпись 1">
+    <input type="text" id="led-note2" placeholder="Подпись 2">
+    <input type="text" id="led-note3" placeholder="Подпись 3">
 
-          <!-- секция "дом" -->
-          <div id="section-home" class="panel-body section active">
-            Это главная панель Police Platinum. Здесь будут собраны ссылки на биндер, личное дело,
-            задачи и статистику. Сейчас главное — настроить биндер и привести в порядок данные офицера.
-            <ul>
-              <li>Используй кнопку <strong>«Скачать биндер»</strong> слева, чтобы забрать архив с биндером.</li>
-              <li>Зайди в раздел <strong>«Личное дело»</strong>, чтобы оформить свою тему по форме.</li>
-              <li>Если ты только что вступил в PD — нажми кнопку <strong>«Вся информация для рядовых»</strong> внизу.</li>
-            </ul>
-          </div>
+    <label>Цвет подписей</label>
+    <input type="color" id="led-color" class="modal-color">
 
-          <!-- секция "личное дело" -->
-          <div id="section-personal" class="panel-body section">
-            <div class="rules-block">
-              <p><strong>Правила раздела личных дел</strong></p>
-              <p>
-                В данном разделе каждый сотрудник, вступивший на службу в полицейский департамент,
-                обязан создать личное дело строго по указанной форме и своевременно заполнять его.
-                Все последующие отчёты о работе (на повышение, премии, чистки) оформляются в этот раздел.
-              </p>
-              <ul>
-                <li>Каждый сотрудник обязан следить за актуальностью информации личного дела.</li>
-                <li>При увольнении личное дело закрывается и удаляется (архивируется).</li>
-                <li>При возвращении в ПД личное дело создаётся заново.</li>
-              </ul>
-              <p>
-                Проверкой отчётов в данном разделе занимаются офицеры со звания
-                <strong>Подполковник [8]</strong>.
-              </p>
-              <ul>
-                <li>При отказе в отчёте сотрудник отправляет исправление цитатой, не редактируя исходный пост.</li>
-                <li>Флуд, маты, оскорбления, Offtop — удаляются, аккаунты блокируются.</li>
-                <li>Темы не по форме — удаляются.</li>
-              </ul>
-              <p><strong>Оформляйте личное дело аккуратно и без ошибок. Графическое оформление приветствуется.</strong></p>
-            </div>
-
-            <div class="personal-form">
-              <div>
-                <div class="personal-label"><strong>Заголовок темы</strong> (формируется автоматически):</div>
-                <div class="personal-header-preview" id="personal-header-preview">
-                  [Отдел] Имя_Фамилия [Номер аккаунта]
-                </div>
-              </div>
-
-              <div class="personal-grid">
-                <div>
-                  <div class="personal-label">Отдел (форумный)</div>
-                  <select id="pf-dept" class="personal-select">
-                    <option value="">Выберите отдел…</option>
-                    <option value="SWAT">SWAT</option>
-                    <option value="PD">PD</option>
-                    <option value="PA">PA</option>
-                    <option value="CHIEF">CHIEF</option>
-                    <option value="IAG">IAG</option>
-                    <option value="Cmdr.SWAT">Cmdr.SWAT</option>
-                    <option value="DCmdr.SWAT">DCmdr.SWAT</option>
-                  </select>
-                </div>
-
-                <div>
-                  <div class="personal-label">Имя_Фамилия (как в игре)</div>
-                  <input id="pf-nick" type="text" class="personal-input" placeholder="Имя_Фамилия" />
-                </div>
-
-                <div>
-                  <div class="personal-label">Номер аккаунта (только цифры)</div>
-                  <input id="pf-account" type="text" class="personal-input" placeholder="522501" />
-                </div>
-
-                <div>
-                  <div class="personal-label">Дата рождения</div>
-                  <input id="pf-birth" type="text" class="personal-input" placeholder="01.01.2000" />
-                </div>
-
-                <div>
-                  <div class="personal-label">Номер значка / аккаунта (ссылка)</div>
-                  <input id="pf-badge-link" type="text" class="personal-input" placeholder="Ссылка на аккаунт / профиль" />
-                </div>
-
-                <div>
-                  <div class="personal-label">Текущее звание</div>
-                  <input id="pf-rank" type="text" class="personal-input" placeholder="Сержант / Капитан / ..." />
-                </div>
-
-                <div>
-                  <div class="personal-label">Контактный номер телефона</div>
-                  <input id="pf-phone" type="text" class="personal-input" placeholder="Номер телефона" />
-                </div>
-
-                <div>
-                  <div class="personal-label">Альтернативное средство связи</div>
-                  <input id="pf-contact" type="text" class="personal-input" placeholder="VK / Discord" />
-                </div>
-              </div>
-
-              <div>
-                <div class="personal-label">История повышений</div>
-                <div class="personal-note">
-                  Указывайте дату повышения и прикрепляйте скриншот (скрин — необязателен, но рекомендован).
-                </div>
-                <div id="promo-list" class="promo-list"></div>
-                <button type="button" id="add-promo-btn" class="promo-add-btn">
-                  + Добавить запись о повышении
-                </button>
-              </div>
-
-              <button type="button" id="save-personal-btn" class="personal-save-btn">
-                💾 Сохранить личное дело
-              </button>
-              <div class="personal-note" id="personal-save-note"></div>
-
-              <div class="personal-files-list-wrapper">
-                <div class="personal-label">
-                  <strong>Список созданных личных дел (из Supabase)</strong>
-                </div>
-                <div class="personal-note">
-                  Ваше личное дело всегда отображается вверху списка и подсвечивается для вас.
-                </div>
-                <div id="personal-files-list" class="personal-files-list"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- секция "админка" -->
-          <div id="section-admin" class="panel-body section">
-            <div class="personal-label"><strong>Админ-панель</strong></div>
-            <div class="admin-note">
-              Здесь можно смотреть список зарегистрированных пользователей, менять им роль и аватарки.
-              ⚠ Технически это всё на фронте, так что не храните тут суперсекреты.
-            </div>
-            <div id="admin-users-list" class="admin-users-list">
-              Загрузка списка пользователей...
-            </div>
-          </div>
-
-          <div class="panel-footer">
-            <span>Версия панели: 0.5 (Supabase: роли, админ-панель, смена аватарок).</span>
-            <span>Биндер: положи файл <code>binder.zip</code> рядом с сайтом для рабочей кнопки.</span>
-          </div>
-        </div>
-
-        <button id="rookie-info-btn">
-          ℹ Вся информация для рядовых
-          <span class="note">(нажми, если ты только вступил в PD — обязательно)</span>
-        </button>
-      </main>
+    <div class="modal-footer">
+      <button class="modal-btn" onclick="closeLeaderEdit()">Отмена</button>
+      <button class="modal-btn primary" onclick="saveLeaderNotes()">Сохранить</button>
     </div>
   </div>
+</div>
 
-  <!-- Supabase JS -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  </script>
+<!-- ===== ВСТАВИТЬ JS ЧАСТЬ 1 СЮДА ===== -->
+<script id="js-part1"></script>
+const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
+const SUPABASE_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
 
-  <script>
-    const DAY_MS = 24 * 60 * 60 * 1000;
-    const STORAGE_KEY = "pp_user";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function loadUser() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      try { return JSON.parse(raw); } catch { return null; }
+let CURRENT_USER = null;
+
+function normalizeNick(n) {
+  if (!n) return null;
+  n = n.trim().replace(/[^A-Za-zА-Яа-яЁё_]/g, "");
+  if (!n.includes("_")) return null;
+  let [a, b] = n.split("_");
+  if (!a || !b) return null;
+  return a.charAt(0).toUpperCase() + a.slice(1).toLowerCase() + "_" +
+         b.charAt(0).toUpperCase() + b.slice(1).toLowerCase();
+}
+
+async function userExists(nick) {
+  let { data } = await db.from("users").select("id").eq("nick", nick);
+  return data && data.length > 0;
+}
+
+/* ===========================
+   АВТОРИЗАЦИЯ
+=========================== */
+document.getElementById("login-btn").onclick = login;
+document.getElementById("reg-btn").onclick = register;
+
+async function register() {
+  let nick = normalizeNick(document.getElementById("reg-nick").value);
+  let pass = document.getElementById("reg-pass").value;
+  let dept = document.getElementById("reg-dept").value;
+
+  if (!nick || pass.length < 4) {
+    alert("Неверный ник или короткий пароль");
+    return;
+  }
+
+  if (await userExists(nick)) {
+    alert("Этот ник уже зарегистрирован");
+    return;
+  }
+
+  let { error } = await db.from("users").insert({
+    nick, password: pass, department: dept, role: "user",
+    notes1: "", notes2: "", notes3: "", notes_color: "#ffffff"
+  });
+
+  if (error) return alert("Ошибка регистрации");
+
+  alert("Создано!");
+  switchToLogin();
+}
+
+async function login() {
+  let nick = normalizeNick(document.getElementById("login-nick").value);
+  let pass = document.getElementById("login-pass").value;
+
+  let { data } = await db
+    .from("users")
+    .select("*")
+    .eq("nick", nick)
+    .single();
+
+  if (!data || data.password !== pass) {
+    alert("Неверный логин/пароль");
+    return;
+  }
+
+  CURRENT_USER = data;
+  localStorage.setItem("pd_user", JSON.stringify(CURRENT_USER));
+  openPanel();
+}
+
+/* ===========================
+   ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
+=========================== */
+function switchToLogin() {
+  document.getElementById("auth-register").classList.remove("active");
+  document.getElementById("auth-login").classList.add("active");
+}
+
+function openPanel() {
+  document.getElementById("auth-root").style.display = "none";
+  document.getElementById("panel-root").style.display = "block";
+
+  document.getElementById("user-nick").textContent = CURRENT_USER.nick;
+  document.getElementById("user-role").textContent = CURRENT_USER.role;
+
+  openTab("home");
+}
+
+function openTab(tab) {
+  document.querySelectorAll(".panel-section").forEach(s => s.style.display = "none");
+
+  if (tab === "home") document.getElementById("section-home").style.display = "block";
+  if (tab === "personal") loadPersonalFiles();
+  if (tab === "leadership") loadLeadership();
+}
+
+<!-- ===== ВСТАВИТЬ JS ЧАСТЬ 2 СЮДА ===== -->
+<script id="js-part2"></script>
+    /* =======================================
+   ЛИЧНЫЕ ДЕЛА — СПИСОК И ПРОСМОТР
+======================================= */
+
+async function loadPersonalFiles() {
+  document.getElementById("section-personal").innerHTML = "<h2>Личные дела</h2>";
+
+  let { data } = await db.from("personal_files").select("*");
+
+  let wrap = document.getElementById("section-personal");
+
+  // Если у пользователя уже есть личное дело — не показываем форму создания
+  let mine = data.find(f => f.nick === CURRENT_USER.nick);
+
+  if (mine) {
+    let div = document.createElement("div");
+    div.className = "pf-view";
+    div.innerHTML = `
+      <h3>Ваше личное дело</h3>
+      <p><b>Ник:</b> ${mine.nick}</p>
+      <p><b>Звание:</b> ${mine.rank || "-"}</p>
+      <button onclick="deleteMyPersonalFile()" class="btn" style="background:#dc2626">Удалить личное дело</button>
+      <hr>
+    `;
+    wrap.appendChild(div);
+  }
+
+  wrap.innerHTML += `<h3>Список личных дел</h3>`;
+
+  data.forEach(pf => {
+    let item = document.createElement("div");
+    item.className = "pf-item";
+    item.innerHTML = `[${pf.dept}] ${pf.nick} [${pf.account}]`;
+    item.onclick = () => openPersonalFile(pf);
+    wrap.appendChild(item);
+  });
+
+  document.getElementById("section-personal").style.display = "block";
+}
+
+async function deleteMyPersonalFile() {
+  if (!confirm("Удалить ваше личное дело?")) return;
+
+  await db.from("personal_files").delete().eq("nick", CURRENT_USER.nick);
+  alert("Удалено!");
+  loadPersonalFiles();
+}
+
+/* Открытие личного дела */
+
+function openPersonalFile(pf) {
+  let wrap = document.getElementById("section-personal");
+  wrap.innerHTML = `
+    <button class="btn" onclick="openTab('personal')">⬅ Назад</button>
+    <div class="pf-view">
+      <h2>${pf.nick}</h2>
+      <p><b>Отдел:</b> ${pf.dept}</p>
+      <p><b>Аккаунт:</b> ${pf.account}</p>
+      <p><b>Звание:</b> ${pf.rank}</p>
+      <p><b>Контакты:</b> ${pf.contact}</p>
+      <p><b>Дата рождения:</b> ${pf.birth}</p>
+      <hr>
+  `;
+
+  // Админ/модер может править
+  if (["admin", "moderator"].includes(CURRENT_USER.role)) {
+    wrap.innerHTML += `
+      <button class="btn" onclick="editPersonalFile('${pf.nick}')">Изменить данные</button>
+    `;
+  }
+
+  wrap.innerHTML += "</div>";
+}
+
+function editPersonalFile(nick) {
+  // Позже сюда вставляется форма редактирования
+  alert("Редактирование будет добавлено (вписывается сюда)");
+}
+
+
+<!-- ===== ВСТАВИТЬ JS ЧАСТЬ 3 СЮДА ===== -->
+<script id="js-part3"></script>
+    /* =======================================
+   РУКОВОДСТВО ПОЛИЦИИ
+======================================= */
+
+let EDITING_LEADER = null;
+
+async function loadLeadership() {
+  let sec = document.getElementById("section-leadership");
+  sec.innerHTML = "<h2>Руководство полиции</h2>";
+
+  let { data } = await db.from("users").select("*");
+
+  let leaders = data.filter(u => ["admin", "moderator"].includes(u.role));
+
+  leaders.forEach(l => {
+    let card = document.createElement("div");
+    card.className = "leader-card";
+
+    card.innerHTML = `
+      <div class="leader-name">${l.nick} (${l.role})</div>
+      <div class="leader-notes" style="color:${l.notes_color}">
+        ${l.notes1 || ""}<br>
+        ${l.notes2 || ""}<br>
+        ${l.notes3 || ""}
+      </div>
+    `;
+
+    // Админ может редактировать только других, но не самого себя
+    if (CURRENT_USER.role === "admin" && CURRENT_USER.nick !== l.nick) {
+      let btn = document.createElement("button");
+      btn.textContent = "Редактировать";
+      btn.className = "btn";
+      btn.style.marginTop = "10px";
+      btn.onclick = () => openLeaderEdit(l);
+      card.appendChild(btn);
     }
 
-    function saveUser(user) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    }
+    sec.appendChild(card);
+  });
 
-    function clearUser() {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+  sec.style.display = "block";
+}
 
-    function normalizeNick(raw) {
-      if (!raw) return null;
-      let s = raw.trim();
-      s = s.replace(/[^A-Za-zА-Яа-яЁё_]+/g, "");
-      s = s.replace(/_+/g, "_");
-      const parts = s.split("_").filter(Boolean);
-      if (parts.length < 2) return null;
-      const first = parts[0];
-      const last = parts[1];
+/* ===== МОДАЛКА ===== */
 
-      function capitalize(word) {
-        if (!word) return "";
-        const lower = word.toLowerCase();
-        return lower[0].toUpperCase() + lower.slice(1);
-      }
+function openLeaderEdit(l) {
+  EDITING_LEADER = l;
 
-      const name = capitalize(first);
-      const surname = capitalize(last);
-      const result = name + "_" + surname;
+  document.getElementById("led-note1").value = l.notes1 || "";
+  document.getElementById("led-note2").value = l.notes2 || "";
+  document.getElementById("led-note3").value = l.notes3 || "";
+  document.getElementById("led-color").value = l.notes_color || "#ffffff";
 
-      const finalPattern = /^[A-Za-zА-Яа-яЁё]+_[A-Za-zА-Яа-яЁё]+$/;
-      if (!finalPattern.test(result)) return null;
-      return result;
-    }
+  document.getElementById("leader-edit-modal").classList.add("active");
+}
 
-    // Пользовательские элементы
-    const authRoot = document.getElementById("auth-root");
-    const panelRoot = document.getElementById("panel-root");
+function closeLeaderEdit() {
+  EDITING_LEADER = null;
+  document.getElementById("leader-edit-modal").classList.remove("active");
+}
 
-    const registerScreen = document.getElementById("register-screen");
-    const loginScreen = document.getElementById("login-screen");
+async function saveLeaderNotes() {
+  if (!EDITING_LEADER) return;
 
-    const regForm = document.getElementById("register-form");
-    const regNick = document.getElementById("reg-nick");
-    const regPass = document.getElementById("reg-password");
-    const regNickError = document.getElementById("reg-nick-error");
-    const regPassError = document.getElementById("reg-password-error");
-    const regDeptError = document.getElementById("reg-department-error");
-    const regAvatarInput = document.getElementById("reg-avatar");
-    const regAvatarError = document.getElementById("reg-avatar-error");
-    const regAvatarPreview = document.getElementById("reg-avatar-preview");
-    const deptContainer = document.getElementById("reg-departments");
+  let n1 = document.getElementById("led-note1").value;
+  let n2 = document.getElementById("led-note2").value;
+  let n3 = document.getElementById("led-note3").value;
+  let col = document.getElementById("led-color").value;
 
-    const loginForm = document.getElementById("login-form");
-    const loginNick = document.getElementById("login-nick");
-    const loginNickError = document.getElementById("login-nick-error");
-    const loginPass = document.getElementById("login-password");
-    const loginPassError = document.getElementById("login-password-error");
+  await db.from("users")
+    .update({
+      notes1: n1,
+      notes2: n2,
+      notes3: n3,
+      notes_color: col
+    })
+    .eq("nick", EDITING_LEADER.nick);
 
-    const toLoginLink = document.getElementById("to-login-link");
-    const loginReset = document.getElementById("login-reset");
+  closeLeaderEdit();
+  loadLeadership();
+}
 
-    const regPassToggle = document.getElementById("reg-password-toggle");
-    const loginPassToggle = document.getElementById("login-password-toggle");
 
-    const personalFileAuthBtn = document.getElementById("personal-file-auth-btn");
-
-    let selectedDept = null;
-    let avatarDataUrl = null;
-    let currentUser = loadUser();
-
-    function showAuthScreen(which) {
-      registerScreen.classList.remove("active");
-      loginScreen.classList.remove("active");
-      if (which === "register") {
-        registerScreen.classList.add("active");
-      } else {
-        loginScreen.classList.add("active");
-      }
-    }
-
-    function showAuthRoot() {
-      authRoot.style.display = "block";
-      panelRoot.classList.remove("active");
-      panelRoot.style.display = "none";
-    }
-
-    function showPanelRoot() {
-      authRoot.style.display = "none";
-      panelRoot.style.display = "block";
-      panelRoot.classList.add("active");
-    }
-
-    function updatePersonalFileAuthBtn() {
-      if (currentUser && !currentUser.personalFile) {
-        personalFileAuthBtn.classList.remove("hidden");
-      } else {
-        personalFileAuthBtn.classList.add("hidden");
-      }
-    }
-
-    deptContainer.addEventListener("click", (e) => {
-      const option = e.target.closest(".dept-option");
-      if (!option) return;
-      const value = option.getAttribute("data-value");
-      selectedDept = value;
-      Array.from(deptContainer.querySelectorAll(".dept-option")).forEach(el => {
-        el.classList.toggle("active", el === option);
-      });
-      regDeptError.textContent = "";
-    });
-
-    regPassToggle.addEventListener("mouseenter", () => { regPass.type = "text"; });
-    regPassToggle.addEventListener("mouseleave", () => { regPass.type = "password"; });
-
-    loginPassToggle.addEventListener("mouseenter", () => { loginPass.type = "text"; });
-    loginPassToggle.addEventListener("mouseleave", () => { loginPass.type = "password"; });
-
-    // Кроп файла → dataURL 500x500
-    function cropImageFileToDataUrl(file, size = 500) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = new Image();
-          img.onload = function() {
-            const canvas = document.createElement("canvas");
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d");
-
-            const scale = Math.max(size / img.width, size / img.height);
-            const x = (size - img.width * scale) / 2;
-            const y = (size - img.height * scale) / 2;
-
-            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-            resolve(canvas.toDataURL("image/png"));
-          };
-          img.onerror = () => reject(new Error("Ошибка загрузки изображения"));
-          img.src = e.target.result;
-        };
-        reader.onerror = () => reject(new Error("Ошибка чтения файла"));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    regAvatarInput.addEventListener("change", async () => {
-      regAvatarError.textContent = "";
-      const file = regAvatarInput.files[0];
-      if (!file) {
-        avatarDataUrl = null;
-        regAvatarPreview.innerHTML = "Аватар ещё не выбран";
-        return;
-      }
-
-      try {
-        avatarDataUrl = await cropImageFileToDataUrl(file, 500);
-        regAvatarPreview.innerHTML = "";
-        const previewImg = document.createElement("img");
-        previewImg.src = avatarDataUrl;
-        regAvatarPreview.appendChild(previewImg);
-      } catch {
-        regAvatarError.textContent = "Не удалось обработать изображение.";
-        avatarDataUrl = null;
-      }
-    });
-
-    toLoginLink.addEventListener("click", () => {
-      showAuthScreen("login");
-    });
-
-    loginReset.addEventListener("click", () => {
-      clearUser();
-      currentUser = null;
-      selectedDept = null;
-      avatarDataUrl = null;
-      regForm.reset();
-      regAvatarPreview.innerHTML = "Аватар ещё не выбран";
-      Array.from(deptContainer.querySelectorAll(".dept-option")).forEach(el =>
-        el.classList.remove("active")
-      );
-      showAuthScreen("register");
-      updatePersonalFileAuthBtn();
-      regNick.focus();
-    });
-
-    personalFileAuthBtn.addEventListener("click", () => {
-      const now = Date.now();
-      if (!currentUser) return;
-      if (!currentUser.lastLoginAt || now - currentUser.lastLoginAt >= DAY_MS) {
-        alert("Сначала войди по нику и паролю, потом можно создать личное дело.");
-        showAuthScreen("login");
-        loginNick.value = currentUser.nick || "";
-        loginNick.focus();
-        return;
-      }
-      goToPanel("personal");
-    });
-
-    async function uploadAvatarToSupabase(nick, avatarDataUrl) {
-      if (!avatarDataUrl) return null;
-      try {
-        const res = await fetch(avatarDataUrl);
-        const blob = await res.blob();
-        const fileName = `${nick}_avatar_${Date.now()}.png`;
-
-        const { data: storageData, error: storageError } = await supabase.storage
-          .from("avatars")
-          .upload(fileName, blob, {
-            contentType: "image/png",
-            upsert: true
-          });
-
-        if (storageError) {
-          console.error("Ошибка загрузки аватара:", storageError);
-          return null;
-        }
-        const { data: publicUrlData } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(storageData.path);
-        return publicUrlData.publicUrl;
-      } catch (e) {
-        console.error("Ошибка при конвертации аватара:", e);
-        return null;
-      }
-    }
-
-    async function registerOnServer(nick, password, department, avatarDataUrl) {
-      let avatar_url = null;
-      if (avatarDataUrl) {
-        avatar_url = await uploadAvatarToSupabase(nick, avatarDataUrl);
-      }
-
-      const { data, error } = await supabase
-        .from("users")
-        .insert({
-          nick,
-          department,
-          password_hash: password,
-          avatar_url,
-          role: "user"
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Ошибка сохранения пользователя:", error);
-        alert("Не удалось сохранить регистрацию в Supabase: " + error.message);
-        return null;
-      }
-
-      return data;
-    }
-
-    async function loginOnServer(nick, password) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("nick", nick)
-        .single();
-
-      if (error) {
-        console.error("Ошибка поиска пользователя:", error);
-        return { ok: false, reason: "not_found" };
-      }
-
-      if (data.password_hash !== password) {
-        return { ok: false, reason: "bad_password" };
-      }
-
-      return { ok: true, user: data };
-    }
-
-    regForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      regNickError.textContent = "";
-      regPassError.textContent = "";
-      regDeptError.textContent = "";
-      regAvatarError.textContent = "";
-
-      let valid = true;
-
-      const normalizedNick = normalizeNick(regNick.value);
-      if (!normalizedNick) {
-        regNickError.textContent =
-          "Ник должен быть в формате Имя_Фамилия, только буквы, без цифр.";
-        valid = false;
-      }
-
-      const password = regPass.value;
-      if (!password) {
-        regPassError.textContent = "Введите пароль.";
-        valid = false;
-      } else if (password.length < 6) {
-        regPassError.textContent = "Пароль должен быть не короче 6 символов.";
-        valid = false;
-      }
-
-      if (!selectedDept) {
-        regDeptError.textContent = "Выберите департамент.";
-        valid = false;
-      }
-
-      if (!valid) return;
-
-      regNick.value = normalizedNick;
-      const now = Date.now();
-
-      let serverUser = null;
-      try {
-        serverUser = await registerOnServer(normalizedNick, password, selectedDept, avatarDataUrl);
-      } catch (err) {
-        console.error("Ошибка при регистрации на сервере:", err);
-      }
-
-      currentUser = {
-        nick: normalizedNick,
-        password: password,
-        department: selectedDept,
-        avatar: avatarDataUrl || (serverUser ? serverUser.avatar_url : null),
-        registeredAt: now,
-        lastLoginAt: now,
-        personalFile: null,
-        justRegistered: true,
-        serverId: serverUser ? serverUser.id : null,
-        role: serverUser ? serverUser.role || "user" : "user"
-      };
-      saveUser(currentUser);
-      updatePersonalFileAuthBtn();
-      goToPanel("home");
-    });
-
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      loginNickError.textContent = "";
-      loginPassError.textContent = "";
-
-      const stored = loadUser();
-      const normalizedNick = normalizeNick(loginNick.value);
-      if (!normalizedNick) {
-        loginNickError.textContent =
-          "Ник должен быть в формате Имя_Фамилия, только буквы.";
-        return;
-      }
-
-      if (!loginPass.value) {
-        loginPassError.textContent = "Введите пароль.";
-        return;
-      }
-
-      let serverResult = null;
-      try {
-        serverResult = await loginOnServer(normalizedNick, loginPass.value);
-      } catch (err) {
-        console.error("Ошибка логина на сервере:", err);
-      }
-
-      if (serverResult && serverResult.ok) {
-        const now = Date.now();
-        const serverUser = serverResult.user;
-
-        currentUser = {
-          nick: serverUser.nick,
-          password: loginPass.value,
-          department: serverUser.department,
-          avatar: serverUser.avatar_url || stored?.avatar || null,
-          registeredAt: stored?.registeredAt || now,
-          lastLoginAt: now,
-          personalFile: stored?.personalFile || null,
-          justRegistered: false,
-          serverId: serverUser.id,
-          role: serverUser.role || "user"
-        };
-        saveUser(currentUser);
-        updatePersonalFileAuthBtn();
-        goToPanel("home");
-        return;
-      }
-
-      if (serverResult && serverResult.reason === "bad_password") {
-        loginPassError.textContent = "Неверный пароль (Supabase).";
-        return;
-      }
-
-      if (!stored) {
-        loginNickError.textContent = "Пользователь не найден. Зарегистрируйтесь сначала.";
-        return;
-      }
-
-      if (normalizedNick !== stored.nick) {
-        loginNickError.textContent = "Такой ник не зарегистрирован (локально).";
-        return;
-      }
-
-      if (loginPass.value !== stored.password) {
-        loginPassError.textContent = "Неверный пароль (локальный).";
-        return;
-      }
-
-      stored.lastLoginAt = Date.now();
-      stored.justRegistered = false;
-      currentUser = stored;
-      saveUser(currentUser);
-      updatePersonalFileAuthBtn();
-      goToPanel("home");
-    });
-
-    // Панель
-    const topNick = document.getElementById("top-nick");
-    const topDept = document.getElementById("top-dept");
-    const topAvatar = document.getElementById("top-avatar");
-    const topRolePill = document.getElementById("top-role-pill");
-
-    const downloadBinderBtn = document.getElementById("download-binder-btn");
-    const personalFileBtn = document.getElementById("personal-file-btn");
-    const personalFileBtnText = document.getElementById("personal-file-btn-text");
-    const adminPanelBtn = document.getElementById("admin-panel-btn");
-    const sidebarLogout = document.getElementById("sidebar-logout");
-
-    const sectionHome = document.getElementById("section-home");
-    const sectionPersonal = document.getElementById("section-personal");
-    const sectionAdmin = document.getElementById("section-admin");
-
-    const onboardingModal = document.getElementById("onboarding-modal");
-    const onboardingClose = document.getElementById("onboarding-close");
-    const onboardingCloseSoft = document.getElementById("onboarding-close-soft");
-    const stepOpenBinder = document.getElementById("step-open-binder");
-
-    const rookieBtn = document.getElementById("rookie-info-btn");
-    const rookieModal = document.getElementById("rookie-modal");
-    const rookieClose = document.getElementById("rookie-close");
-
-    // личное дело
-    const pfDept = document.getElementById("pf-dept");
-    const pfNick = document.getElementById("pf-nick");
-    const pfAccount = document.getElementById("pf-account");
-    const pfBirth = document.getElementById("pf-birth");
-    const pfBadgeLink = document.getElementById("pf-badge-link");
-    const pfRank = document.getElementById("pf-rank");
-    const pfPhone = document.getElementById("pf-phone");
-    const pfContact = document.getElementById("pf-contact");
-    const pfHeaderPreview = document.getElementById("personal-header-preview");
-    const promoList = document.getElementById("promo-list");
-    const addPromoBtn = document.getElementById("add-promo-btn");
-    const savePersonalBtn = document.getElementById("save-personal-btn");
-    const personalSaveNote = document.getElementById("personal-save-note");
-    const personalFilesList = document.getElementById("personal-files-list");
-
-    // админка
-    const adminUsersList = document.getElementById("admin-users-list");
-
-    function setActiveSection(section) {
-      sectionHome.classList.remove("active");
-      sectionPersonal.classList.remove("active");
-      sectionAdmin.classList.remove("active");
-
-      if (section === "personal") {
-        sectionPersonal.classList.add("active");
-      } else if (section === "admin") {
-        sectionAdmin.classList.add("active");
-      } else {
-        sectionHome.classList.add("active");
-      }
-
-      if (section === "personal") {
-        fillPersonalFileForm();
-      }
-      if (section === "admin") {
-        renderAdminUsers();
-      }
-    }
-
-    function roleLabel(role) {
-      if (role === "admin") return "Администратор";
-      if (role === "moderator") return "Модератор";
-      return "Офицер";
-    }
-
-    function updateTopBar() {
-      if (!currentUser) return;
-      topNick.textContent = currentUser.nick || "Офицер";
-      topDept.textContent = "Департамент: " + (currentUser.department || "—");
-      topAvatar.innerHTML = "";
-      if (currentUser.avatar) {
-        const img = document.createElement("img");
-        img.src = currentUser.avatar;
-        topAvatar.appendChild(img);
-      } else {
-        topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
-      }
-
-      const role = currentUser.role || "user";
-      topRolePill.innerHTML = "";
-      const dot = document.createElement("span");
-      dot.className = "top-dot";
-      const text = document.createElement("span");
-      text.textContent = roleLabel(role);
-      topRolePill.appendChild(dot);
-      topRolePill.appendChild(text);
-    }
-
-    function isAdmin() {
-      return currentUser && (currentUser.role === "admin" || currentUser.role === "moderator");
-    }
-
-    function updateAdminVisibility() {
-      if (isAdmin()) {
-        adminPanelBtn.style.display = "flex";
-      } else {
-        adminPanelBtn.style.display = "none";
-      }
-    }
-
-    function updatePersonalFileNavButton() {
-      if (currentUser && currentUser.personalFile) {
-        personalFileBtnText.textContent = "Личное дело";
-        personalFileBtn.classList.remove("primary");
-      } else {
-        personalFileBtnText.textContent = "Создать личное дело";
-        personalFileBtn.classList.add("primary");
-      }
-    }
-
-    function updateHeaderPreview() {
-      const dept = pfDept.value || "Отдел";
-      const nickRaw = pfNick.value;
-      const normalized = normalizeNick(nickRaw) || nickRaw || "Имя_Фамилия";
-      const acc = pfAccount.value || "Номер аккаунта";
-      pfHeaderPreview.textContent = `[${dept}] ${normalized} [${acc}]`;
-    }
-
-    pfDept.addEventListener("change", updateHeaderPreview);
-    pfNick.addEventListener("input", updateHeaderPreview);
-    pfAccount.addEventListener("input", (e) => {
-      e.target.value = e.target.value.replace(/\D+/g, "");
-      updateHeaderPreview();
-    });
-
-    function addPromotionRow(data) {
-      const row = document.createElement("div");
-      row.className = "promo-row";
-
-      const dateInput = document.createElement("input");
-      dateInput.type = "date";
-      dateInput.value = data && data.date ? data.date : "";
-
-      const rankSelect = document.createElement("select");
-      const ranks = [
-        "[1] Рядовой",
-        "[2] Сержант",
-        "[3] Ст. сержант",
-        "[4] Лейтенант",
-        "[5] Ст. лейтенант",
-        "[6] Капитан",
-        "[7] Майор",
-        "[8] Подполковник",
-        "[9] Полковник",
-        "[10] Генерал"
-      ];
-      const emptyOpt = document.createElement("option");
-      emptyOpt.value = "";
-      emptyOpt.textContent = "Выберите ранг…";
-      rankSelect.appendChild(emptyOpt);
-      ranks.forEach(r => {
-        const opt = document.createElement("option");
-        opt.value = r;
-        opt.textContent = r;
-        rankSelect.appendChild(opt);
-      });
-      rankSelect.value = data && data.rank ? data.rank : "";
-
-      const fileInput = document.createElement("input");
-      fileInput.type = "file";
-      fileInput.accept = "image/*";
-
-      row.appendChild(dateInput);
-      row.appendChild(rankSelect);
-      row.appendChild(fileInput);
-
-      promoList.appendChild(row);
-    }
-
-    addPromoBtn.addEventListener("click", () => addPromotionRow());
-
-    async function fetchPersonalFilesFromServer() {
-      try {
-        const { data, error } = await supabase
-          .from("personal_files")
-          .select("forum_dept, forum_nick, account_number, rank")
-          .order("updated_at", { ascending: false });
-
-        if (error) {
-          console.error("Ошибка загрузки списка личных дел:", error);
-          return [];
-        }
-
-        return data.map(row => ({
-          dept: row.forum_dept,
-          nick: row.forum_nick,
-          account: row.account_number,
-          rank: row.rank || ""
-        }));
-      } catch (e) {
-        console.error("Ошибка fetchPersonalFilesFromServer:", e);
-        return [];
-      }
-    }
-
-    async function renderPersonalFilesList() {
-      if (!personalFilesList) return;
-
-      personalFilesList.innerHTML = "Загрузка списка личных дел...";
-
-      const list = await fetchPersonalFilesFromServer();
-
-      personalFilesList.innerHTML = "";
-
-      if (!list.length) {
-        const empty = document.createElement("div");
-        empty.className = "personal-note";
-        empty.textContent = "Пока нет ни одного созданного личного дела.";
-        personalFilesList.appendChild(empty);
-        return;
-      }
-
-      const myNick =
-        currentUser && currentUser.personalFile
-          ? currentUser.personalFile.nick
-          : currentUser
-          ? currentUser.nick
-          : null;
-
-      list.sort((a, b) => {
-        if (myNick && a.nick === myNick && b.nick !== myNick) return -1;
-        if (myNick && b.nick === myNick && a.nick !== myNick) return 1;
-        return (a.nick || "").localeCompare(b.nick || "", "ru");
-      });
-
-      list.forEach(entry => {
-        const item = document.createElement("div");
-        item.className = "personal-file-item";
-        if (myNick && entry.nick === myNick) {
-          item.classList.add("me");
-        }
-
-        const title = document.createElement("div");
-        title.className = "personal-file-item-title";
-        const dept = entry.dept || "Отдел";
-        const nick = entry.nick || "Имя_Фамилия";
-        const account = entry.account || "номер";
-        title.textContent = `[${dept}] ${nick} [${account}]`;
-
-        const meta = document.createElement("div");
-        meta.className = "personal-file-item-meta";
-        const rank = entry.rank ? `Звание: ${entry.rank}` : "";
-        meta.textContent = rank || "Звание не указано";
-
-        item.appendChild(title);
-        item.appendChild(meta);
-        personalFilesList.appendChild(item);
-      });
-    }
-
-    function fillPersonalFileForm() {
-      personalSaveNote.textContent = "";
-      promoList.innerHTML = "";
-      if (!currentUser || !currentUser.personalFile) {
-        if (currentUser) {
-          pfDept.value = "";
-          pfNick.value = currentUser.nick || "";
-          pfAccount.value = "";
-        } else {
-          pfDept.value = "";
-          pfNick.value = "";
-          pfAccount.value = "";
-        }
-        pfBirth.value = "";
-        pfBadgeLink.value = "";
-        pfRank.value = "";
-        pfPhone.value = "";
-        pfContact.value = "";
-        updateHeaderPreview();
-        addPromotionRow();
-      } else {
-        const pf = currentUser.personalFile;
-        pfDept.value = pf.dept || "";
-        pfNick.value = pf.nick || "";
-        pfAccount.value = pf.account || "";
-        pfBirth.value = pf.birth || "";
-        pfBadgeLink.value = pf.badgeLink || "";
-        pfRank.value = pf.rank || "";
-        pfPhone.value = pf.phone || "";
-        pfContact.value = pf.contact || "";
-        updateHeaderPreview();
-        if (pf.promotions && pf.promotions.length) {
-          pf.promotions.forEach(p => addPromotionRow(p));
-        } else {
-          addPromotionRow();
-        }
-      }
-      renderPersonalFilesList();
-    }
-
-    async function savePersonalFileOnServer() {
-      if (!currentUser || !currentUser.personalFile) return;
-
-      let userId = currentUser.serverId;
-      if (!userId) {
-        const { data: userRow, error: userError } = await supabase
-          .from("users")
-          .select("id")
-          .eq("nick", currentUser.nick)
-          .single();
-        if (userError || !userRow) {
-          console.error("Не найден пользователь в БД для личного дела", userError);
-          return;
-        }
-        userId = userRow.id;
-        currentUser.serverId = userId;
-        saveUser(currentUser);
-      }
-
-      const pf = currentUser.personalFile;
-
-      const { data: existing, error: pfError } = await supabase
-        .from("personal_files")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if (pfError || !existing) {
-        const { error: createError } = await supabase
-          .from("personal_files")
-          .insert({
-            user_id: userId,
-            forum_dept: pf.dept,
-            forum_nick: pf.nick,
-            account_number: pf.account,
-            birth_date: pf.birth,
-            badge_link: pf.badgeLink,
-            rank: pf.rank,
-            phone: pf.phone,
-            contact: pf.contact
-          });
-
-        if (createError) {
-          console.error("Ошибка создания личного дела:", createError);
-          return;
-        }
-      } else {
-        const { error: updateError } = await supabase
-          .from("personal_files")
-          .update({
-            forum_dept: pf.dept,
-            forum_nick: pf.nick,
-            account_number: pf.account,
-            birth_date: pf.birth,
-            badge_link: pf.badgeLink,
-            rank: pf.rank,
-            phone: pf.phone,
-            contact: pf.contact,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", existing.id);
-
-        if (updateError) {
-          console.error("Ошибка обновления личного дела:", updateError);
-          return;
-        }
-      }
-    }
-
-    savePersonalBtn.addEventListener("click", async () => {
-      personalSaveNote.style.color = "#9ca3af";
-      personalSaveNote.textContent = "";
-
-      if (!currentUser) return;
-
-      const dept = pfDept.value.trim();
-      const nickNormalized = normalizeNick(pfNick.value);
-      const account = pfAccount.value.trim();
-
-      if (!dept || !nickNormalized || !account) {
-        personalSaveNote.style.color = "#f97373";
-        personalSaveNote.textContent =
-          "Заполните минимум: Отдел, Имя_Фамилия в правильном формате и номер аккаунта (цифры).";
-        return;
-      }
-
-      const promotions = [];
-      const rows = promoList.querySelectorAll(".promo-row");
-      for (const row of rows) {
-        const inputs = row.querySelectorAll("input, select");
-        const dateInput = inputs[0];
-        const rankSelect = inputs[1];
-        const fileInput = inputs[2];
-
-        const date = dateInput.value;
-        const rank = rankSelect.value;
-        if (!date && !rank && (!fileInput || !fileInput.files.length)) continue;
-
-        promotions.push({ date, rank, hasScreenshot: !!(fileInput && fileInput.files && fileInput.files[0]) });
-      }
-
-      currentUser.personalFile = {
-        dept,
-        nick: nickNormalized,
-        account,
-        birth: pfBirth.value.trim(),
-        badgeLink: pfBadgeLink.value.trim(),
-        rank: pfRank.value.trim(),
-        phone: pfPhone.value.trim(),
-        contact: pfContact.value.trim(),
-        promotions
-      };
-
-      currentUser.nick = nickNormalized;
-
-      saveUser(currentUser);
-      updateTopBar();
-      updatePersonalFileNavButton();
-      updatePersonalFileAuthBtn();
-
-      try {
-        await savePersonalFileOnServer();
-      } catch (err) {
-        console.error("Ошибка синхронизации личного дела с сервером:", err);
-      }
-
-      renderPersonalFilesList();
-
-      personalSaveNote.style.color = "#22c55e";
-      personalSaveNote.textContent = "Личное дело сохранено. Ваше дело закреплено вверху списка.";
-      setTimeout(() => {
-        personalSaveNote.textContent = "";
-      }, 3000);
-    });
-
-    // Админка
-
-    async function fetchAllUsersForAdmin() {
-      try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("id, nick, department, role, avatar_url, created_at")
-          .order("created_at", { ascending: true });
-
-        if (error) {
-          console.error("Ошибка загрузки юзеров для админки:", error);
-          return [];
-        }
-
-        return data || [];
-      } catch (e) {
-        console.error("Ошибка fetchAllUsersForAdmin:", e);
-        return [];
-      }
-    }
-
-    async function updateUserRole(userId, newRole) {
-      try {
-        const { error } = await supabase
-          .from("users")
-          .update({ role: newRole })
-          .eq("id", userId);
-
-        if (error) {
-          console.error("Ошибка обновления роли:", error);
-          alert("Не удалось обновить роль: " + error.message);
-          return false;
-        }
-        return true;
-      } catch (e) {
-        console.error("Ошибка updateUserRole:", e);
-        return false;
-      }
-    }
-
-    async function adminChangeAvatarForUser(user, file) {
-      try {
-        const dataUrl = await cropImageFileToDataUrl(file, 500);
-        const url = await uploadAvatarToSupabase(user.nick, dataUrl);
-        if (!url) {
-          alert("Не удалось загрузить аватар.");
-          return;
-        }
-
-        const { error } = await supabase
-          .from("users")
-          .update({ avatar_url: url })
-          .eq("id", user.id);
-
-        if (error) {
-          console.error("Ошибка обновления avatar_url:", error);
-          alert("Не удалось обновить аватар в БД: " + error.message);
-          return;
-        }
-
-        if (currentUser && currentUser.serverId === user.id) {
-          currentUser.avatar = dataUrl;
-          saveUser(currentUser);
-          updateTopBar();
-        }
-
-        await renderAdminUsers();
-      } catch (e) {
-        console.error("Ошибка adminChangeAvatarForUser:", e);
-        alert("Ошибка при обработке аватара.");
-      }
-    }
-
-    async function renderAdminUsers() {
-      if (!adminUsersList) return;
-      adminUsersList.textContent = "Загрузка списка пользователей...";
-
-      if (!isAdmin()) {
-        adminUsersList.textContent = "У вас нет прав для просмотра админ-панели.";
-        return;
-      }
-
-      const users = await fetchAllUsersForAdmin();
-      adminUsersList.innerHTML = "";
-
-      if (!users.length) {
-        adminUsersList.textContent = "Пользователей пока нет.";
-        return;
-      }
-
-      users.forEach(user => {
-        const card = document.createElement("div");
-        card.className = "admin-user-card";
-
-        const avatar = document.createElement("div");
-        avatar.className = "admin-user-avatar";
-        if (user.avatar_url) {
-          const img = document.createElement("img");
-          img.src = user.avatar_url;
-          avatar.appendChild(img);
-        } else {
-          avatar.textContent = user.nick ? user.nick[0] : "?";
-        }
-
-        const main = document.createElement("div");
-        main.className = "admin-user-main";
-
-        const header = document.createElement("div");
-        header.className = "admin-user-header";
-
-        const nickEl = document.createElement("div");
-        nickEl.className = "admin-user-nick";
-        nickEl.textContent = user.nick;
-
-        const roleBadge = document.createElement("div");
-        roleBadge.className = "admin-role-badge " + (user.role || "user");
-        roleBadge.textContent = roleLabel(user.role || "user");
-
-        header.appendChild(nickEl);
-        header.appendChild(roleBadge);
-
-        const meta = document.createElement("div");
-        meta.className = "admin-user-meta";
-        meta.textContent =
-          `Департамент: ${user.department || "—"} · Создан: ${user.created_at ? new Date(user.created_at).toLocaleString() : "—"}`;
-
-        const actions = document.createElement("div");
-        actions.className = "admin-user-actions";
-
-        const makeUserBtn = document.createElement("button");
-        makeUserBtn.className = "admin-btn-sm";
-        makeUserBtn.textContent = "Обычный";
-        makeUserBtn.addEventListener("click", async () => {
-          if (await updateUserRole(user.id, "user")) {
-            if (currentUser && currentUser.serverId === user.id) {
-              currentUser.role = "user";
-              saveUser(currentUser);
-              updateTopBar();
-              updateAdminVisibility();
-            }
-            renderAdminUsers();
-          }
-        });
-
-        const makeModBtn = document.createElement("button");
-        makeModBtn.className = "admin-btn-sm";
-        makeModBtn.textContent = "Модератор";
-        makeModBtn.addEventListener("click", async () => {
-          if (await updateUserRole(user.id, "moderator")) {
-            if (currentUser && currentUser.serverId === user.id) {
-              currentUser.role = "moderator";
-              saveUser(currentUser);
-              updateTopBar();
-              updateAdminVisibility();
-            }
-            renderAdminUsers();
-          }
-        });
-
-        const makeAdminBtn = document.createElement("button");
-        makeAdminBtn.className = "admin-btn-sm";
-        makeAdminBtn.textContent = "Админ";
-        makeAdminBtn.addEventListener("click", async () => {
-          if (!confirm(`Сделать ${user.nick} администратором?`)) return;
-          if (await updateUserRole(user.id, "admin")) {
-            if (currentUser && currentUser.serverId === user.id) {
-              currentUser.role = "admin";
-              saveUser(currentUser);
-              updateTopBar();
-              updateAdminVisibility();
-            }
-            renderAdminUsers();
-          }
-        });
-
-        const avatarInput = document.createElement("input");
-        avatarInput.type = "file";
-        avatarInput.accept = "image/*";
-        avatarInput.className = "admin-avatar-input";
-        avatarInput.addEventListener("change", () => {
-          const file = avatarInput.files[0];
-          if (!file) return;
-          adminChangeAvatarForUser(user, file);
-        });
-
-        actions.appendChild(makeUserBtn);
-        actions.appendChild(makeModBtn);
-        actions.appendChild(makeAdminBtn);
-        actions.appendChild(avatarInput);
-
-        main.appendChild(header);
-        main.appendChild(meta);
-        main.appendChild(actions);
-
-        card.appendChild(avatar);
-        card.appendChild(main);
-
-        adminUsersList.appendChild(card);
-      });
-    }
-
-    // навигация
-    downloadBinderBtn.addEventListener("click", () => {
-      const a = document.createElement("a");
-      a.href = "binder.zip";
-      a.download = "binder.zip";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    });
-
-    personalFileBtn.addEventListener("click", () => {
-      downloadBinderBtn.classList.remove("active-tab");
-      adminPanelBtn.classList.remove("active-tab");
-      personalFileBtn.classList.add("active-tab");
-      setActiveSection("personal");
-    });
-
-    adminPanelBtn.addEventListener("click", () => {
-      downloadBinderBtn.classList.remove("active-tab");
-      personalFileBtn.classList.remove("active-tab");
-      adminPanelBtn.classList.add("active-tab");
-      setActiveSection("admin");
-    });
-
-    stepOpenBinder.addEventListener("click", () => {
-      onboardingModal.classList.remove("active");
-      setActiveSection("home");
-      personalFileBtn.classList.remove("active-tab");
-      adminPanelBtn.classList.remove("active-tab");
-      downloadBinderBtn.classList.add("active-tab");
-      downloadBinderBtn.scrollIntoView({ behavior: "smooth", block: "center" });
-      downloadBinderBtn.focus();
-    });
-
-    onboardingClose.addEventListener("click", () => {
-      onboardingModal.classList.remove("active");
-      if (currentUser) {
-        currentUser.justRegistered = false;
-        saveUser(currentUser);
-      }
-    });
-
-    onboardingCloseSoft.addEventListener("click", () => {
-      onboardingModal.classList.remove("active");
-    });
-
-    rookieBtn.addEventListener("click", () => {
-      rookieModal.classList.add("active");
-    });
-    rookieClose.addEventListener("click", () => {
-      rookieModal.classList.remove("active");
-    });
-
-    sidebarLogout.addEventListener("click", () => {
-      showAuthRoot();
-      showAuthScreen("login");
-      if (currentUser) {
-        loginNick.value = currentUser.nick || "";
-      }
-      loginNick.focus();
-    });
-
-    function goToPanel(initialSection) {
-      showPanelRoot();
-      updateTopBar();
-      updateAdminVisibility();
-      updatePersonalFileNavButton();
-
-      downloadBinderBtn.classList.remove("active-tab");
-      personalFileBtn.classList.remove("active-tab");
-      adminPanelBtn.classList.remove("active-tab");
-
-      if (initialSection === "personal") {
-        personalFileBtn.classList.add("active-tab");
-        setActiveSection("personal");
-      } else if (initialSection === "admin") {
-        adminPanelBtn.classList.add("active-tab");
-        setActiveSection("admin");
-      } else {
-        downloadBinderBtn.classList.add("active-tab");
-        setActiveSection("home");
-      }
-
-      if (currentUser && currentUser.justRegistered) {
-        onboardingModal.classList.add("active");
-      } else {
-        onboardingModal.classList.remove("active");
-      }
-    }
-
-    (function init() {
-      updatePersonalFileAuthBtn();
-      const user = currentUser;
-      const now = Date.now();
-
-      if (!user) {
-        showAuthRoot();
-        showAuthScreen("register");
-        regNick.focus();
-        return;
-      }
-
-      if (user.lastLoginAt && now - user.lastLoginAt < DAY_MS) {
-        showPanelRoot();
-        goToPanel("home");
-        return;
-      }
-
-      showAuthRoot();
-      showAuthScreen("login");
-      loginNick.value = user.nick || "";
-      loginNick.focus();
-    })();
-  </script>
 </body>
 </html>
-
