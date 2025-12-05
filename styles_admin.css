@@ -1,0 +1,85 @@
+.admin-container {
+  width: 90%;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 20px;
+}
+
+.admin-container h1 {
+  margin-bottom: 15px;
+}
+
+.admin-list {
+  margin-top: 20px;
+}
+
+.admin-user-row {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-role-select {
+  padding: 6px;
+  border-radius: 8px;
+}.admin-container {
+  width: 90%;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 20px;
+}
+
+.admin-container h1 {
+  margin-bottom: 15px;
+}
+
+.admin-list {
+  margin-top: 20px;
+}
+
+.admin-user-row {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-role-select {
+  padding: 6px;
+  border-radius: 8px;
+}.admin-container {
+  width: 90%;
+  margin: 40px auto;
+  padding: 30px;
+  border-radius: 20px;
+}
+
+.admin-container h1 {
+  margin-bottom: 15px;
+}
+
+.admin-list {
+  margin-top: 20px;
+}
+
+.admin-user-row {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-role-select {
+  padding: 6px;
+  border-radius: 8px;
+}
