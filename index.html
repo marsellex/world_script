@@ -527,6 +527,32 @@
       color: var(--muted);
     }
 
+    .officer-leader-wrapper {
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    
+    .officer-leader-card {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #facc15;
+      background: var(--bg-lighter);
+      font-size: 12px;
+    }
+    
+    .officer-leader-card .name {
+      font-weight: 500;
+    }
+    
+    .officer-leader-card .label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
     .officers-columns {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1644,6 +1670,25 @@ const adminBorderColor = document.getElementById("admin-border-color");
 const adminAddCancel = document.getElementById("admin-add-cancel");
 const adminAddSave = document.getElementById("admin-add-save");
 
+function leadershipPriority(user) {
+  const s = (user.status || "").trim();
+
+  if (s === "Ответственный за структуру") {
+    return 0;
+  }
+  if (s === "Министр" || s === "Министр внутренних дел") {
+    return 1;
+  }
+  if (s === "Куратор") {
+    return 2;
+  }
+  if (s === "Генерал LSPD" || s === "Генерал SFPD" || s === "Генерал LVPD") {
+    return 3;
+  }
+  return 4; // все остальные ниже
+}
+
+  
 async function loadAdminPanel() {
   if (!currentUser) {
     adminUsersListEl.textContent = "Вы не авторизованы.";
@@ -1661,7 +1706,6 @@ async function loadAdminPanel() {
   const { data, error } = await supabaseClient
     .from("users")
     .select("id, nick, department, role, avatar_url, created_at, status, border_color, sort_order")
-    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -1671,7 +1715,23 @@ async function loadAdminPanel() {
     return;
   }
 
-  adminUsersCache = data || [];
+  let arr = data || [];
+
+  // Для отображения руководства — сортируем по статусу:
+  // Ответственный → Министр → Кураторы → Генералы → остальные.
+  arr.sort((a, b) => {
+    const pA = leadershipPriority(a);
+    const pB = leadershipPriority(b);
+    if (pA !== pB) return pA - pB;
+
+    const soA = a.sort_order ?? 9999;
+    const soB = b.sort_order ?? 9999;
+    if (soA !== soB) return soA - soB;
+
+    return (a.nick || "").localeCompare(b.nick || "", "ru");
+  });
+
+  adminUsersCache = arr;
   renderAdminUsers();
 }
 
@@ -2006,6 +2066,7 @@ async function loadOfficers() {
   if (!currentUser) return;
 
   const isAdminOrMod = currentUser.role === "admin" || currentUser.role === "moderator";
+
   if (officersAddBtn) officersAddBtn.style.display = isAdminOrMod ? "inline-block" : "none";
   if (!isAdminOrMod && officersAddBlock) officersAddBlock.style.display = "none";
 
@@ -2027,6 +2088,7 @@ async function loadOfficers() {
     return;
   }
 
+  // Берём тех, кто либо явно отмечен как офицер, либо имеет один из ключевых статусов
   officersCache = (data || []).filter((u) =>
     u.is_officer ||
     u.status === "Министр внутренних дел" ||
@@ -2035,22 +2097,30 @@ async function loadOfficers() {
     u.status === "Генерал LVPD"
   );
 
+  // ===== Министр внутренних дел (самый верх) =====
   const minister = officersCache.find((u) => u.status === "Министр внутренних дел");
   if (minister) {
     const card = document.createElement("div");
     card.className = "officer-minister-card";
+
     const spanName = document.createElement("span");
     spanName.className = "name";
     spanName.textContent = minister.nick;
+
     const spanLabel = document.createElement("span");
     spanLabel.className = "label";
     spanLabel.textContent = "Министр внутренних дел";
+
     card.appendChild(spanName);
     card.appendChild(spanLabel);
+
     officersMinisterEl.className = "officer-minister";
     officersMinisterEl.appendChild(card);
+  } else {
+    officersMinisterEl.innerHTML = "";
   }
 
+  // ===== Генералы по департаментам =====
   const generals = {
     LSPD: officersCache.find((u) => u.status === "Генерал LSPD"),
     SFPD: officersCache.find((u) => u.status === "Генерал SFPD"),
@@ -2111,10 +2181,10 @@ async function loadOfficers() {
     right.style.alignItems = "flex-end";
     right.style.gap = "4px";
 
-    const isAdminOrMod = currentUser && (currentUser.role === "admin" || currentUser.role === "moderator");
+    const isAdminOrModInner = currentUser && (currentUser.role === "admin" || currentUser.role === "moderator");
     const isSelf = currentUser && currentUser.id === u.id;
 
-    if (isAdminOrMod) {
+    if (isAdminOrModInner) {
       const orderInput = document.createElement("input");
       orderInput.type = "number";
       orderInput.className = "order-input";
@@ -2127,7 +2197,7 @@ async function loadOfficers() {
       right.appendChild(orderInput);
     }
 
-    if (isAdminOrMod || isSelf) {
+    if (isAdminOrModInner || isSelf) {
       const editBtn = document.createElement("button");
       editBtn.type = "button";
       editBtn.className = "btn-outline btn-sm";
@@ -2144,11 +2214,12 @@ async function loadOfficers() {
           vk: newVk.trim(),
           telegram: newTg.trim(),
         });
+        await loadOfficers();
       };
       right.appendChild(editBtn);
     }
 
-    if (isAdminOrMod) {
+    if (isAdminOrModInner) {
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
       removeBtn.className = "btn-outline btn-sm";
@@ -2168,17 +2239,47 @@ async function loadOfficers() {
     colEl.appendChild(card);
   }
 
-  function renderDept(deptCode, colEl) {
-    const general = generals[deptCode];
-    if (general) renderOfficerUser(general, colEl, true);
+  function renderDept(deptCode, colEl, labelForLeader) {
+    colEl.innerHTML = "";
+
+    const leader = generals[deptCode];
+
+    // Круглая карточка лидера над колонкой
+    if (leader) {
+      const wrap = document.createElement("div");
+      wrap.className = "officer-leader-wrapper";
+
+      const card = document.createElement("div");
+      card.className = "officer-leader-card";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "name";
+      nameSpan.textContent = leader.nick;
+
+      const labelSpan = document.createElement("span");
+      labelSpan.className = "label";
+      labelSpan.textContent = `Лидер ${labelForLeader}`;
+
+      card.appendChild(nameSpan);
+      card.appendChild(labelSpan);
+      wrap.appendChild(card);
+
+      colEl.appendChild(wrap);
+    }
+
+    // Ниже — обычный состав (без лидера и без министра)
     officersCache
-      .filter((u) => u.department === deptCode && u !== general)
+      .filter((u) =>
+        u.department === deptCode &&
+        u.id !== (leader ? leader.id : null) &&
+        u.status !== "Министр внутренних дел"
+      )
       .forEach((u) => renderOfficerUser(u, colEl, false));
   }
 
-  renderDept("LSPD", officersColLSPD);
-  renderDept("SFPD", officersColSFPD);
-  renderDept("LVPD", officersColLVPD);
+  renderDept("LSPD", officersColLSPD, "LSPD");
+  renderDept("SFPD", officersColSFPD, "SFPD");
+  renderDept("LVPD", officersColLVPD, "LVPD");
 }
 
 if (officersAddBtn) {
@@ -2253,4 +2354,5 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
