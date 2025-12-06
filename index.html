@@ -74,14 +74,6 @@
       background: var(--bg-lighter);
     }
 
-    .btn-danger {
-      background: var(--danger);
-      border-color: #a2302d;
-    }
-    .btn-danger:hover {
-      background: #b53632;
-    }
-
     .btn-sm {
       padding: 4px 8px;
       font-size: 12px;
@@ -166,12 +158,6 @@
     }
     .auth-screen.active {
       display: block;
-    }
-
-    .row-inline {
-      display: flex;
-      gap: 8px;
-      align-items: center;
     }
 
     /* ---------- НАВИГАЦИЯ ПАНЕЛИ ---------- */
@@ -609,7 +595,7 @@
           <div class="field">
             <label for="reg-avatar">Аватарка</label>
             <input id="reg-avatar" type="file" accept="image/*" />
-            <div class="hint">Картинка будет обрезана до 500×500 и сохранена в Supabase (bucket avatars).</div>
+            <div class="hint">Картинка будет сохранена в Supabase (bucket avatars).</div>
             <div class="error" id="reg-avatar-error"></div>
           </div>
 
@@ -787,9 +773,8 @@
     <section id="section-admin" class="section">
       <h2>Админ панель</h2>
       <p>
-        Раздел доступен только модераторам и администраторам. Здесь можно просматривать всех пользователей,
-        назначать статусы ("Куратор", "Ответственный за структуру", "Министр"), настраивать рамку аватарки.
-        Администраторы также могут менять роли и аватарки.
+        Раздел доступен только модераторам и администраторам. Здесь можно просматривать всех пользователей.
+        (Статусы и цвет рамки можно будет добавить в базе отдельными полями.)
       </p>
 
       <div style="margin-top:10px; margin-bottom:8px;">
@@ -832,74 +817,32 @@
     </div>
   </div>
 
-  <!-- ============ МОДАЛКА: ДОБАВИТЬ ПОЛЬЗОВАТЕЛЯ (АДМИН) ============ -->
-  <div id="admin-add-modal" class="modal-backdrop">
-    <div class="modal">
-      <h3>Добавить / настроить пользователя</h3>
-      <p style="font-size:12px; color:var(--muted);">
-        Выберите пользователя из списка, затем задайте ему статус и цвет рамки аватара.
-      </p>
-
-      <input id="admin-add-search" class="search-input" placeholder="Поиск по нику..." />
-
-      <div id="admin-add-results" style="max-height:220px; overflow-y:auto; margin-bottom:8px;">
-        <!-- результаты поиска -->
-      </div>
-
-      <div class="field">
-        <label for="admin-status-select">Статус</label>
-        <select id="admin-status-select" class="admin-select">
-          <option value="">Без статуса</option>
-          <option value="Куратор">Куратор</option>
-          <option value="Ответственный за структуру">Ответственный за структуру</option>
-          <option value="Министр">Министр</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="admin-border-color">Цвет рамки аватарки</label>
-        <input id="admin-border-color" type="color" class="admin-color" value="#3a7ca5" />
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-outline btn-sm" id="admin-add-cancel">Отмена</button>
-        <button class="btn btn-sm" id="admin-add-save">Сохранить</button>
-      </div>
-    </div>
-  </div>
-
 </div> <!-- /app -->
+
+<!-- Supabase JS -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
 <script>
-/* ================================
-   ⭐ ЧАСТЬ 2 / 3 — JAVASCRIPT ОСНОВА
-   ================================ */
+/* =============== НАСТРОЙКА SUPABASE =============== */
 
-/* ---------- 1. ИНИЦИАЛИЗАЦИЯ SUPABASE ---------- */
+const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
 
-const SUPABASE_URL = "https://YOUR-PROJECT-url.supabase.co";
-const SUPABASE_KEY = "YOUR-ANON-KEY";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-
-/* ---------- 2. УТИЛИТЫ ---------- */
+/* =============== УТИЛИТЫ =============== */
 
 function normalizeNick(n) {
   if (!n) return "";
   return n.trim().replace(/\s+/g, "_");
 }
-
-function showError(el, msg) {
-  document.getElementById(el).textContent = msg || "";
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg || "";
 }
-
-
-/* ---------- 3. ХРАНЕНИЕ СЕССИИ В LOCALSTORAGE ---------- */
-
-function saveSession(userObj) {
-  localStorage.setItem("pp_user", JSON.stringify(userObj));
+function saveSession(user) {
+  localStorage.setItem("pp_user", JSON.stringify(user));
 }
-
 function loadSession() {
   try {
     return JSON.parse(localStorage.getItem("pp_user"));
@@ -907,32 +850,41 @@ function loadSession() {
     return null;
   }
 }
-
 function clearSession() {
   localStorage.removeItem("pp_user");
 }
 
-
-/* ---------- 4. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ АВТОРИЗАЦИИ ---------- */
+/* =============== ЭЛЕМЕНТЫ =============== */
 
 const authRoot = document.getElementById("auth-root");
 const panelRoot = document.getElementById("panel-root");
-
 const regScreen = document.getElementById("register-screen");
 const loginScreen = document.getElementById("login-screen");
+
+const topNick = document.getElementById("top-nick");
+const topRole = document.getElementById("top-role");
+const topAvatar = document.getElementById("top-avatar");
+
+let currentUser = null;
+let personalFilesCache = [];
+let currentFileId = null;
+let currentFileOwnerId = null;
+let currentFileEditable = false;
+
+let adminUsersCache = [];
+
+/* =============== ПЕРЕКЛЮЧЕНИЕ АВТОРИЗАЦИИ =============== */
 
 document.getElementById("to-login").onclick = () => {
   regScreen.classList.remove("active");
   loginScreen.classList.add("active");
 };
-
 document.getElementById("to-register").onclick = () => {
   loginScreen.classList.remove("active");
   regScreen.classList.add("active");
 };
 
-
-/* ---------- 5. РЕГИСТРАЦИЯ ---------- */
+/* =============== РЕГИСТРАЦИЯ =============== */
 
 document.getElementById("register-form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -947,7 +899,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
   showError("reg-dept-error", "");
   showError("reg-avatar-error", "");
 
-  if (!nick || !/^[A-Za-z]+_[A-Za-z]+$/.test(nick)) {
+  if (!nick || !/^[A-Za-zА-Яа-яЁё]+_[A-Za-zА-Яа-яЁё]+$/.test(nick)) {
     showError("reg-nick-error", "Введите корректный ник (Имя_Фамилия)");
     return;
   }
@@ -964,58 +916,53 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     return;
   }
 
-  // Читаем файл в base64
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const base64 = reader.result;
+  // загружаем аватар в bucket avatars
+  const ext = avatarFile.name.split(".").pop() || "png";
+  const filePath = `${nick}_${Date.now()}.${ext}`;
 
-    const fileName = `${nick}_${Date.now()}.png`;
+  const { data: uploadData, error: uploadError } = await supabaseClient
+    .storage
+    .from("avatars")
+    .upload(filePath, avatarFile, { upsert: true });
 
-    const { data: uploadData, error: uploadError } =
-      await supabaseClient.storage.from("avatars")
-        .upload(fileName, avatarFile, { upsert: true });
+  if (uploadError) {
+    console.error(uploadError);
+    alert("Ошибка загрузки аватарки в хранилище.");
+    return;
+  }
 
-    if (uploadError) {
-      alert("Ошибка загрузки аватарки");
-      console.log(uploadError);
-      return;
-    }
+  const { data: urlData } = supabaseClient
+    .storage
+    .from("avatars")
+    .getPublicUrl(filePath);
 
-    const { data: urlData } = supabaseClient
-      .storage
-      .from("avatars")
-      .getPublicUrl(fileName);
+  const avatar_url = urlData.publicUrl;
 
-    const avatarURL = urlData.publicUrl;
+  // создаём пользователя
+  const { data: userRow, error } = await supabaseClient
+    .from("users")
+    .insert({
+      nick,
+      password_hash: password,
+      department: dept,
+      avatar_url,
+      role: "user"
+    })
+    .select("*")
+    .single();
 
-    const { data, error } = await supabaseClient
-      .from("users")
-      .insert({
-        nick: nick,
-        password_hash: password,
-        department: dept,
-        avatar_url: avatarURL,
-        role: "user",
-        border_color: "#3a7ca5",
-        status: ""
-      })
-      .select("*")
-      .single();
+  if (error) {
+    console.error(error);
+    alert("Ошибка регистрации (таблица users).");
+    return;
+  }
 
-    if (error) {
-      alert("Ошибка регистрации");
-      console.log(error);
-      return;
-    }
-
-    saveSession(data);
-    loadPanelUI(data);
-  };
-  reader.readAsDataURL(avatarFile);
+  currentUser = userRow;
+  saveSession(userRow);
+  loadPanelUI(userRow);
 });
 
-
-/* ---------- 6. ВХОД ---------- */
+/* =============== ВХОД =============== */
 
 document.getElementById("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -1051,133 +998,30 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
     return;
   }
 
+  currentUser = data;
   saveSession(data);
   loadPanelUI(data);
 });
 
-
-/* ---------- 7. ЗАГРУЗКА ПАНЕЛИ ---------- */
-
-function loadPanelUI(user) {
-  authRoot.style.display = "none";
-  panelRoot.style.display = "block";
-
-  document.getElementById("top-nick").textContent = user.nick;
-  document.getElementById("top-role").textContent =
-    user.role === "admin"
-      ? "Администратор"
-      : user.role === "moderator"
-      ? "Модератор"
-      : "Офицер";
-
-  const avatarBox = document.getElementById("top-avatar");
-  avatarBox.innerHTML = "";
-  avatarBox.style.borderColor = user.border_color || "#3a7ca5";
-
-  if (user.avatar_url) {
-    const img = document.createElement("img");
-    img.src = user.avatar_url;
-    avatarBox.appendChild(img);
-  } else {
-    avatarBox.textContent = user.nick[0];
-  }
-
-  // Показать кнопку админки
-  if (user.role === "admin" || user.role === "moderator") {
-    document.getElementById("nav-admin").style.display = "block";
-  }
-
-  switchSection("home");
-}
-
-
-/* ---------- 8. ВОССТАНОВЛЕНИЕ СЕССИИ ---------- */
-
-window.addEventListener("load", () => {
-  const session = loadSession();
-  if (session) loadPanelUI(session);
-});
-
-
-/* ---------- 9. ВЫХОД ---------- */
-
-document.getElementById("logout-btn").onclick = () => {
-  clearSession();
-  location.reload();
-};
-
-
-/* ---------- 10. НАВИГАЦИЯ ПО РАЗДЕЛАМ ---------- */
-
-function switchSection(name) {
-  const sections = ["home", "files", "admin"];
-  sections.forEach(sec => {
-    document.getElementById(`section-${sec}`).classList.remove("active");
-    document.getElementById(`nav-${sec}`).classList.remove("active");
-  });
-
-  document.getElementById(`section-${name}`).classList.add("active");
-  document.getElementById(`nav-${name}`).classList.add("active");
-
-  // кнопка "На главную"
-  document.getElementById("back-home-btn").style.display =
-    name === "home" ? "none" : "inline-block";
-
-  // Автоматическая загрузка личных дел
-  if (name === "files") loadPersonalFiles();
-
-  // Автоматическая загрузка админки
-  if (name === "admin") loadAdminPanel();
-}
-
-
-/* кнопки меню */
-document.getElementById("nav-home").onclick = () => switchSection("home");
-document.getElementById("nav-files").onclick = () => switchSection("files");
-document.getElementById("nav-admin").onclick = () => switchSection("admin");
-
-document.getElementById("back-home-btn").onclick = () => switchSection("home");
-
-</script>
-  <script>
-/* ===========================================
-   ЧАСТЬ 3 — ЛИЧНЫЕ ДЕЛА + АДМИН ПАНЕЛЬ
-   =========================================== */
-
-let currentUser = null;
-let personalFilesCache = [];
-let currentFileId = null;
-let currentFileOwnerId = null;
-let currentFileEditable = false;
-
-let adminUsersCache = [];
-let adminSelectedUserId = null;
-
-/* ---------- Переопределяем loadPanelUI + обновление топ-бара ---------- */
+/* =============== ТОП-БАР + ПАНЕЛЬ =============== */
 
 function refreshTopBar() {
   if (!currentUser) return;
-
-  const roleLabel =
+  topNick.textContent = currentUser.nick || "Офицер";
+  topRole.textContent =
     currentUser.role === "admin"
       ? "Администратор"
       : currentUser.role === "moderator"
       ? "Модератор"
       : "Офицер";
 
-  document.getElementById("top-nick").textContent = currentUser.nick || "Офицер";
-  document.getElementById("top-role").textContent = roleLabel;
-
-  const avatarBox = document.getElementById("top-avatar");
-  avatarBox.innerHTML = "";
-  avatarBox.style.borderColor = currentUser.border_color || "#3a7ca5";
-
+  topAvatar.innerHTML = "";
   if (currentUser.avatar_url) {
     const img = document.createElement("img");
     img.src = currentUser.avatar_url;
-    avatarBox.appendChild(img);
+    topAvatar.appendChild(img);
   } else {
-    avatarBox.textContent = currentUser.nick ? currentUser.nick[0] : "P";
+    topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
   }
 
   // показать/скрыть админку
@@ -1189,19 +1033,14 @@ function refreshTopBar() {
   }
 }
 
-// переопределяем функцию из Части 2 (эта версия будет использоваться)
 function loadPanelUI(user) {
-  currentUser = user;
-  saveSession(user);
-
   authRoot.style.display = "none";
   panelRoot.style.display = "block";
-
   refreshTopBar();
   switchSection("home");
 }
 
-/* Сессия на старте (перекрываем поведение из Ч.2) */
+/* восстановление сессии */
 window.addEventListener("load", () => {
   const session = loadSession();
   if (session) {
@@ -1210,7 +1049,13 @@ window.addEventListener("load", () => {
   }
 });
 
-/* ---------- Навигация с учётом новых функций ---------- */
+/* выход */
+document.getElementById("logout-btn").onclick = () => {
+  clearSession();
+  location.reload();
+};
+
+/* =============== НАВИГАЦИЯ РАЗДЕЛОВ =============== */
 
 function switchSection(name) {
   const sections = ["home", "files", "admin"];
@@ -1222,28 +1067,31 @@ function switchSection(name) {
   document.getElementById(`section-${name}`).classList.add("active");
   document.getElementById(`nav-${name}`).classList.add("active");
 
-  // кнопка "На главную"
   document.getElementById("back-home-btn").style.display =
     name === "home" ? "none" : "inline-block";
 
-  if (name === "files") {
-    loadPersonalFiles();
-  }
-  if (name === "admin") {
-    loadAdminPanel();
-  }
+  if (name === "files") loadPersonalFiles();
+  if (name === "admin") loadAdminPanel();
 }
 
-// переназначаем обработчики (перекрываем старые)
 document.getElementById("nav-home").onclick = () => switchSection("home");
 document.getElementById("nav-files").onclick = () => switchSection("files");
 document.getElementById("nav-admin").onclick = () => switchSection("admin");
 document.getElementById("back-home-btn").onclick = () => switchSection("home");
 
-/* Кнопки с главной */
 document.getElementById("open-files-from-home").onclick = () => switchSection("files");
 
-/* ---------- Модалка для рядовых ---------- */
+/* Скачать биндер (ожидает binder.zip рядом с сайтом) */
+document.getElementById("download-binder-btn").onclick = () => {
+  const a = document.createElement("a");
+  a.href = "binder.zip";
+  a.download = "binder.zip";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
+/* =============== МОДАЛКА РЯДОВЫХ =============== */
 
 const rookieModal = document.getElementById("rookie-modal");
 document.getElementById("open-rookie-modal").onclick = () => {
@@ -1253,9 +1101,7 @@ document.getElementById("rookie-close-btn").onclick = () => {
   rookieModal.classList.remove("active");
 };
 
-/* ===========================================
-   ЛИЧНЫЕ ДЕЛА
-   =========================================== */
+/* =============== ЛИЧНЫЕ ДЕЛА =============== */
 
 const filesListEl = document.getElementById("personal-files-list");
 const pfForm = document.getElementById("personal-form");
@@ -1274,7 +1120,6 @@ const pfDetailTitle = document.getElementById("pf-detail-title");
 const pfDetailSub = document.getElementById("pf-detail-sub");
 const pfEditBadge = document.getElementById("pf-edit-badge");
 
-// вспомогательная — заголовок
 function updatePfHeaderPreview() {
   const dept = pfDept.value || "Отдел";
   const nick = pfNick.value || "Имя_Фамилия";
@@ -1289,10 +1134,8 @@ pfAccount.addEventListener("input", () => {
   updatePfHeaderPreview();
 });
 
-// заполнение формы
 function fillPersonalForm(fileRow, editable) {
   if (!fileRow) {
-    // новый пустой шаблон для своего ЛД
     pfDept.value = "";
     pfNick.value = currentUser ? currentUser.nick : "";
     pfAccount.value = "";
@@ -1312,16 +1155,12 @@ function fillPersonalForm(fileRow, editable) {
     pfRank.value = fileRow.rank || "";
     pfPhone.value = fileRow.phone || "";
     pfContact.value = fileRow.contact || "";
-
-    pfDetailSub.textContent = `Последнее обновление: ${
-      fileRow.updated_at
-        ? new Date(fileRow.updated_at).toLocaleString()
-        : "—"
-    }`;
+    pfDetailSub.textContent = fileRow.updated_at
+      ? `Последнее обновление: ${new Date(fileRow.updated_at).toLocaleString()}`
+      : "";
     updatePfHeaderPreview();
   }
 
-  // включаем/выключаем поля
   const controls = [
     pfDept, pfNick, pfAccount, pfBirth,
     pfBadgeLink, pfRank, pfPhone, pfContact
@@ -1340,7 +1179,6 @@ function fillPersonalForm(fileRow, editable) {
   }
 }
 
-// открыть конкретное ЛД
 function openPersonalFile(id) {
   const file = personalFilesCache.find((f) => f.id === id);
   if (!file) return;
@@ -1355,7 +1193,6 @@ function openPersonalFile(id) {
 
   currentFileEditable = !!canEdit;
 
-  // подсветка в списке
   const items = filesListEl.querySelectorAll(".file-item");
   items.forEach((item) => {
     item.classList.toggle("active", Number(item.dataset.id) === id);
@@ -1364,7 +1201,6 @@ function openPersonalFile(id) {
   fillPersonalForm(file, canEdit);
 }
 
-// загрузка списка личных дел
 async function loadPersonalFiles(selectId) {
   if (!currentUser) return;
 
@@ -1448,7 +1284,6 @@ async function loadPersonalFiles(selectId) {
   }
 }
 
-// сохранение ЛД
 pfForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return;
@@ -1518,21 +1353,17 @@ pfForm.addEventListener("submit", async (e) => {
   await loadPersonalFiles(currentFileId);
 });
 
-/* ===========================================
-   АДМИН ПАНЕЛЬ
-   =========================================== */
+/* =============== АДМИН ПАНЕЛЬ (упрощённо) =============== */
 
 const adminUsersListEl = document.getElementById("admin-users-list");
 const adminAddBtn = document.getElementById("admin-add-user-btn");
-const adminAddModal = document.getElementById("admin-add-modal");
-const adminAddSearchInput = document.getElementById("admin-add-search");
-const adminAddResults = document.getElementById("admin-add-results");
-const adminStatusSelect = document.getElementById("admin-status-select");
-const adminBorderColor = document.getElementById("admin-border-color");
-const adminAddCancel = document.getElementById("admin-add-cancel");
-const adminAddSave = document.getElementById("admin-add-save");
 
-// загрузка списка пользователей
+function roleLabel(role) {
+  if (role === "admin") return "Администратор";
+  if (role === "moderator") return "Модератор";
+  return "Офицер";
+}
+
 async function loadAdminPanel() {
   if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "moderator")) {
     adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
@@ -1540,12 +1371,12 @@ async function loadAdminPanel() {
     return;
   }
 
-  adminUsersListEl.textContent = "Загрузка пользователей...";
   adminAddBtn.style.display = currentUser.role === "admin" ? "inline-block" : "none";
+  adminUsersListEl.textContent = "Загрузка пользователей...";
 
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, nick, department, role, avatar_url, created_at, status, border_color")
+    .select("id, nick, department, role, avatar_url, created_at")
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -1556,12 +1387,6 @@ async function loadAdminPanel() {
 
   adminUsersCache = data || [];
   renderAdminUsers();
-}
-
-function roleLabel(role) {
-  if (role === "admin") return "Администратор";
-  if (role === "moderator") return "Модератор";
-  return "Офицер";
 }
 
 function renderAdminUsers() {
@@ -1578,7 +1403,6 @@ function renderAdminUsers() {
 
     const avatar = document.createElement("div");
     avatar.className = "admin-user-avatar";
-    avatar.style.borderColor = user.border_color || "#3a7ca5";
     if (user.avatar_url) {
       const img = document.createElement("img");
       img.src = user.avatar_url;
@@ -1606,14 +1430,7 @@ function renderAdminUsers() {
 
     const meta = document.createElement("div");
     meta.className = "admin-user-meta";
-
-    if (user.role === "admin" && user.status) {
-      meta.textContent = `Статус: ${user.status}`;
-    } else if (user.role === "admin" && !user.status) {
-      meta.textContent = "Статус: не назначен";
-    } else {
-      meta.textContent = `Департамент: ${user.department || "—"}`;
-    }
+    meta.textContent = `Департамент: ${user.department || "—"}`;
 
     const created = document.createElement("div");
     created.className = "admin-user-meta";
@@ -1621,62 +1438,9 @@ function renderAdminUsers() {
       ? `Создан: ${new Date(user.created_at).toLocaleString()}`
       : "";
 
-    const actions = document.createElement("div");
-    actions.className = "admin-user-actions";
-
-    // селект статуса
-    const statusSelect = document.createElement("select");
-    statusSelect.className = "admin-select";
-    ["", "Куратор", "Ответственный за структуру", "Министр"].forEach((val) => {
-      const opt = document.createElement("option");
-      opt.value = val;
-      opt.textContent = val || "Без статуса";
-      statusSelect.appendChild(opt);
-    });
-    statusSelect.value = user.status || "";
-
-    // цвет рамки
-    const colorInput = document.createElement("input");
-    colorInput.type = "color";
-    colorInput.className = "admin-color";
-    colorInput.value = user.border_color || "#3a7ca5";
-
-    // смена аватара
-    const avatarInput = document.createElement("input");
-    avatarInput.type = "file";
-    avatarInput.accept = "image/*";
-    avatarInput.className = "admin-avatar-input";
-
-    const isAdmin = currentUser && currentUser.role === "admin";
-
-    if (!isAdmin) {
-      statusSelect.disabled = true;
-      colorInput.disabled = true;
-      avatarInput.disabled = true;
-    }
-
-    if (isAdmin) {
-      statusSelect.onchange = async () => {
-        await updateUserFields(user.id, { status: statusSelect.value });
-      };
-      colorInput.onchange = async () => {
-        await updateUserFields(user.id, { border_color: colorInput.value });
-      };
-      avatarInput.onchange = async () => {
-        const file = avatarInput.files[0];
-        if (!file) return;
-        await adminChangeAvatarForUser(user, file);
-      };
-    }
-
-    actions.appendChild(statusSelect);
-    actions.appendChild(colorInput);
-    actions.appendChild(avatarInput);
-
     main.appendChild(header);
     main.appendChild(meta);
     if (created.textContent) main.appendChild(created);
-    main.appendChild(actions);
 
     card.appendChild(avatar);
     card.appendChild(main);
@@ -1684,131 +1448,6 @@ function renderAdminUsers() {
     adminUsersListEl.appendChild(card);
   });
 }
-
-async function updateUserFields(userId, patch) {
-  const { data, error } = await supabaseClient
-    .from("users")
-    .update(patch)
-    .eq("id", userId)
-    .select("*")
-    .single();
-
-  if (error) {
-    console.error(error);
-    alert("Ошибка обновления пользователя");
-    return;
-  }
-
-  // обновляем кеш
-  const idx = adminUsersCache.findIndex((u) => u.id === userId);
-  if (idx >= 0) adminUsersCache[idx] = data;
-
-  // если обновили себя
-  if (currentUser && currentUser.id === userId) {
-    currentUser = { ...currentUser, ...patch };
-    saveSession(currentUser);
-    refreshTopBar();
-  }
-
-  renderAdminUsers();
-}
-
-async function adminChangeAvatarForUser(user, file) {
-  try {
-    const fileName = `${user.nick}_${Date.now()}.png`;
-    const { data: uploadData, error: uploadError } = await supabaseClient
-      .storage.from("avatars")
-      .upload(fileName, file, { upsert: true });
-
-    if (uploadError) {
-      console.error(uploadError);
-      alert("Ошибка загрузки аватара");
-      return;
-    }
-
-    const { data: urlData } = supabaseClient
-      .storage.from("avatars")
-      .getPublicUrl(fileName);
-
-    const avatarURL = urlData.publicUrl;
-    await updateUserFields(user.id, { avatar_url: avatarURL });
-  } catch (e) {
-    console.error(e);
-    alert("Ошибка при обработке аватара");
-  }
-}
-
-/* ---------- Модалка 'Добавить пользователя' (на самом деле — назначить статус/рамку) ---------- */
-
-function openAdminAddModal() {
-  if (!currentUser || currentUser.role !== "admin") return;
-  adminSelectedUserId = null;
-  adminAddSearchInput.value = "";
-  renderAdminAddResults("");
-  adminStatusSelect.value = "";
-  adminBorderColor.value = "#3a7ca5";
-  adminAddModal.classList.add("active");
-}
-
-function closeAdminAddModal() {
-  adminAddModal.classList.remove("active");
-}
-
-function renderAdminAddResults(filterText) {
-  adminAddResults.innerHTML = "";
-
-  const text = (filterText || "").toLowerCase();
-  const list = adminUsersCache.filter((u) =>
-    !text ? true : (u.nick || "").toLowerCase().includes(text)
-  );
-
-  if (!list.length) {
-    adminAddResults.textContent = "Пользователи не найдены.";
-    return;
-  }
-
-  list.forEach((u) => {
-    const item = document.createElement("div");
-    item.className = "search-result-item";
-    item.dataset.id = u.id;
-    item.textContent = `${u.nick} (${roleLabel(u.role)})`;
-    if (adminSelectedUserId === u.id) {
-      item.style.background = "#415a77";
-    }
-
-    item.onclick = () => {
-      adminSelectedUserId = u.id;
-      adminStatusSelect.value = u.status || "";
-      adminBorderColor.value = u.border_color || "#3a7ca5";
-      renderAdminAddResults(text);
-    };
-
-    adminAddResults.appendChild(item);
-  });
-}
-
-adminAddBtn.onclick = openAdminAddModal;
-adminAddCancel.onclick = closeAdminAddModal;
-
-adminAddSearchInput.addEventListener("input", (e) => {
-  renderAdminAddResults(e.target.value);
-});
-
-adminAddSave.onclick = async () => {
-  if (!adminSelectedUserId) {
-    alert("Выберите пользователя из списка.");
-    return;
-  }
-  const status = adminStatusSelect.value;
-  const color = adminBorderColor.value || "#3a7ca5";
-
-  await updateUserFields(adminSelectedUserId, {
-    status,
-    border_color: color,
-  });
-
-  closeAdminAddModal();
-};
-
-// небольшой фикс: при первой загрузке, если уже авторизованы, переключатели меню работают
 </script>
+</body>
+</html>
