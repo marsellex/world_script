@@ -7,17 +7,17 @@
 
   <style>
     :root {
-      --bg: #0d1b2a;
-      --bg-light: #1b263b;
-      --bg-lighter: #415a77;
-      --text: #e0e1dd;
+      --bg: #0b1220;
+      --bg-light: #111827;
+      --bg-lighter: #1f2937;
+      --text: #e5e7eb;
       --muted: #9ca3af;
-      --border: #27374d;
-      --accent: #3a7ca5;
-      --accent-hover: #539ecf;
-      --danger: #d9534f;
+      --border: #374151;
+      --accent: #2563eb;
+      --accent-hover: #3b82f6;
+      --danger: #ef4444;
       --success: #22c55e;
-      --input-bg: #0f172a;
+      --input-bg: #020617;
     }
 
     * {
@@ -28,7 +28,7 @@
     }
 
     body {
-      background: var(--bg);
+      background: #0f172a;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -39,7 +39,7 @@
 
     #app {
       width: 100%;
-      max-width: 1300px;
+      max-width: 1280px;
     }
 
     a {
@@ -50,13 +50,13 @@
       text-decoration: underline;
     }
 
-    /* ---------- КНОПКИ ---------- */
+    /* ---------- Кнопки ---------- */
 
     .btn {
       padding: 8px 16px;
       background: var(--accent);
       color: var(--text);
-      border-radius: 999px;            /* стало более круглым */
+      border-radius: 999px;
       border: 1px solid var(--border);
       font-size: 14px;
       cursor: pointer;
@@ -66,7 +66,7 @@
       background: var(--accent-hover);
       transform: translateY(-1px);
     }
-    
+
     .btn-outline {
       background: transparent;
       border-color: var(--border);
@@ -74,47 +74,14 @@
     .btn-outline:hover {
       background: var(--bg-lighter);
     }
-    
+
     .btn-sm {
       padding: 4px 10px;
       font-size: 12px;
-      border-radius: 999px;           /* тоже скруглённая */
-    }
-    
-    .nav-btn {
-      padding: 7px 14px;
-      background: var(--bg-lighter);
-      border-radius: 999px;           /* меню в виде чипов */
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .nav-btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-    .nav-btn.active {
-      background: var(--accent);
-    }
-    
-    .back-home-btn {
-      padding: 5px 12px;
-      font-size: 12px;
-      background: var(--bg-lighter);
-      border-radius: 999px;          /* тоже пилюлька */
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .back-home-btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
+      border-radius: 999px;
     }
 
-
-    /* ---------- ИНПУТЫ ---------- */
+    /* ---------- Инпуты ---------- */
 
     .field {
       margin-bottom: 10px;
@@ -129,7 +96,7 @@
     .field textarea {
       width: 100%;
       padding: 7px 9px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--input-bg);
       color: var(--text);
@@ -146,11 +113,23 @@
     }
     .error {
       font-size: 11px;
-      color: #f97373;
+      color: var(--danger);
       margin-top: 3px;
     }
 
-    /* ---------- АВТОРИЗАЦИЯ ---------- */
+    /* ---------- Карточки ---------- */
+
+    .card,
+    .section,
+    .files-list,
+    .files-detail,
+    .admin-users-list {
+      background: var(--bg-light);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    /* ---------- Авторизация ---------- */
 
     #auth-root {
       max-width: 480px;
@@ -158,9 +137,6 @@
     }
 
     .card {
-      background: var(--bg-light);
-      border-radius: 8px;
-      border: 1px solid var(--border);
       padding: 18px 18px 20px;
       margin-bottom: 16px;
     }
@@ -195,7 +171,7 @@
       display: block;
     }
 
-    /* ---------- НАВИГАЦИЯ ПАНЕЛИ ---------- */
+    /* ---------- Навигация панели ---------- */
 
     #panel-root {
       display: none;
@@ -203,7 +179,7 @@
 
     .navbar {
       background: var(--bg-light);
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid var(--border);
       padding: 10px 12px;
       display: flex;
@@ -213,17 +189,18 @@
     }
 
     .nav-btn {
-      padding: 7px 12px;
+      padding: 7px 14px;
       background: var(--bg-lighter);
-      border-radius: 6px;
+      border-radius: 999px;
       border: 1px solid var(--border);
       color: var(--text);
       font-size: 14px;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, transform 0.1s;
     }
     .nav-btn:hover {
       background: var(--accent-hover);
+      transform: translateY(-1px);
     }
     .nav-btn.active {
       background: var(--accent);
@@ -274,29 +251,30 @@
     }
 
     .back-home-btn {
-      padding: 5px 10px;
+      padding: 5px 12px;
       font-size: 12px;
       background: var(--bg-lighter);
-      border-radius: 6px;
+      border-radius: 999px;
       border: 1px solid var(--border);
       cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
     }
     .back-home-btn:hover {
       background: var(--accent-hover);
+      transform: translateY(-1px);
     }
 
-    /* ---------- СЕКЦИИ ПАНЕЛИ ---------- */
+    /* ---------- Секции панели ---------- */
 
     .section {
-      display: none;
-      background: var(--bg-light);
-      border-radius: 8px;
-      border: 1px solid var(--border);
       padding: 16px;
       min-height: 420px;
     }
     .section.active {
       display: block;
+    }
+    .section:not(.active) {
+      display: none;
     }
 
     .section h2 {
@@ -309,13 +287,12 @@
       color: var(--text);
       margin-bottom: 6px;
     }
-
     .section small {
       font-size: 12px;
       color: var(--muted);
     }
 
-    /* ---------- ГЛАВНАЯ ---------- */
+    /* ---------- Главная ---------- */
 
     .home-actions {
       margin-top: 14px;
@@ -324,7 +301,7 @@
       gap: 10px;
     }
 
-    /* ---------- ЛИЧНЫЕ ДЕЛА ---------- */
+    /* ---------- Личные дела ---------- */
 
     .files-layout {
       display: grid;
@@ -334,8 +311,6 @@
     }
 
     .files-list {
-      border: 1px solid var(--border);
-      border-radius: 8px;
       padding: 10px;
       max-height: 430px;
       overflow-y: auto;
@@ -344,7 +319,7 @@
 
     .file-item {
       padding: 7px 8px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid transparent;
       font-size: 13px;
       cursor: pointer;
@@ -355,12 +330,13 @@
     }
     .file-item.me {
       border-color: var(--accent);
-      background: rgba(58,124,165,0.2);
+      background: rgba(37,99,235,0.15);
     }
     .file-item.active {
       background: var(--accent);
       border-color: var(--accent-hover);
     }
+
     .file-title {
       font-weight: 500;
     }
@@ -370,8 +346,6 @@
     }
 
     .files-detail {
-      border: 1px solid var(--border);
-      border-radius: 8px;
       padding: 12px;
       background: var(--bg);
     }
@@ -381,15 +355,17 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
+      gap: 8px;
     }
 
-    .badge-readonly {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
+    .badge-readonly,
     .badge-editable {
       font-size: 11px;
+    }
+    .badge-readonly {
+      color: var(--muted);
+    }
+    .badge-editable {
       color: var(--success);
     }
 
@@ -399,12 +375,10 @@
       color: var(--muted);
     }
 
-    /* ---------- АДМИН ПАНЕЛЬ ---------- */
+    /* ---------- Админ панель ---------- */
 
     .admin-users-list {
       margin-top: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
       padding: 10px;
       max-height: 460px;
       overflow-y: auto;
@@ -412,7 +386,7 @@
     }
 
     .admin-user-card {
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       padding: 8px;
       margin-bottom: 8px;
@@ -462,7 +436,6 @@
       border-radius: 999px;
       border: 1px solid var(--border);
     }
-
     .admin-role-badge.admin {
       border-color: var(--accent);
       color: var(--accent-hover);
@@ -483,12 +456,13 @@
       flex-wrap: wrap;
       gap: 6px;
       align-items: center;
+      margin-top: 4px;
     }
 
     .admin-select {
       padding: 4px 6px;
       font-size: 12px;
-      border-radius: 6px;
+      border-radius: 8px;
       background: var(--input-bg);
       color: var(--text);
       border: 1px solid var(--border);
@@ -497,7 +471,7 @@
     .admin-color {
       width: 60px;
       height: 26px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: transparent;
       padding: 0;
@@ -508,7 +482,7 @@
       color: var(--muted);
     }
 
-    /* ---------- МОДАЛКИ ---------- */
+    /* ---------- Модалки ---------- */
 
     .modal-backdrop {
       position: fixed;
@@ -526,7 +500,7 @@
       width: 100%;
       max-width: 480px;
       background: var(--bg-light);
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid var(--border);
       padding: 16px;
     }
@@ -539,7 +513,6 @@
       color: var(--text);
       margin-bottom: 6px;
     }
-
     .modal-footer {
       margin-top: 10px;
       display: flex;
@@ -550,7 +523,7 @@
     .search-input {
       width: 100%;
       padding: 7px 9px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--input-bg);
       color: var(--text);
@@ -570,7 +543,7 @@
       background: var(--bg-lighter);
     }
 
-    /* ---------- АДАПТИВ ---------- */
+    /* ---------- Адаптив ---------- */
 
     @media (max-width: 900px) {
       .files-layout {
@@ -630,14 +603,14 @@
           <div class="field">
             <label for="reg-avatar">Аватарка</label>
             <input id="reg-avatar" type="file" accept="image/*" />
-            <div class="hint">Картинка будет сохранена в Supabase (bucket avatars).</div>
+            <div class="hint">Аватар будет сохранён прямо в базе (base64), Storage не используем.</div>
             <div class="error" id="reg-avatar-error"></div>
           </div>
 
           <button class="btn" type="submit">Завершить регистрацию</button>
 
           <div class="hint" style="margin-top:8px;">
-            Данные хранятся локально (браузер) и в Supabase (таблица users + личные дела).
+            Данные хранятся в Supabase (таблицы users + personal_files) и локально в браузере (сессия).
           </div>
         </form>
 
@@ -697,7 +670,7 @@
       </div>
     </div>
 
-    <!-- Секция: Главная -->
+    <!-- Главная -->
     <section id="section-home" class="section active">
       <h2>Главная панель</h2>
       <p>
@@ -715,7 +688,7 @@
       </div>
     </section>
 
-    <!-- Секция: Личные дела -->
+    <!-- Личные дела -->
     <section id="section-files" class="section">
       <h2>Личные дела</h2>
       <p>
@@ -724,12 +697,12 @@
       </p>
 
       <div class="files-layout">
-        <!-- Список личных дел -->
+        <!-- Список -->
         <div class="files-list" id="personal-files-list">
           Загрузка списка личных дел...
         </div>
 
-        <!-- Детали личного дела -->
+        <!-- Детали -->
         <div class="files-detail">
           <div class="files-detail-header">
             <div>
@@ -804,17 +777,17 @@
       </div>
     </section>
 
-    <!-- Секция: Админ панель -->
+    <!-- Админ панель -->
     <section id="section-admin" class="section">
       <h2>Админ панель</h2>
       <p>
-        Раздел доступен только модераторам и администраторам. Здесь можно просматривать всех пользователей.
-        (Статусы и цвет рамки можно будет добавить в базе отдельными полями.)
+        Раздел доступен только модераторам и администраторам. Здесь можно просматривать всех пользователей,
+        менять им роли, статус и оформление аватарки (админы), а также аватар.
       </p>
 
       <div style="margin-top:10px; margin-bottom:8px;">
         <button id="admin-add-user-btn" class="btn btn-sm" style="display:none;">
-          ➕ Добавить пользователя
+          ➕ Добавить / настроить пользователя
         </button>
       </div>
 
@@ -848,6 +821,38 @@
 
       <div class="modal-footer">
         <button class="btn btn-sm" id="rookie-close-btn">Понял, принял</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ МОДАЛКА: ДОБАВИТЬ / НАСТРОИТЬ ПОЛЬЗОВАТЕЛЯ (АДМИН) ============ -->
+  <div id="admin-add-modal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Настройка пользователя</h3>
+      <p>Выберите пользователя по нику, затем задайте ему статус и цвет рамки.</p>
+
+      <input id="admin-add-search" class="search-input" placeholder="Поиск по нику..." />
+
+      <div id="admin-add-results" style="max-height:200px; overflow-y:auto; margin-bottom:8px;"></div>
+
+      <div class="field">
+        <label for="admin-status-select">Статус (для администраторов)</label>
+        <select id="admin-status-select">
+          <option value="">Без статуса</option>
+          <option value="Куратор">Куратор</option>
+          <option value="Ответственный за структуру">Ответственный за структуру</option>
+          <option value="Министр">Министр</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="admin-border-color">Цвет обводки аватарки</label>
+        <input id="admin-border-color" type="color" value="#3a7ca5" />
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-outline btn-sm" id="admin-add-cancel">Отмена</button>
+        <button class="btn btn-sm" id="admin-add-save">Сохранить</button>
       </div>
     </div>
   </div>
@@ -889,7 +894,24 @@ function clearSession() {
   localStorage.removeItem("pp_user");
 }
 
-/* =============== ЭЛЕМЕНТЫ =============== */
+function roleLabel(role) {
+  if (role === "admin") return "Администратор";
+  if (role === "moderator") return "Модератор";
+  return "Офицер";
+}
+
+/* =============== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =============== */
+
+let currentUser = null;
+let personalFilesCache = [];
+let currentFileId = null;
+let currentFileOwnerId = null;
+let currentFileEditable = false;
+
+let adminUsersCache = [];
+let adminSelectedUserId = null;
+
+/* =============== ЭЛЕМЕНТЫ DOM =============== */
 
 const authRoot = document.getElementById("auth-root");
 const panelRoot = document.getElementById("panel-root");
@@ -900,15 +922,7 @@ const topNick = document.getElementById("top-nick");
 const topRole = document.getElementById("top-role");
 const topAvatar = document.getElementById("top-avatar");
 
-let currentUser = null;
-let personalFilesCache = [];
-let currentFileId = null;
-let currentFileOwnerId = null;
-let currentFileEditable = false;
-
-let adminUsersCache = [];
-
-/* =============== ПЕРЕКЛЮЧЕНИЕ АВТОРИЗАЦИИ =============== */
+/* =============== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ АВТОРИЗАЦИИ =============== */
 
 document.getElementById("to-login").onclick = () => {
   regScreen.classList.remove("active");
@@ -919,7 +933,7 @@ document.getElementById("to-register").onclick = () => {
   regScreen.classList.add("active");
 };
 
-/* =============== РЕГИСТРАЦИЯ =============== */
+/* =============== РЕГИСТРАЦИЯ (БЕЗ STORAGE, АВАТАР В BASE64) =============== */
 
 document.getElementById("register-form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -951,51 +965,38 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     return;
   }
 
-  // загружаем аватар в bucket avatars
-  const ext = avatarFile.name.split(".").pop() || "png";
-  const filePath = `${nick}_${Date.now()}.${ext}`;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const avatarDataUrl = reader.result; // data:image/...;base64,...
 
-  const { data: uploadData, error: uploadError } = await supabaseClient
-    .storage
-    .from("avatars")
-    .upload(filePath, avatarFile, { upsert: true });
-  
-  if (uploadError) {
-    console.error("Ошибка Supabase Storage:", uploadError);
-    alert("Ошибка загрузки аватарки в хранилище: " + uploadError.message);
-    return;
-  }
+    const { data: userRow, error } = await supabaseClient
+      .from("users")
+      .insert({
+        nick,
+        password_hash: password,   // для простоты — как есть
+        department: dept,
+        avatar_url: avatarDataUrl,
+        role: "user"
+      })
+      .select("*")
+      .single();
 
+    if (error) {
+      console.error(error);
+      alert("Ошибка регистрации (таблица users). Скорее всего ник уже занят.");
+      return;
+    }
 
-  const { data: urlData } = supabaseClient
-    .storage
-    .from("avatars")
-    .getPublicUrl(filePath);
+    currentUser = userRow;
+    saveSession(userRow);
+    loadPanelUI(userRow);
+  };
 
-  const avatar_url = urlData.publicUrl;
+  reader.onerror = () => {
+    alert("Не удалось прочитать файл аватарки.");
+  };
 
-  // создаём пользователя
-  const { data: userRow, error } = await supabaseClient
-    .from("users")
-    .insert({
-      nick,
-      password_hash: password,
-      department: dept,
-      avatar_url,
-      role: "user"
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    console.error(error);
-    alert("Ошибка регистрации (таблица users).");
-    return;
-  }
-
-  currentUser = userRow;
-  saveSession(userRow);
-  loadPanelUI(userRow);
+  reader.readAsDataURL(avatarFile);
 });
 
 /* =============== ВХОД =============== */
@@ -1044,14 +1045,10 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 function refreshTopBar() {
   if (!currentUser) return;
   topNick.textContent = currentUser.nick || "Офицер";
-  topRole.textContent =
-    currentUser.role === "admin"
-      ? "Администратор"
-      : currentUser.role === "moderator"
-      ? "Модератор"
-      : "Офицер";
+  topRole.textContent = roleLabel(currentUser.role || "user");
 
   topAvatar.innerHTML = "";
+  topAvatar.style.borderColor = currentUser.border_color || "#374151";
   if (currentUser.avatar_url) {
     const img = document.createElement("img");
     img.src = currentUser.avatar_url;
@@ -1060,7 +1057,6 @@ function refreshTopBar() {
     topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
   }
 
-  // показать/скрыть админку
   const navAdmin = document.getElementById("nav-admin");
   if (currentUser.role === "admin" || currentUser.role === "moderator") {
     navAdmin.style.display = "inline-block";
@@ -1117,7 +1113,7 @@ document.getElementById("back-home-btn").onclick = () => switchSection("home");
 
 document.getElementById("open-files-from-home").onclick = () => switchSection("files");
 
-/* Скачать биндер (ожидает binder.zip рядом с сайтом) */
+/* Скачать биндер */
 document.getElementById("download-binder-btn").onclick = () => {
   const a = document.createElement("a");
   a.href = "binder.zip";
@@ -1328,7 +1324,7 @@ pfForm.addEventListener("submit", async (e) => {
   pfSaveNote.style.color = "#9ca3af";
 
   if (!currentFileEditable) {
-    pfSaveNote.style.color = "#f97373";
+    pfSaveNote.style.color = "#ef4444";
     pfSaveNote.textContent = "У вас нет прав на редактирование этого личного дела.";
     return;
   }
@@ -1338,7 +1334,7 @@ pfForm.addEventListener("submit", async (e) => {
   const acc = pfAccount.value.trim();
 
   if (!dept || !nick || !acc) {
-    pfSaveNote.style.color = "#f97373";
+    pfSaveNote.style.color = "#ef4444";
     pfSaveNote.textContent = "Заполните минимум: Отдел, Имя_Фамилия и номер аккаунта.";
     return;
   }
@@ -1374,7 +1370,7 @@ pfForm.addEventListener("submit", async (e) => {
   const { data, error } = result;
   if (error) {
     console.error(error);
-    pfSaveNote.style.color = "#f97373";
+    pfSaveNote.style.color = "#ef4444";
     pfSaveNote.textContent = "Ошибка сохранения личного дела.";
     return;
   }
@@ -1389,16 +1385,18 @@ pfForm.addEventListener("submit", async (e) => {
   await loadPersonalFiles(currentFileId);
 });
 
-/* =============== АДМИН ПАНЕЛЬ (упрощённо) =============== */
+/* =============== АДМИН ПАНЕЛЬ =============== */
 
 const adminUsersListEl = document.getElementById("admin-users-list");
 const adminAddBtn = document.getElementById("admin-add-user-btn");
 
-function roleLabel(role) {
-  if (role === "admin") return "Администратор";
-  if (role === "moderator") return "Модератор";
-  return "Офицер";
-}
+const adminAddModal = document.getElementById("admin-add-modal");
+const adminAddSearchInput = document.getElementById("admin-add-search");
+const adminAddResults = document.getElementById("admin-add-results");
+const adminStatusSelect = document.getElementById("admin-status-select");
+const adminBorderColor = document.getElementById("admin-border-color");
+const adminAddCancel = document.getElementById("admin-add-cancel");
+const adminAddSave = document.getElementById("admin-add-save");
 
 async function loadAdminPanel() {
   if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "moderator")) {
@@ -1412,7 +1410,7 @@ async function loadAdminPanel() {
 
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, nick, department, role, avatar_url, created_at")
+    .select("id, nick, department, role, avatar_url, created_at, status, border_color")
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -1439,6 +1437,7 @@ function renderAdminUsers() {
 
     const avatar = document.createElement("div");
     avatar.className = "admin-user-avatar";
+    avatar.style.borderColor = user.border_color || "#374151";
     if (user.avatar_url) {
       const img = document.createElement("img");
       img.src = user.avatar_url;
@@ -1464,19 +1463,91 @@ function renderAdminUsers() {
     header.appendChild(nickEl);
     header.appendChild(roleBadge);
 
-    const meta = document.createElement("div");
-    meta.className = "admin-user-meta";
-    meta.textContent = `Департамент: ${user.department || "—"}`;
+    const meta1 = document.createElement("div");
+    meta1.className = "admin-user-meta";
+    if (user.role === "admin" && user.status) {
+      meta1.textContent = `Статус: ${user.status}`;
+    } else if (user.role === "admin" && !user.status) {
+      meta1.textContent = "Статус: не назначен";
+    } else {
+      meta1.textContent = `Департамент: ${user.department || "—"}`;
+    }
 
-    const created = document.createElement("div");
-    created.className = "admin-user-meta";
-    created.textContent = user.created_at
+    const meta2 = document.createElement("div");
+    meta2.className = "admin-user-meta";
+    meta2.textContent = user.created_at
       ? `Создан: ${new Date(user.created_at).toLocaleString()}`
       : "";
 
+    const actions = document.createElement("div");
+    actions.className = "admin-user-actions";
+
+    const isAdmin = currentUser && currentUser.role === "admin";
+
+    // селект роли
+    const roleSelect = document.createElement("select");
+    roleSelect.className = "admin-select";
+    ["user", "moderator", "admin"].forEach((r) => {
+      const opt = document.createElement("option");
+      opt.value = r;
+      opt.textContent = roleLabel(r);
+      roleSelect.appendChild(opt);
+    });
+    roleSelect.value = user.role || "user";
+    roleSelect.disabled = !isAdmin;
+
+    // селект статуса
+    const statusSelect = document.createElement("select");
+    statusSelect.className = "admin-select";
+    ["", "Куратор", "Ответственный за структуру", "Министр"].forEach((val) => {
+      const opt = document.createElement("option");
+      opt.value = val;
+      opt.textContent = val || "Без статуса";
+      statusSelect.appendChild(opt);
+    });
+    statusSelect.value = user.status || "";
+    statusSelect.disabled = !isAdmin;
+
+    // цвет рамки
+    const colorInput = document.createElement("input");
+    colorInput.type = "color";
+    colorInput.className = "admin-color";
+    colorInput.value = user.border_color || "#3a7ca5";
+    colorInput.disabled = !isAdmin;
+
+    // смена аватара
+    const avatarInput = document.createElement("input");
+    avatarInput.type = "file";
+    avatarInput.accept = "image/*";
+    avatarInput.className = "admin-avatar-input";
+    avatarInput.disabled = !isAdmin;
+
+    if (isAdmin) {
+      roleSelect.onchange = async () => {
+        await updateUserFields(user.id, { role: roleSelect.value });
+      };
+      statusSelect.onchange = async () => {
+        await updateUserFields(user.id, { status: statusSelect.value });
+      };
+      colorInput.onchange = async () => {
+        await updateUserFields(user.id, { border_color: colorInput.value });
+      };
+      avatarInput.onchange = async () => {
+        const file = avatarInput.files[0];
+        if (!file) return;
+        await adminChangeAvatarForUser(user, file);
+      };
+    }
+
+    actions.appendChild(roleSelect);
+    actions.appendChild(statusSelect);
+    actions.appendChild(colorInput);
+    actions.appendChild(avatarInput);
+
     main.appendChild(header);
-    main.appendChild(meta);
-    if (created.textContent) main.appendChild(created);
+    main.appendChild(meta1);
+    if (meta2.textContent) main.appendChild(meta2);
+    main.appendChild(actions);
 
     card.appendChild(avatar);
     card.appendChild(main);
@@ -1484,7 +1555,119 @@ function renderAdminUsers() {
     adminUsersListEl.appendChild(card);
   });
 }
+
+async function updateUserFields(userId, patch) {
+  const { data, error } = await supabaseClient
+    .from("users")
+    .update(patch)
+    .eq("id", userId)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error(error);
+    alert("Ошибка обновления пользователя");
+    return;
+  }
+
+  const idx = adminUsersCache.findIndex((u) => u.id === userId);
+  if (idx >= 0) adminUsersCache[idx] = data;
+
+  if (currentUser && currentUser.id === userId) {
+    currentUser = { ...currentUser, ...patch };
+    saveSession(currentUser);
+    refreshTopBar();
+  }
+
+  renderAdminUsers();
+}
+
+async function adminChangeAvatarForUser(user, file) {
+  try {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const avatarDataUrl = reader.result;
+
+      await updateUserFields(user.id, { avatar_url: avatarDataUrl });
+    };
+    reader.onerror = () => {
+      alert("Не удалось прочитать файл аватара");
+    };
+    reader.readAsDataURL(file);
+  } catch (e) {
+    console.error(e);
+    alert("Ошибка при обработке аватара");
+  }
+}
+
+/* ---------- Модалка "Добавить / настроить пользователя" ---------- */
+
+function renderAdminAddResults(filterText) {
+  adminAddResults.innerHTML = "";
+
+  const text = (filterText || "").toLowerCase();
+  const list = adminUsersCache.filter((u) =>
+    !text ? true : (u.nick || "").toLowerCase().includes(text)
+  );
+
+  if (!list.length) {
+    adminAddResults.textContent = "Пользователи не найдены.";
+    return;
+  }
+
+  list.forEach((u) => {
+    const item = document.createElement("div");
+    item.className = "search-result-item";
+    item.dataset.id = u.id;
+    item.textContent = `${u.nick} (${roleLabel(u.role)})`;
+    if (adminSelectedUserId === u.id) {
+      item.style.background = "#1f2937";
+    }
+    item.onclick = () => {
+      adminSelectedUserId = u.id;
+      adminStatusSelect.value = u.status || "";
+      adminBorderColor.value = u.border_color || "#3a7ca5";
+      renderAdminAddResults(text);
+    };
+    adminAddResults.appendChild(item);
+  });
+}
+
+function openAdminAddModal() {
+  if (!currentUser || currentUser.role !== "admin") return;
+  adminSelectedUserId = null;
+  adminAddSearchInput.value = "";
+  renderAdminAddResults("");
+  adminStatusSelect.value = "";
+  adminBorderColor.value = "#3a7ca5";
+  adminAddModal.classList.add("active");
+}
+function closeAdminAddModal() {
+  adminAddModal.classList.remove("active");
+}
+
+adminAddBtn.onclick = openAdminAddModal;
+adminAddCancel.onclick = closeAdminAddModal;
+
+adminAddSearchInput.addEventListener("input", (e) => {
+  renderAdminAddResults(e.target.value);
+});
+
+adminAddSave.onclick = async () => {
+  if (!adminSelectedUserId) {
+    alert("Выберите пользователя из списка.");
+    return;
+  }
+  const status = adminStatusSelect.value;
+  const color = adminBorderColor.value || "#3a7ca5";
+
+  await updateUserFields(adminSelectedUserId, {
+    status,
+    border_color: color,
+  });
+
+  closeAdminAddModal();
+};
 </script>
 </body>
 </html>
-
