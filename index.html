@@ -1438,12 +1438,6 @@ function applyThemeBackground() {
   }
 }
 
-function applyThemeFromStorage() {
-  await loadThemeFromDB();
-  applyThemeToBlocks();
-  applyThemeBackground();
-}
-
 /* UI для панели темы (creator) */
 
 function initThemePanel() {
@@ -1481,6 +1475,7 @@ function initThemePanel() {
 
   if (themeSaveBtn) {
     themeSaveBtn.onclick = () => {
+      await saveThemeToDB(); // ← вот это важно
       // уже сохраняем по oninput/onchange, но можно продублировать
       applyThemeToBlocks();
       showErrorModal("Оформление сохранено. При следующем входе будет применено автоматически.");
@@ -2946,6 +2941,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
