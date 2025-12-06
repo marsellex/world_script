@@ -2134,43 +2134,37 @@ async function loadPersonalFiles() {
     return;
   }
 
+  // СНАЧАЛА сохраняем результат запроса
+  personalFilesCache = data || [];
+
+  // Если реально нет дел в БД
   if (!personalFilesCache.length) {
     filesListEl.textContent = "Пока нет ни одного личного дела.";
     currentFileId = null;
     currentFileOwnerId = currentUser.id;
     currentFileEditable = false;
     fillPersonalForm(null, false);
-    currentFileId = null;
-    currentFileOwnerId = currentUser.id;
-    currentFileEditable = false;
-    if (pfRepliesList) pfRepliesList.textContent = "Сначала выберите личное дело слева.";
-    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
-  
-    if (pfRepliesList) pfRepliesList.textContent = "Сначала создайте и сохраните личное дело.";
-    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
+
+    if (pfRepliesList) {
+      pfRepliesList.textContent = "Сначала создайте и сохраните личное дело.";
+    }
+    if (pfRepliesFormWrapper) {
+      pfRepliesFormWrapper.style.display = "none";
+    }
+
+    // позволяем создать своё дело
+    if (createPersonalBtn) {
+      createPersonalBtn.style.display = "inline-block";
+    }
     return;
   }
 
-  personalFilesCache = data || [];
+  // ===== есть дела – рисуем список =====
   filesListEl.innerHTML = "";
 
   const hasMyFile = personalFilesCache.some((f) => f.user_id === currentUser.id);
   if (createPersonalBtn) {
     createPersonalBtn.style.display = hasMyFile ? "none" : "inline-block";
-  }
-
-  if (!personalFilesCache.length) {
-    filesListEl.textContent = "Пока нет ни одного личного дела.";
-    currentFileId = null;
-    currentFileOwnerId = currentUser.id;
-    currentFileEditable = false;
-    fillPersonalForm(null, false);
-    currentFileId = null;
-    currentFileOwnerId = currentUser.id;
-    currentFileEditable = false;
-    if (pfRepliesList) pfRepliesList.textContent = "Сначала выберите личное дело слева.";
-    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
-    return;
   }
 
   const myFiles = personalFilesCache.filter(
@@ -2213,29 +2207,17 @@ async function loadPersonalFiles() {
     filesListEl.appendChild(item);
   });
 
+  // сбрасываем правую часть до выбора дела
   currentFileId = null;
   currentFileOwnerId = currentUser.id;
   currentFileEditable = false;
   fillPersonalForm(null, false);
-  currentFileId = null;
-  currentFileOwnerId = currentUser.id;
-  currentFileEditable = false;
-  if (pfRepliesList) pfRepliesList.textContent = "Сначала выберите личное дело слева.";
-  if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
-}
-
-if (createPersonalBtn) {
-  createPersonalBtn.onclick = () => {
-    if (!currentUser) return;
-    currentFileId = null;
-    currentFileOwnerId = currentUser.id;
-    currentFileEditable = true;
-    fillPersonalForm(null, true);
-    if (pfRepliesList) pfRepliesList.textContent = "После сохранения личного дела вы сможете оставлять ответы.";
-    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
-    currentFileId = null;
-    updateRepliesAccess();
-  };
+  if (pfRepliesList) {
+    pfRepliesList.textContent = "Сначала выберите личное дело слева.";
+  }
+  if (pfRepliesFormWrapper) {
+    pfRepliesFormWrapper.style.display = "none";
+  }
 }
 
 pfForm.addEventListener("submit", async (e) => {
@@ -3344,13 +3326,3 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
