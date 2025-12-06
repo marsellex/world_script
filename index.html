@@ -60,19 +60,30 @@
       border: 1px solid var(--border);
       font-size: 14px;
       cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.7);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     }
     .btn:hover {
       background: var(--accent-hover);
       transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
     }
 
     .btn-outline {
-      background: transparent;
-      border-color: var(--border);
+      padding: 8px 16px;
+      background: var(--bg-lighter);
+      color: var(--text);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.6);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     }
     .btn-outline:hover {
-      background: var(--bg-lighter);
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
     }
 
     .btn-sm {
@@ -603,7 +614,7 @@
           <div class="field">
             <label for="reg-avatar">Аватарка</label>
             <input id="reg-avatar" type="file" accept="image/*" />
-            <div class="hint">Аватар будет сохранён прямо в базе (base64), Storage не используем.</div>
+            <div class="hint">Аватар будет сохранён прямо в базе (base64), без Supabase Storage.</div>
             <div class="error" id="reg-avatar-error"></div>
           </div>
 
@@ -653,10 +664,10 @@
     <div class="navbar">
       <button class="nav-btn active" id="nav-home">Главная</button>
       <button class="nav-btn" id="nav-files">Личные дела</button>
-      <button class="nav-btn" id="nav-admin" style="display:none;">Админ панель</button>
+      <button class="nav-btn" id="nav-admin">Админ панель</button>
 
       <div class="nav-right">
-        <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную</button>
+        <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную панель</button>
 
         <div class="top-user">
           <div class="top-avatar" id="top-avatar">PP</div>
@@ -683,8 +694,8 @@
 
       <div class="home-actions">
         <button id="download-binder-btn" class="btn">⬇ Скачать биндер</button>
-        <button id="open-files-from-home" class="btn-outline">Перейти к личным делам</button>
-        <button id="open-rookie-modal" class="btn-outline">Инфо для рядовых</button>
+        <button id="open-files-from-home" class="btn-outline">Личные дела</button>
+        <button id="open-rookie-modal" class="btn-outline">Начать обучаться игре за полицейского</button>
       </div>
     </section>
 
@@ -695,6 +706,12 @@
         В этом разделе хранятся личные дела всех сотрудников. Ваше личное дело всегда
         закреплено вверху списка. Администраторы и модераторы могут редактировать любое личное дело.
       </p>
+
+      <div style="margin-top:10px; margin-bottom:8px;">
+        <button id="create-personal-btn" class="btn btn-sm" style="display:none;">
+          ➕ Создать личное дело
+        </button>
+      </div>
 
       <div class="files-layout">
         <!-- Список -->
@@ -781,8 +798,8 @@
     <section id="section-admin" class="section">
       <h2>Админ панель</h2>
       <p>
-        Раздел доступен только модераторам и администраторам. Здесь можно просматривать всех пользователей,
-        менять им роли, статус и оформление аватарки (админы), а также аватар.
+        Раздел доступен администраторам и модераторам. Офицеры видят только список модераторов
+        и админов в режиме просмотра.
       </p>
 
       <div style="margin-top:10px; margin-bottom:8px;">
@@ -857,8 +874,18 @@
     </div>
   </div>
 
-</div> <!-- /app -->
+  <!-- ============ МОДАЛКА: ОШИБКА ============ -->
+  <div id="error-modal" class="modal-backdrop">
+    <div class="modal">
+      <h3>Ошибка!</h3>
+      <p id="error-modal-text"></p>
+      <div class="modal-footer">
+        <button class="btn btn-sm" id="error-modal-close">Закрыть</button>
+      </div>
+    </div>
+  </div>
 
+</div> <!-- /app -->
 <!-- Supabase JS -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
@@ -893,11 +920,26 @@ function loadSession() {
 function clearSession() {
   localStorage.removeItem("pp_user");
 }
-
 function roleLabel(role) {
   if (role === "admin") return "Администратор";
   if (role === "moderator") return "Модератор";
   return "Офицер";
+}
+
+/* =============== МОДАЛКА ОШИБОК =============== */
+
+const errorModal = document.getElementById("error-modal");
+const errorModalText = document.getElementById("error-modal-text");
+const errorModalClose = document.getElementById("error-modal-close");
+
+function showErrorModal(message) {
+  errorModalText.textContent = message || "Неизвестная ошибка.";
+  errorModal.classList.add("active");
+}
+if (errorModalClose) {
+  errorModalClose.onclick = () => {
+    errorModal.classList.remove("active");
+  };
 }
 
 /* =============== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =============== */
@@ -933,7 +975,7 @@ document.getElementById("to-register").onclick = () => {
   regScreen.classList.add("active");
 };
 
-/* =============== РЕГИСТРАЦИЯ (БЕЗ STORAGE, АВАТАР В BASE64) =============== */
+/* =============== РЕГИСТРАЦИЯ =============== */
 
 document.getElementById("register-form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -967,13 +1009,13 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
 
   const reader = new FileReader();
   reader.onload = async () => {
-    const avatarDataUrl = reader.result; // data:image/...;base64,...
+    const avatarDataUrl = reader.result;
 
     const { data: userRow, error } = await supabaseClient
       .from("users")
       .insert({
         nick,
-        password_hash: password,   // для простоты — как есть
+        password_hash: password,
         department: dept,
         avatar_url: avatarDataUrl,
         role: "user"
@@ -983,7 +1025,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
 
     if (error) {
       console.error(error);
-      alert("Ошибка регистрации (таблица users). Скорее всего ник уже занят.");
+      showErrorModal("Ошибка регистрации (таблица users). Скорее всего ник уже занят.");
       return;
     }
 
@@ -993,7 +1035,7 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
   };
 
   reader.onerror = () => {
-    alert("Не удалось прочитать файл аватарки.");
+    showErrorModal("Не удалось прочитать файл аватарки.");
   };
 
   reader.readAsDataURL(avatarFile);
@@ -1057,11 +1099,10 @@ function refreshTopBar() {
     topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
   }
 
+  // Кнопка Админ панель видна всем, логика доступа внутри
   const navAdmin = document.getElementById("nav-admin");
-  if (currentUser.role === "admin" || currentUser.role === "moderator") {
+  if (navAdmin) {
     navAdmin.style.display = "inline-block";
-  } else {
-    navAdmin.style.display = "none";
   }
 }
 
@@ -1151,6 +1192,7 @@ const pfReadonlyNote = document.getElementById("pf-readonly-note");
 const pfDetailTitle = document.getElementById("pf-detail-title");
 const pfDetailSub = document.getElementById("pf-detail-sub");
 const pfEditBadge = document.getElementById("pf-edit-badge");
+const createPersonalBtn = document.getElementById("create-personal-btn");
 
 function updatePfHeaderPreview() {
   const dept = pfDept.value || "Отдел";
@@ -1176,7 +1218,9 @@ function fillPersonalForm(fileRow, editable) {
     pfRank.value = "";
     pfPhone.value = "";
     pfContact.value = "";
-    pfDetailSub.textContent = "Новое личное дело";
+    pfDetailSub.textContent = editable
+      ? "Новое личное дело"
+      : "Выберите личное дело слева или создайте своё.";
     updatePfHeaderPreview();
   } else {
     pfDept.value = fileRow.forum_dept || "";
@@ -1217,6 +1261,7 @@ function openPersonalFile(id) {
 
   currentFileId = file.id;
   currentFileOwnerId = file.user_id;
+
   const canEdit =
     currentUser &&
     (currentUser.role === "admin" ||
@@ -1233,7 +1278,7 @@ function openPersonalFile(id) {
   fillPersonalForm(file, canEdit);
 }
 
-async function loadPersonalFiles(selectId) {
+async function loadPersonalFiles() {
   if (!currentUser) return;
 
   filesListEl.textContent = "Загрузка списка личных дел...";
@@ -1246,30 +1291,35 @@ async function loadPersonalFiles(selectId) {
   if (error) {
     console.error(error);
     filesListEl.textContent = "Ошибка загрузки личных дел.";
+    showErrorModal("Ошибка загрузки личных дел. Попробуйте позже.");
     return;
   }
 
   personalFilesCache = data || [];
   filesListEl.innerHTML = "";
 
+  const hasMyFile = personalFilesCache.some((f) => f.user_id === currentUser.id);
+  if (createPersonalBtn) {
+    createPersonalBtn.style.display = hasMyFile ? "none" : "inline-block";
+  }
+
   if (!personalFilesCache.length) {
-    filesListEl.textContent =
-      "Пока нет ни одного личного дела. Заполните форму справа, чтобы создать своё.";
+    filesListEl.textContent = "Пока нет ни одного личного дела.";
     currentFileId = null;
     currentFileOwnerId = currentUser.id;
-    currentFileEditable = true;
-    fillPersonalForm(null, true);
+    currentFileEditable = false;
+    fillPersonalForm(null, false);
     return;
   }
 
   const myFiles = personalFilesCache.filter(
     (f) => f.user_id === currentUser.id
   );
-  const others = personalFilesCache.filter(
-    (f) => f.user_id !== currentUser.id
-  ).sort((a, b) =>
-    (a.forum_nick || "").localeCompare(b.forum_nick || "", "ru")
-  );
+  const others = personalFilesCache
+    .filter((f) => f.user_id !== currentUser.id)
+    .sort((a, b) =>
+      (a.forum_nick || "").localeCompare(b.forum_nick || "", "ru")
+    );
 
   const ordered = [...myFiles, ...others];
 
@@ -1302,18 +1352,21 @@ async function loadPersonalFiles(selectId) {
     filesListEl.appendChild(item);
   });
 
-  let initialId = null;
-  if (selectId) {
-    initialId = selectId;
-  } else if (myFiles.length) {
-    initialId = myFiles[0].id;
-  } else if (ordered.length) {
-    initialId = ordered[0].id;
-  }
+  // При открытии раздела ничего не выбрано
+  currentFileId = null;
+  currentFileOwnerId = currentUser.id;
+  currentFileEditable = false;
+  fillPersonalForm(null, false);
+}
 
-  if (initialId) {
-    openPersonalFile(initialId);
-  }
+if (createPersonalBtn) {
+  createPersonalBtn.onclick = () => {
+    if (!currentUser) return;
+    currentFileId = null;
+    currentFileOwnerId = currentUser.id;
+    currentFileEditable = true;
+    fillPersonalForm(null, true);
+  };
 }
 
 pfForm.addEventListener("submit", async (e) => {
@@ -1372,6 +1425,7 @@ pfForm.addEventListener("submit", async (e) => {
     console.error(error);
     pfSaveNote.style.color = "#ef4444";
     pfSaveNote.textContent = "Ошибка сохранения личного дела.";
+    showErrorModal("Ошибка сохранения личного дела. Попробуйте позже.");
     return;
   }
 
@@ -1382,7 +1436,7 @@ pfForm.addEventListener("submit", async (e) => {
   pfSaveNote.textContent = "Личное дело сохранено.";
   setTimeout(() => (pfSaveNote.textContent = ""), 2500);
 
-  await loadPersonalFiles(currentFileId);
+  await loadPersonalFiles();
 });
 
 /* =============== АДМИН ПАНЕЛЬ =============== */
@@ -1399,14 +1453,18 @@ const adminAddCancel = document.getElementById("admin-add-cancel");
 const adminAddSave = document.getElementById("admin-add-save");
 
 async function loadAdminPanel() {
-  if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "moderator")) {
-    adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
+  if (!currentUser) {
+    adminUsersListEl.textContent = "Вы не авторизованы.";
     adminAddBtn.style.display = "none";
     return;
   }
 
-  adminAddBtn.style.display = currentUser.role === "admin" ? "inline-block" : "none";
+  const isAdmin = currentUser.role === "admin";
+  const isModerator = currentUser.role === "moderator";
+  const isOfficer = !isAdmin && !isModerator;
+
   adminUsersListEl.textContent = "Загрузка пользователей...";
+  adminAddBtn.style.display = isAdmin ? "inline-block" : "none";
 
   const { data, error } = await supabaseClient
     .from("users")
@@ -1416,6 +1474,7 @@ async function loadAdminPanel() {
   if (error) {
     console.error(error);
     adminUsersListEl.textContent = "Ошибка загрузки пользователей.";
+    showErrorModal("Ошибка загрузки пользователей. Попробуйте позже.");
     return;
   }
 
@@ -1431,7 +1490,23 @@ function renderAdminUsers() {
     return;
   }
 
-  adminUsersCache.forEach((user) => {
+  const isAdmin = currentUser && currentUser.role === "admin";
+  const isModerator = currentUser && currentUser.role === "moderator";
+  const isOfficer = !isAdmin && !isModerator;
+
+  let list = adminUsersCache;
+
+  if (isOfficer) {
+    list = adminUsersCache.filter(
+      (u) => u.role === "admin" || u.role === "moderator"
+    );
+    if (!list.length) {
+      adminUsersListEl.textContent = "Модераторы и администраторы не найдены.";
+      return;
+    }
+  }
+
+  list.forEach((user) => {
     const card = document.createElement("div");
     card.className = "admin-user-card";
 
@@ -1479,79 +1554,77 @@ function renderAdminUsers() {
       ? `Создан: ${new Date(user.created_at).toLocaleString()}`
       : "";
 
-    const actions = document.createElement("div");
-    actions.className = "admin-user-actions";
-
-    const isAdmin = currentUser && currentUser.role === "admin";
-
-    // селект роли
-    const roleSelect = document.createElement("select");
-    roleSelect.className = "admin-select";
-    ["user", "moderator", "admin"].forEach((r) => {
-      const opt = document.createElement("option");
-      opt.value = r;
-      opt.textContent = roleLabel(r);
-      roleSelect.appendChild(opt);
-    });
-    roleSelect.value = user.role || "user";
-    roleSelect.disabled = !isAdmin;
-
-    // селект статуса
-    const statusSelect = document.createElement("select");
-    statusSelect.className = "admin-select";
-    ["", "Куратор", "Ответственный за структуру", "Министр"].forEach((val) => {
-      const opt = document.createElement("option");
-      opt.value = val;
-      opt.textContent = val || "Без статуса";
-      statusSelect.appendChild(opt);
-    });
-    statusSelect.value = user.status || "";
-    statusSelect.disabled = !isAdmin;
-
-    // цвет рамки
-    const colorInput = document.createElement("input");
-    colorInput.type = "color";
-    colorInput.className = "admin-color";
-    colorInput.value = user.border_color || "#3a7ca5";
-    colorInput.disabled = !isAdmin;
-
-    // смена аватара
-    const avatarInput = document.createElement("input");
-    avatarInput.type = "file";
-    avatarInput.accept = "image/*";
-    avatarInput.className = "admin-avatar-input";
-    avatarInput.disabled = !isAdmin;
-
-    if (isAdmin) {
-      roleSelect.onchange = async () => {
-        await updateUserFields(user.id, { role: roleSelect.value });
-      };
-      statusSelect.onchange = async () => {
-        await updateUserFields(user.id, { status: statusSelect.value });
-      };
-      colorInput.onchange = async () => {
-        await updateUserFields(user.id, { border_color: colorInput.value });
-      };
-      avatarInput.onchange = async () => {
-        const file = avatarInput.files[0];
-        if (!file) return;
-        await adminChangeAvatarForUser(user, file);
-      };
-    }
-
-    actions.appendChild(roleSelect);
-    actions.appendChild(statusSelect);
-    actions.appendChild(colorInput);
-    actions.appendChild(avatarInput);
-
     main.appendChild(header);
     main.appendChild(meta1);
     if (meta2.textContent) main.appendChild(meta2);
-    main.appendChild(actions);
+
+    if (!isOfficer) {
+      const actions = document.createElement("div");
+      actions.className = "admin-user-actions";
+
+      const canEdit = isAdmin;
+
+      const roleSelect = document.createElement("select");
+      roleSelect.className = "admin-select";
+      ["user", "moderator", "admin"].forEach((r) => {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = roleLabel(r);
+        roleSelect.appendChild(opt);
+      });
+      roleSelect.value = user.role || "user";
+      roleSelect.disabled = !canEdit;
+
+      const statusSelect = document.createElement("select");
+      statusSelect.className = "admin-select";
+      ["", "Куратор", "Ответственный за структуру", "Министр"].forEach((val) => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val || "Без статуса";
+        statusSelect.appendChild(opt);
+      });
+      statusSelect.value = user.status || "";
+      statusSelect.disabled = !canEdit;
+
+      const colorInput = document.createElement("input");
+      colorInput.type = "color";
+      colorInput.className = "admin-color";
+      colorInput.value = user.border_color || "#3a7ca5";
+      colorInput.disabled = !canEdit;
+
+      const avatarInput = document.createElement("input");
+      avatarInput.type = "file";
+      avatarInput.accept = "image/*";
+      avatarInput.className = "admin-avatar-input";
+      avatarInput.disabled = !canEdit;
+
+      if (canEdit) {
+        roleSelect.onchange = async () => {
+          await updateUserFields(user.id, { role: roleSelect.value });
+        };
+        statusSelect.onchange = async () => {
+          await updateUserFields(user.id, { status: statusSelect.value });
+        };
+        colorInput.onchange = async () => {
+          await updateUserFields(user.id, { border_color: colorInput.value });
+        };
+        avatarInput.onchange = async () => {
+          const file = avatarInput.files[0];
+          if (!file) return;
+          await adminChangeAvatarForUser(user, file);
+        };
+      }
+
+      actions.appendChild(roleSelect);
+      actions.appendChild(statusSelect);
+      actions.appendChild(colorInput);
+      actions.appendChild(avatarInput);
+
+      main.appendChild(actions);
+    }
 
     card.appendChild(avatar);
     card.appendChild(main);
-
     adminUsersListEl.appendChild(card);
   });
 }
@@ -1566,7 +1639,7 @@ async function updateUserFields(userId, patch) {
 
   if (error) {
     console.error(error);
-    alert("Ошибка обновления пользователя");
+    showErrorModal("Ошибка обновления пользователя.");
     return;
   }
 
@@ -1587,16 +1660,15 @@ async function adminChangeAvatarForUser(user, file) {
     const reader = new FileReader();
     reader.onload = async () => {
       const avatarDataUrl = reader.result;
-
       await updateUserFields(user.id, { avatar_url: avatarDataUrl });
     };
     reader.onerror = () => {
-      alert("Не удалось прочитать файл аватара");
+      showErrorModal("Не удалось прочитать файл аватара.");
     };
     reader.readAsDataURL(file);
   } catch (e) {
     console.error(e);
-    alert("Ошибка при обработке аватара");
+    showErrorModal("Ошибка при обработке аватара.");
   }
 }
 
@@ -1655,7 +1727,7 @@ adminAddSearchInput.addEventListener("input", (e) => {
 
 adminAddSave.onclick = async () => {
   if (!adminSelectedUserId) {
-    alert("Выберите пользователя из списка.");
+    showErrorModal("Выберите пользователя из списка.");
     return;
   }
   const status = adminStatusSelect.value;
