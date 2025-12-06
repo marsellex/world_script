@@ -128,7 +128,7 @@
       margin-top: 3px;
     }
 
-    /* ---------- Карточки ---------- */
+    /* ---------- Карточки / секции ---------- */
 
     .card,
     .section,
@@ -493,6 +493,109 @@
       color: var(--muted);
     }
 
+    .order-input {
+      width: 50px;
+      padding: 3px 4px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+    }
+
+    /* ---------- Офицеры ---------- */
+
+    .officer-minister {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .officer-minister-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background: var(--bg-lighter);
+      font-size: 13px;
+    }
+    .officer-minister-card .name {
+      font-weight: 500;
+    }
+    .officer-minister-card .label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .officers-columns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .officer-column-title {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .officer-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font-size: 13px;
+    }
+    .officer-card-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--input-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .officer-card-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .officer-card-main {
+      flex: 1;
+    }
+    .officer-card-main .nick {
+      font-weight: 500;
+    }
+    .officer-card-main .info {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .officer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .officer-links button {
+      padding: 3px 7px;
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-lighter);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .officer-links button:hover {
+      background: var(--accent-hover);
+    }
+
     /* ---------- Модалки ---------- */
 
     .modal-backdrop {
@@ -558,6 +661,9 @@
 
     @media (max-width: 900px) {
       .files-layout {
+        grid-template-columns: 1fr;
+      }
+      .officers-columns {
         grid-template-columns: 1fr;
       }
     }
@@ -665,6 +771,7 @@
       <button class="nav-btn active" id="nav-home">Главная</button>
       <button class="nav-btn" id="nav-files">Личные дела</button>
       <button class="nav-btn" id="nav-admin">Админ панель</button>
+      <button class="nav-btn" id="nav-officers">Офицеры</button>
 
       <div class="nav-right">
         <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную панель</button>
@@ -794,7 +901,7 @@
       </div>
     </section>
 
-    <!-- Админ панель -->
+    <!-- Админ / Руководство -->
     <section id="section-admin" class="section">
       <h2>Админ панель</h2>
       <p>
@@ -812,6 +919,60 @@
         Загрузка списка пользователей...
       </div>
     </section>
+
+    <!-- Офицеры -->
+    <section id="section-officers" class="section">
+      <h2>Офицеры PD</h2>
+      <p>Список офицеров подразделений LSPD, SFPD и LVPD.</p>
+
+      <div style="margin-top:10px; margin-bottom:8px;">
+        <button id="officers-add-btn" class="btn btn-sm" style="display:none;">
+          ➕ Добавить офицера
+        </button>
+      </div>
+
+      <div id="officers-add-block" style="display:none; margin-bottom:10px;">
+        <div class="field">
+          <label for="officers-add-user-select">Пользователь</label>
+          <select id="officers-add-user-select"></select>
+        </div>
+        <div class="field">
+          <label for="officers-add-dept">Департамент</label>
+          <select id="officers-add-dept">
+            <option value="">Выберите отдел…</option>
+            <option value="LSPD">LSPD</option>
+            <option value="SFPD">SFPD</option>
+            <option value="LVPD">LVPD</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="officers-add-vk">VK (ссылка)</label>
+          <input id="officers-add-vk" type="text" />
+        </div>
+        <div class="field">
+          <label for="officers-add-tg">Telegram (ссылка)</label>
+          <input id="officers-add-tg" type="text" />
+        </div>
+        <button class="btn btn-sm" id="officers-add-save">Сохранить</button>
+      </div>
+
+      <div id="officers-minister"></div>
+
+      <div class="officers-columns">
+        <div class="officer-column">
+          <div class="officer-column-title">LSPD</div>
+          <div class="officer-column-body" id="officers-col-lspd"></div>
+        </div>
+        <div class="officer-column">
+          <div class="officer-column-title">SFPD</div>
+          <div class="officer-column-body" id="officers-col-sfpd"></div>
+        </div>
+        <div class="officer-column">
+          <div class="officer-column-title">LVPD</div>
+          <div class="officer-column-body" id="officers-col-lvpd"></div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- ============ МОДАЛКА: РЯДОВЫЕ ============ -->
@@ -825,7 +986,7 @@
         юридическая подготовка, обучение по обращению с оружием и правилам поведения в патруле.
       </p>
       <p>
-        Академия готовит новобранцев в отдел патрульного дивизиона (PD), в который они
+        Академия готовит новобранцев в отдел полицейского дивизиона (PD), в который они
         будут направлены по окончанию успешно пройденных экзаменов.
       </p>
       <p><strong>Правила использования рации:</strong><br/>
@@ -859,6 +1020,10 @@
           <option value="Куратор">Куратор</option>
           <option value="Ответственный за структуру">Ответственный за структуру</option>
           <option value="Министр">Министр</option>
+          <option value="Министр внутренних дел">Министр внутренних дел</option>
+          <option value="Генерал LSPD">Генерал LSPD</option>
+          <option value="Генерал SFPD">Генерал SFPD</option>
+          <option value="Генерал LVPD">Генерал LVPD</option>
         </select>
       </div>
 
@@ -951,6 +1116,7 @@ let currentFileOwnerId = null;
 let currentFileEditable = false;
 
 let adminUsersCache = [];
+let officersCache = [];
 let adminSelectedUserId = null;
 
 /* =============== ЭЛЕМЕНТЫ DOM =============== */
@@ -963,6 +1129,11 @@ const loginScreen = document.getElementById("login-screen");
 const topNick = document.getElementById("top-nick");
 const topRole = document.getElementById("top-role");
 const topAvatar = document.getElementById("top-avatar");
+
+const navAdminBtn = document.getElementById("nav-admin");
+const navOfficersBtn = document.getElementById("nav-officers");
+const sectionAdminTitle = document.querySelector("#section-admin h2");
+const sectionAdminDesc = document.querySelector("#section-admin p");
 
 /* =============== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ АВТОРИЗАЦИИ =============== */
 
@@ -1084,6 +1255,26 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
 /* =============== ТОП-БАР + ПАНЕЛЬ =============== */
 
+function updateAdminTexts() {
+  if (!currentUser) return;
+  const isAdminOrMod = currentUser.role === "admin" || currentUser.role === "moderator";
+
+  if (navAdminBtn) {
+    navAdminBtn.textContent = isAdminOrMod ? "Админ панель" : "Руководство PD";
+  }
+  if (sectionAdminTitle && sectionAdminDesc) {
+    if (isAdminOrMod) {
+      sectionAdminTitle.textContent = "Админ панель";
+      sectionAdminDesc.textContent =
+        "Раздел доступен администраторам и модераторам. Офицеры видят только список модераторов и админов в режиме просмотра.";
+    } else {
+      sectionAdminTitle.textContent = "Руководство PD";
+      sectionAdminDesc.textContent =
+        "В данном списке содержатся личности, которые числятся вышестоящими в структуре";
+    }
+  }
+}
+
 function refreshTopBar() {
   if (!currentUser) return;
   topNick.textContent = currentUser.nick || "Офицер";
@@ -1099,11 +1290,11 @@ function refreshTopBar() {
     topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
   }
 
-  // Кнопка Админ панель видна всем, логика доступа внутри
-  const navAdmin = document.getElementById("nav-admin");
-  if (navAdmin) {
-    navAdmin.style.display = "inline-block";
+  if (navAdminBtn) {
+    navAdminBtn.style.display = "inline-block";
   }
+
+  updateAdminTexts();
 }
 
 function loadPanelUI(user) {
@@ -1131,7 +1322,7 @@ document.getElementById("logout-btn").onclick = () => {
 /* =============== НАВИГАЦИЯ РАЗДЕЛОВ =============== */
 
 function switchSection(name) {
-  const sections = ["home", "files", "admin"];
+  const sections = ["home", "files", "admin", "officers"];
   sections.forEach((sec) => {
     document.getElementById(`section-${sec}`).classList.remove("active");
     document.getElementById(`nav-${sec}`).classList.remove("active");
@@ -1145,11 +1336,13 @@ function switchSection(name) {
 
   if (name === "files") loadPersonalFiles();
   if (name === "admin") loadAdminPanel();
+  if (name === "officers") loadOfficers();
 }
 
 document.getElementById("nav-home").onclick = () => switchSection("home");
 document.getElementById("nav-files").onclick = () => switchSection("files");
 document.getElementById("nav-admin").onclick = () => switchSection("admin");
+document.getElementById("nav-officers").onclick = () => switchSection("officers");
 document.getElementById("back-home-btn").onclick = () => switchSection("home");
 
 document.getElementById("open-files-from-home").onclick = () => switchSection("files");
@@ -1352,7 +1545,6 @@ async function loadPersonalFiles() {
     filesListEl.appendChild(item);
   });
 
-  // При открытии раздела ничего не выбрано
   currentFileId = null;
   currentFileOwnerId = currentUser.id;
   currentFileEditable = false;
@@ -1439,7 +1631,7 @@ pfForm.addEventListener("submit", async (e) => {
   await loadPersonalFiles();
 });
 
-/* =============== АДМИН ПАНЕЛЬ =============== */
+/* =============== АДМИН ПАНЕЛЬ / РУКОВОДСТВО =============== */
 
 const adminUsersListEl = document.getElementById("admin-users-list");
 const adminAddBtn = document.getElementById("admin-add-user-btn");
@@ -1468,7 +1660,8 @@ async function loadAdminPanel() {
 
   const { data, error } = await supabaseClient
     .from("users")
-    .select("id, nick, department, role, avatar_url, created_at, status, border_color")
+    .select("id, nick, department, role, avatar_url, created_at, status, border_color, sort_order")
+    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -1480,6 +1673,57 @@ async function loadAdminPanel() {
 
   adminUsersCache = data || [];
   renderAdminUsers();
+}
+
+async function updateUserFields(userId, patch) {
+  // запрет админам менять себе роль
+  if (patch.role && currentUser && userId === currentUser.id) {
+    showErrorModal("Нельзя изменять собственный уровень доступа.");
+    delete patch.role;
+  }
+
+  if (Object.keys(patch).length === 0) return;
+
+  const { data, error } = await supabaseClient
+    .from("users")
+    .update(patch)
+    .eq("id", userId)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error(error);
+    showErrorModal("Ошибка обновления пользователя.");
+    return;
+  }
+
+  const idx = adminUsersCache.findIndex((u) => u.id === userId);
+  if (idx >= 0) adminUsersCache[idx] = data;
+
+  if (currentUser && currentUser.id === userId) {
+    currentUser = { ...currentUser, ...data };
+    saveSession(currentUser);
+    refreshTopBar();
+  }
+
+  renderAdminUsers();
+}
+
+async function adminChangeAvatarForUser(user, file) {
+  try {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const avatarDataUrl = reader.result;
+      await updateUserFields(user.id, { avatar_url: avatarDataUrl });
+    };
+    reader.onerror = () => {
+      showErrorModal("Не удалось прочитать файл аватара.");
+    };
+    reader.readAsDataURL(file);
+  } catch (e) {
+    console.error(e);
+    showErrorModal("Ошибка при обработке аватара.");
+  }
 }
 
 function renderAdminUsers() {
@@ -1563,6 +1807,7 @@ function renderAdminUsers() {
       actions.className = "admin-user-actions";
 
       const canEdit = isAdmin;
+      const canChangeRole = isAdmin && (!currentUser || user.id !== currentUser.id);
 
       const roleSelect = document.createElement("select");
       roleSelect.className = "admin-select";
@@ -1573,11 +1818,20 @@ function renderAdminUsers() {
         roleSelect.appendChild(opt);
       });
       roleSelect.value = user.role || "user";
-      roleSelect.disabled = !canEdit;
+      roleSelect.disabled = !canChangeRole;
 
       const statusSelect = document.createElement("select");
       statusSelect.className = "admin-select";
-      ["", "Куратор", "Ответственный за структуру", "Министр"].forEach((val) => {
+      [
+        "",
+        "Куратор",
+        "Ответственный за структуру",
+        "Министр",
+        "Министр внутренних дел",
+        "Генерал LSPD",
+        "Генерал SFPD",
+        "Генерал LVPD"
+      ].forEach((val) => {
         const opt = document.createElement("option");
         opt.value = val;
         opt.textContent = val || "Без статуса";
@@ -1592,21 +1846,34 @@ function renderAdminUsers() {
       colorInput.value = user.border_color || "#3a7ca5";
       colorInput.disabled = !canEdit;
 
+      const orderInput = document.createElement("input");
+      orderInput.type = "number";
+      orderInput.className = "order-input";
+      orderInput.value = user.sort_order ?? "";
+      orderInput.placeholder = "#";
+      orderInput.disabled = !canEdit;
+
       const avatarInput = document.createElement("input");
       avatarInput.type = "file";
       avatarInput.accept = "image/*";
       avatarInput.className = "admin-avatar-input";
       avatarInput.disabled = !canEdit;
 
-      if (canEdit) {
+      if (canChangeRole) {
         roleSelect.onchange = async () => {
           await updateUserFields(user.id, { role: roleSelect.value });
         };
+      }
+      if (canEdit) {
         statusSelect.onchange = async () => {
           await updateUserFields(user.id, { status: statusSelect.value });
         };
         colorInput.onchange = async () => {
           await updateUserFields(user.id, { border_color: colorInput.value });
+        };
+        orderInput.onchange = async () => {
+          const v = orderInput.value === "" ? null : Number(orderInput.value);
+          await updateUserFields(user.id, { sort_order: v });
         };
         avatarInput.onchange = async () => {
           const file = avatarInput.files[0];
@@ -1618,6 +1885,7 @@ function renderAdminUsers() {
       actions.appendChild(roleSelect);
       actions.appendChild(statusSelect);
       actions.appendChild(colorInput);
+      actions.appendChild(orderInput);
       actions.appendChild(avatarInput);
 
       main.appendChild(actions);
@@ -1627,49 +1895,6 @@ function renderAdminUsers() {
     card.appendChild(main);
     adminUsersListEl.appendChild(card);
   });
-}
-
-async function updateUserFields(userId, patch) {
-  const { data, error } = await supabaseClient
-    .from("users")
-    .update(patch)
-    .eq("id", userId)
-    .select("*")
-    .single();
-
-  if (error) {
-    console.error(error);
-    showErrorModal("Ошибка обновления пользователя.");
-    return;
-  }
-
-  const idx = adminUsersCache.findIndex((u) => u.id === userId);
-  if (idx >= 0) adminUsersCache[idx] = data;
-
-  if (currentUser && currentUser.id === userId) {
-    currentUser = { ...currentUser, ...patch };
-    saveSession(currentUser);
-    refreshTopBar();
-  }
-
-  renderAdminUsers();
-}
-
-async function adminChangeAvatarForUser(user, file) {
-  try {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const avatarDataUrl = reader.result;
-      await updateUserFields(user.id, { avatar_url: avatarDataUrl });
-    };
-    reader.onerror = () => {
-      showErrorModal("Не удалось прочитать файл аватара.");
-    };
-    reader.readAsDataURL(file);
-  } catch (e) {
-    console.error(e);
-    showErrorModal("Ошибка при обработке аватара.");
-  }
 }
 
 /* ---------- Модалка "Добавить / настроить пользователя" ---------- */
@@ -1740,6 +1965,262 @@ adminAddSave.onclick = async () => {
 
   closeAdminAddModal();
 };
+
+/* =============== ОФИЦЕРЫ =============== */
+
+const officersAddBtn = document.getElementById("officers-add-btn");
+const officersAddBlock = document.getElementById("officers-add-block");
+const officersAddUserSelect = document.getElementById("officers-add-user-select");
+const officersAddDept = document.getElementById("officers-add-dept");
+const officersAddVk = document.getElementById("officers-add-vk");
+const officersAddTg = document.getElementById("officers-add-tg");
+const officersMinisterEl = document.getElementById("officers-minister");
+const officersColLSPD = document.getElementById("officers-col-lspd");
+const officersColSFPD = document.getElementById("officers-col-sfpd");
+const officersColLVPD = document.getElementById("officers-col-lvpd");
+
+async function loadOfficers() {
+  if (!currentUser) return;
+
+  const isAdminOrMod = currentUser.role === "admin" || currentUser.role === "moderator";
+  if (officersAddBtn) officersAddBtn.style.display = isAdminOrMod ? "inline-block" : "none";
+  if (!isAdminOrMod && officersAddBlock) officersAddBlock.style.display = "none";
+
+  officersMinisterEl.innerHTML = "";
+  officersColLSPD.innerHTML = "";
+  officersColSFPD.innerHTML = "";
+  officersColLVPD.innerHTML = "";
+
+  const { data, error } = await supabaseClient
+    .from("users")
+    .select("id, nick, department, role, avatar_url, status, border_color, vk, telegram, is_officer, officer_order")
+    .order("officer_order", { ascending: true })
+    .order("nick", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    officersColLSPD.textContent = "Ошибка загрузки офицеров.";
+    showErrorModal("Ошибка загрузки списка офицеров. Попробуйте позже.");
+    return;
+  }
+
+  officersCache = (data || []).filter((u) => u.is_officer);
+
+  const minister = officersCache.find((u) => u.status === "Министр внутренних дел");
+  if (minister) {
+    const card = document.createElement("div");
+    card.className = "officer-minister-card";
+    const spanName = document.createElement("span");
+    spanName.className = "name";
+    spanName.textContent = minister.nick;
+    const spanLabel = document.createElement("span");
+    spanLabel.className = "label";
+    spanLabel.textContent = "Министр внутренних дел";
+    card.appendChild(spanName);
+    card.appendChild(spanLabel);
+    officersMinisterEl.className = "officer-minister";
+    officersMinisterEl.appendChild(card);
+  }
+
+  const generals = {
+    LSPD: officersCache.find((u) => u.status === "Генерал LSPD"),
+    SFPD: officersCache.find((u) => u.status === "Генерал SFPD"),
+    LVPD: officersCache.find((u) => u.status === "Генерал LVPD"),
+  };
+
+  function renderOfficerUser(u, colEl, highlightAsGeneral) {
+    const card = document.createElement("div");
+    card.className = "officer-card";
+    if (highlightAsGeneral) {
+      card.style.borderColor = "#facc15";
+    }
+
+    const avatar = document.createElement("div");
+    avatar.className = "officer-card-avatar";
+    avatar.style.borderColor = u.border_color || "#374151";
+    if (u.avatar_url) {
+      const img = document.createElement("img");
+      img.src = u.avatar_url;
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = u.nick ? u.nick[0] : "?";
+    }
+
+    const main = document.createElement("div");
+    main.className = "officer-card-main";
+    const nickEl = document.createElement("div");
+    nickEl.className = "nick";
+    nickEl.textContent = u.nick;
+    const info = document.createElement("div");
+    info.className = "info";
+    info.textContent = u.status || `Офицер ${u.department || ""}`;
+
+    const links = document.createElement("div");
+    links.className = "officer-links";
+    if (u.vk) {
+      const btnVk = document.createElement("button");
+      btnVk.type = "button";
+      btnVk.textContent = "VK";
+      btnVk.onclick = () => window.open(u.vk, "_blank");
+      links.appendChild(btnVk);
+    }
+    if (u.telegram) {
+      const btnTg = document.createElement("button");
+      btnTg.type = "button";
+      btnTg.textContent = "Telegram";
+      btnTg.onclick = () => window.open(u.telegram, "_blank");
+      links.appendChild(btnTg);
+    }
+
+    main.appendChild(nickEl);
+    main.appendChild(info);
+    if (links.children.length) main.appendChild(links);
+
+    const right = document.createElement("div");
+    right.style.display = "flex";
+    right.style.flexDirection = "column";
+    right.style.alignItems = "flex-end";
+    right.style.gap = "4px";
+
+    const isAdminOrMod = currentUser && (currentUser.role === "admin" || currentUser.role === "moderator");
+    const isSelf = currentUser && currentUser.id === u.id;
+
+    if (isAdminOrMod) {
+      const orderInput = document.createElement("input");
+      orderInput.type = "number";
+      orderInput.className = "order-input";
+      orderInput.value = u.officer_order ?? "";
+      orderInput.placeholder = "#";
+      orderInput.onchange = async () => {
+        const v = orderInput.value === "" ? null : Number(orderInput.value);
+        await updateUserFields(u.id, { officer_order: v });
+      };
+      right.appendChild(orderInput);
+    }
+
+    if (isAdminOrMod || isSelf) {
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "btn-outline btn-sm";
+      editBtn.textContent = "Редактировать";
+      editBtn.onclick = async () => {
+        const newDept = prompt("Департамент (LSPD/SFPD/LVPD):", u.department || "");
+        if (newDept === null) return;
+        const newVk = prompt("VK (ссылка):", u.vk || "");
+        if (newVk === null) return;
+        const newTg = prompt("Telegram (ссылка):", u.telegram || "");
+        if (newTg === null) return;
+        await updateUserFields(u.id, {
+          department: newDept.trim(),
+          vk: newVk.trim(),
+          telegram: newTg.trim(),
+        });
+      };
+      right.appendChild(editBtn);
+    }
+
+    if (isAdminOrMod) {
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn-outline btn-sm";
+      removeBtn.textContent = "Убрать из списка";
+      removeBtn.onclick = async () => {
+        if (!confirm(`Убрать ${u.nick} из списка офицеров?`)) return;
+        await updateUserFields(u.id, { is_officer: false, officer_order: null });
+        await loadOfficers();
+      };
+      right.appendChild(removeBtn);
+    }
+
+    card.appendChild(avatar);
+    card.appendChild(main);
+    card.appendChild(right);
+
+    colEl.appendChild(card);
+  }
+
+  function renderDept(deptCode, colEl) {
+    const general = generals[deptCode];
+    if (general) renderOfficerUser(general, colEl, true);
+    officersCache
+      .filter((u) => u.department === deptCode && u !== general)
+      .forEach((u) => renderOfficerUser(u, colEl, false));
+  }
+
+  renderDept("LSPD", officersColLSPD);
+  renderDept("SFPD", officersColSFPD);
+  renderDept("LVPD", officersColLVPD);
+}
+
+if (officersAddBtn) {
+  officersAddBtn.onclick = async () => {
+    if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "moderator")) return;
+
+    officersAddBlock.style.display =
+      officersAddBlock.style.display === "none" || !officersAddBlock.style.display
+        ? "block"
+        : "none";
+
+    if (officersAddBlock.style.display === "block") {
+      const { data, error } = await supabaseClient
+        .from("users")
+        .select("id, nick, is_officer")
+        .order("nick", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        showErrorModal("Ошибка загрузки пользователей для добавления офицера.");
+        return;
+      }
+
+      officersAddUserSelect.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Выберите пользователя…";
+      officersAddUserSelect.appendChild(placeholder);
+
+      (data || [])
+        .filter((u) => !u.is_officer)
+        .forEach((u) => {
+          const opt = document.createElement("option");
+          opt.value = u.id;
+          opt.textContent = u.nick;
+          officersAddUserSelect.appendChild(opt);
+        });
+    }
+  };
+}
+
+if (document.getElementById("officers-add-save")) {
+  document.getElementById("officers-add-save").onclick = async () => {
+    if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "moderator")) return;
+
+    const userId = Number(officersAddUserSelect.value);
+    const dept = officersAddDept.value.trim();
+    const vk = officersAddVk.value.trim();
+    const tg = officersAddTg.value.trim();
+
+    if (!userId || !dept) {
+      showErrorModal("Выберите пользователя и укажите департамент.");
+      return;
+    }
+
+    await updateUserFields(userId, {
+      is_officer: true,
+      department: dept,
+      vk: vk || null,
+      telegram: tg || null,
+    });
+
+    officersAddBlock.style.display = "none";
+    officersAddUserSelect.value = "";
+    officersAddDept.value = "";
+    officersAddVk.value = "";
+    officersAddTg.value = "";
+
+    await loadOfficers();
+  };
+}
 </script>
 </body>
 </html>
