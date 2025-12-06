@@ -50,6 +50,31 @@
       text-decoration: underline;
     }
 
+        /* === Ротатор фоновых картинок === */
+    #bg-rotator {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: #0f172a; /* базовый фон, если нет картинок */
+      overflow: hidden;
+    }
+
+    #bg-rotator img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      pointer-events: none;
+    }
+
+    #bg-rotator img.active {
+      opacity: 1;
+    }
+
+
     /* ---------- Кнопки ---------- */
 
     .btn {
@@ -849,6 +874,7 @@
   </style>
 </head>
 <body>
+<div id="bg-rotator"></div>
 <div id="app">
 
   <!-- ===================== АВТОРИЗАЦИЯ ===================== -->
@@ -1086,6 +1112,45 @@
       <div id="admin-users-list" class="admin-users-list">
         Загрузка списка пользователей...
       </div>
+      <!-- Панель оформления для роли creator -->
+      <div id="creator-theme-panel" style="margin-top:16px; display:none;">
+        <h3 style="font-size:16px; margin-bottom:6px;">Настройки оформления (для creator)</h3>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">
+          Здесь можно задать фоновые картинки, прозрачность блоков, размытость фона и цвет обводки.
+          Настройки сохраняются локально и будут применяться при входе.
+        </p>
+
+        <div class="field">
+          <label for="theme-bg-images">Фоновые картинки (можно несколько)</label>
+          <input id="theme-bg-images" type="file" accept="image/*" multiple />
+          <div class="hint">
+            Картинки будут плавно сменяться каждые 60 секунд (если загружено больше одной).
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="theme-border-color">Цвет обводки блоков</label>
+          <input id="theme-border-color" type="color" value="#374151" />
+        </div>
+
+        <div class="field">
+          <label for="theme-opacity">
+            Прозрачность блоков:
+            <span id="theme-opacity-value">80</span>%
+          </label>
+          <input id="theme-opacity" type="range" min="30" max="100" step="5" value="80" />
+        </div>
+
+        <div class="field">
+          <label for="theme-blur">
+            Размытие фона:
+            <span id="theme-blur-value">0</span> px
+          </label>
+          <input id="theme-blur" type="range" min="0" max="15" step="1" value="0" />
+        </div>
+
+        <button id="theme-save-btn" class="btn btn-sm">💾 Сохранить оформление</button>
+      </div>
     </section>
 
     <!-- Офицеры -->
@@ -1256,6 +1321,7 @@ function clearSession() {
 function roleLabel(role) {
   if (role === "admin") return "Администратор";
   if (role === "moderator") return "Модератор";
+  if (role === "creator") return "Creator";
   return "Офицер";
 }
 
@@ -1275,6 +1341,167 @@ if (errorModalClose) {
   };
 }
 
+/* =============== ТЕМА: сохранение / загрузка / применение =============== */
+
+function loadThemeFromStorage() {
+  try {
+    const raw = localStorage.getItem(THEME_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    themeConfig = {
+      images: parsed.images || [],
+      opacity: typeof parsed.opacity === "number" ? parsed.opacity : 80,
+      blur: typeof parsed.blur === "number" ? parsed.blur : 0,
+      borderColor: parsed.borderColor || "#374151",
+    };
+  } catch (e) {
+    console.warn("Не удалось прочитать настройки темы:", e);
+  }
+}
+
+function saveThemeToStorage() {
+  localStorage.setItem(THEME_KEY, JSON.stringify(themeConfig));
+}
+
+function applyThemeToBlocks() {
+  const opacity = (themeConfig.opacity || 80) / 100;
+  const borderColor = themeConfig.borderColor || "#374151";
+
+  // меняем цвет переменной --border (используется во всех border: var(--border))
+  document.documentElement.style.setProperty("--border", borderColor);
+
+  // меняем фон блоков на один цвет с нужной прозрачностью
+  const blocks = document.querySelectorAll(
+    ".card, .navbar, .section, .files-list, .files-detail, .admin-users-list"
+  );
+  blocks.forEach((el) => {
+    el.style.backgroundColor = `rgba(15, 23, 42, ${opacity})`;
+    // можно добавить лёгкий blur контента, если хочешь
+    // el.style.backdropFilter = themeConfig.blur ? `blur(${themeConfig.blur}px)` : "";
+  });
+}
+
+function applyThemeBackground() {
+  if (!bgRotatorEl) return;
+  bgRotatorEl.innerHTML = "";
+
+  const images = themeConfig.images || [];
+  const blurPx = themeConfig.blur || 0;
+
+  if (!images.length) {
+    // нет картинок — фон просто цвет
+    bgRotatorEl.style.background = "#0f172a";
+    return;
+  }
+
+  images.forEach((src, index) => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.style.filter = `blur(${blurPx}px)`;
+    if (index === 0) img.classList.add("active");
+    bgRotatorEl.appendChild(img);
+  });
+
+  if (bgRotationTimer) {
+    clearInterval(bgRotationTimer);
+    bgRotationTimer = null;
+  }
+
+  if (images.length > 1) {
+    const imgs = Array.from(bgRotatorEl.querySelectorAll("img"));
+    bgCurrentIndex = 0;
+
+    bgRotationTimer = setInterval(() => {
+      const prev = imgs[bgCurrentIndex];
+      bgCurrentIndex = (bgCurrentIndex + 1) % imgs.length;
+      const next = imgs[bgCurrentIndex];
+
+      if (prev) prev.classList.remove("active");
+      if (next) next.classList.add("active");
+    }, 60 * 1000); // 60 секунд
+  }
+}
+
+function applyThemeFromStorage() {
+  loadThemeFromStorage();
+  applyThemeToBlocks();
+  applyThemeBackground();
+}
+
+/* UI для панели темы (creator) */
+
+function initThemePanel() {
+  if (!creatorThemePanel) return;
+
+  // доступна только для роли creator
+  const isCreator = currentUser && currentUser.role === "creator";
+  creatorThemePanel.style.display = isCreator ? "block" : "none";
+  if (!isCreator) return;
+
+  // заполнить текущими значениями
+  themeBorderColorInput.value = themeConfig.borderColor || "#374151";
+  themeOpacityInput.value = themeConfig.opacity || 80;
+  themeOpacityValue.textContent = themeOpacityInput.value;
+  themeBlurInput.value = themeConfig.blur || 0;
+  themeBlurValue.textContent = themeBlurInput.value;
+
+  themeOpacityInput.oninput = () => {
+    themeOpacityValue.textContent = themeOpacityInput.value;
+    themeConfig.opacity = Number(themeOpacityInput.value);
+    applyThemeToBlocks();
+    saveThemeToStorage();
+  };
+
+  themeBlurInput.oninput = () => {
+    themeBlurValue.textContent = themeBlurInput.value;
+    themeConfig.blur = Number(themeBlurInput.value);
+    applyThemeBackground();
+    saveThemeToStorage();
+  };
+
+  themeBorderColorInput.onchange = () => {
+    themeConfig.borderColor = themeBorderColorInput.value || "#374151";
+    applyThemeToBlocks();
+    saveThemeToStorage();
+  };
+
+  if (themeSaveBtn) {
+    themeSaveBtn.onclick = () => {
+      // уже сохраняем по oninput/onchange, но можно продублировать
+      saveThemeToStorage();
+      showErrorModal("Оформление сохранено. При следующем входе будет применено автоматически.");
+    };
+  }
+
+  if (themeBgImagesInput) {
+    themeBgImagesInput.onchange = async () => {
+      const files = Array.from(themeBgImagesInput.files || []);
+      if (!files.length) return;
+
+      try {
+        const dataUrls = await Promise.all(
+          files.map(
+            (file) =>
+              new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+                reader.readAsDataURL(file);
+              })
+          )
+        );
+
+        themeConfig.images = dataUrls;
+        saveThemeToStorage();
+        applyThemeBackground();
+      } catch (e) {
+        console.error(e);
+        showErrorModal("Не удалось загрузить фоновые картинки.");
+      }
+    };
+  }
+}
+
 /* =============== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =============== */
 
 let currentUser = null;
@@ -1286,6 +1513,20 @@ let currentFileEditable = false;
 let adminUsersCache = [];
 let officersCache = [];
 let adminSelectedUserId = null;
+
+/* =============== ТЕМА (CREATOR) =============== */
+
+const THEME_KEY = "pp_theme";
+
+let themeConfig = {
+  images: [],          // массив dataURL строк
+  opacity: 80,         // 30–100
+  blur: 0,             // px
+  borderColor: "#374151"
+};
+
+let bgRotationTimer = null;
+let bgCurrentIndex = 0;
 
 /* =============== ЭЛЕМЕНТЫ DOM =============== */
 
@@ -1304,6 +1545,18 @@ const sectionAdminTitle = document.querySelector("#section-admin h2");
 const sectionAdminDesc = document.querySelector("#section-admin p");
 const rookieTestBtn = document.getElementById("btn-rookie-test");
 const captainExamBtn = document.getElementById("btn-captain-exam");
+
+/* элементы панели темы */
+const creatorThemePanel = document.getElementById("creator-theme-panel");
+const themeBgImagesInput = document.getElementById("theme-bg-images");
+const themeBorderColorInput = document.getElementById("theme-border-color");
+const themeOpacityInput = document.getElementById("theme-opacity");
+const themeOpacityValue = document.getElementById("theme-opacity-value");
+const themeBlurInput = document.getElementById("theme-blur");
+const themeBlurValue = document.getElementById("theme-blur-value");
+const themeSaveBtn = document.getElementById("theme-save-btn");
+
+const bgRotatorEl = document.getElementById("bg-rotator");
 
 if (rookieTestBtn) {
   rookieTestBtn.addEventListener("click", () => {
@@ -1489,15 +1742,21 @@ function loadPanelUI(user) {
   authRoot.style.display = "none";
   panelRoot.style.display = "block";
   refreshTopBar();
+  applyThemeFromStorage();
+  initThemePanel();      // настроить панель, если creator
   switchSection("home");
 }
 
 /* восстановление сессии */
 window.addEventListener("load", () => {
   const session = loadSession();
+  loadThemeFromStorage();      // подтягиваем тему из localStorage
   if (session) {
     currentUser = session;
     loadPanelUI(session);
+  } else {
+    // если не залогинен, всё равно применим фон/оформление
+    applyThemeFromStorage();
   }
 });
 
@@ -1864,6 +2123,9 @@ async function loadAdminPanel() {
   if (error) {
     console.error(error);
     adminUsersListEl.textContent = "Ошибка загрузки пользователей.";
+    applyThemeToBlocks();
+    applyThemeBackground();
+    initThemePanel();
     showErrorModal("Ошибка загрузки пользователей. Попробуйте позже.");
     return;
   }
@@ -2030,7 +2292,7 @@ function renderAdminUsers() {
 
       const roleSelect = document.createElement("select");
       roleSelect.className = "admin-select";
-      ["user", "moderator", "admin"].forEach((r) => {
+      ["user", "moderator", "admin", "creator"].forEach((r) => {
         const opt = document.createElement("option");
         opt.value = r;
         opt.textContent = roleLabel(r);
@@ -2653,6 +2915,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
