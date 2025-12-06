@@ -1275,24 +1275,6 @@ if (errorModalClose) {
   };
 }
 
-if (rookieTestBtn) {
-  rookieTestBtn.addEventListener("click", () => {
-    showErrorModal(
-      "Переход на сдачу зачёта рядового ещё не настроен. " +
-      "Администратор позже может привязать сюда ссылку или отдельную страницу."
-    );
-  });
-}
-
-if (captainExamBtn) {
-  captainExamBtn.addEventListener("click", () => {
-    showErrorModal(
-      "Переход на экзамен Капитана пока не настроен. " +
-      "Добавьте сюда ссылку или функционал позже."
-    );
-  });
-}
-
 /* =============== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =============== */
 
 let currentUser = null;
@@ -1322,6 +1304,24 @@ const sectionAdminTitle = document.querySelector("#section-admin h2");
 const sectionAdminDesc = document.querySelector("#section-admin p");
 const rookieTestBtn = document.getElementById("btn-rookie-test");
 const captainExamBtn = document.getElementById("btn-captain-exam");
+
+if (rookieTestBtn) {
+  rookieTestBtn.addEventListener("click", () => {
+    showErrorModal(
+      "Переход на сдачу зачёта рядового ещё не настроен. " +
+      "Администратор позже может привязать сюда ссылку или отдельную страницу."
+    );
+  });
+}
+
+if (captainExamBtn) {
+  captainExamBtn.addEventListener("click", () => {
+    showErrorModal(
+      "Переход на экзамен Капитана пока не настроен. " +
+      "Добавьте сюда ссылку или функционал позже."
+    );
+  });
+}
 
 /* =============== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ АВТОРИЗАЦИИ =============== */
 
@@ -2653,6 +2653,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
