@@ -1105,19 +1105,7 @@
 
     <!-- Личные дела -->
     <section id="section-files" class="section">
-      <h2>Личные дела</h2>
-      <p>
-        В этом разделе хранятся личные дела всех сотрудников. Ваше личное дело всегда
-        закреплено вверху списка. Администраторы и модераторы могут редактировать любое личное дело.
-      </p>
-
-      <div style="margin-top:10px; margin-bottom:8px;">
-        <button id="create-personal-btn" class="btn btn-sm" style="display:none;">
-          ➕ Создать личное дело
-        </button>
-      </div>
-
-      <div class="files-layout">
+        <div class="files-layout">
         <!-- Список -->
         <div class="files-list" id="personal-files-list">
           Загрузка списка личных дел...
@@ -1130,18 +1118,7 @@
               <strong id="pf-detail-title">Личное дело</strong>
               <div id="pf-detail-sub" style="font-size:12px; color:var(--muted);"></div>
             </div>
-            <div id="pf-edit-badge" class="badge-readonly">
-              Только просмотр
-            </div>
-          </div>
 
-          <form id="personal-form" novalidate>
-            <div class="files-detail-header">
-            <div>
-              <strong id="pf-detail-title">Личное дело</strong>
-              <div id="pf-detail-sub" style="font-size:12px; color:var(--muted);"></div>
-            </div>
-          
             <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
               <div id="pf-edit-badge" class="badge-readonly">
                 Только просмотр
@@ -1151,38 +1128,76 @@
               </button>
             </div>
           </div>
-          
+
           <!-- READ-ONLY ПРОСМОТР -->
           <div id="personal-view"></div>
-          
+
           <!-- РЕЖИМ РЕДАКТИРОВАНИЯ (форма), по умолчанию скрыта -->
           <form id="personal-form" novalidate style="display:none; margin-top:10px;">
-            <!-- поля оставь те же, что были раньше -->
-            ...
+            <div class="field">
+              <label for="pf-dept">Отдел (форумный)</label>
+              <input id="pf-dept" type="text" placeholder="LSPD / SFPD / LVPD" />
+            </div>
+
+            <div class="field">
+              <label for="pf-nick">Имя_Фамилия (как в игре)</label>
+              <input id="pf-nick" type="text" placeholder="Marsello_Nelson" />
+            </div>
+
+            <div class="field">
+              <label for="pf-account">Номер аккаунта</label>
+              <input id="pf-account" type="text" placeholder="123456" />
+            </div>
+
+            <div class="field">
+              <label for="pf-birth">Дата рождения</label>
+              <input id="pf-birth" type="text" placeholder="01.01.2000" />
+            </div>
+
+            <div class="field">
+              <label for="pf-badge-link">Номер значка / аккаунта</label>
+              <input id="pf-badge-link" type="text" placeholder="Номер значка" />
+            </div>
+
+            <div class="field">
+              <label for="pf-rank">Текущее звание</label>
+              <input id="pf-rank" type="text" placeholder="Генерал / Капитан / ..." />
+            </div>
+
+            <div class="field">
+              <label for="pf-phone">Контактный телефон</label>
+              <input id="pf-phone" type="text" placeholder="Телефон" />
+            </div>
+
+            <div class="field">
+              <label for="pf-contact">Альтернативный контакт</label>
+              <input id="pf-contact" type="text" placeholder="Telegram / VK / Discord" />
+            </div>
+
+            <div class="hint" id="personal-save-note" style="margin-bottom:6px;"></div>
+
+            <button id="save-personal-btn" class="btn btn-sm" type="submit">
+              💾 Сохранить личное дело
+            </button>
           </form>
-          
+
           <div class="personal-note" id="pf-readonly-note" style="display:none;">
             Вы просматриваете чужое личное дело. Редактирование доступно только модераторам и администраторам.
           </div>
-          
+
           <hr class="pf-separator" />
-          
+
           <!-- БЛОК ОТВЕТОВ -->
           <div id="pf-replies-section">
             <h3 class="pf-replies-title">Ответы по личному делу</h3>
             <div id="pf-replies-list">Сначала выберите личное дело слева.</div>
-          
+
             <div id="pf-replies-form-wrapper" style="margin-top:10px; display:none;">
               <textarea id="pf-reply-text" class="pf-reply-textarea" placeholder="Напишите ответ..."></textarea>
               <button id="pf-reply-send" class="btn btn-sm" style="margin-top:6px;">
                 Отправить ответ
               </button>
             </div>
-          </div>
-          </form>
-
-          <div class="personal-note" id="pf-readonly-note" style="display:none;">
-            Вы просматриваете чужое личное дело. Редактирование доступно только модераторам и администраторам.
           </div>
         </div>
       </div>
@@ -1959,19 +1974,23 @@ function updatePfHeaderPreview() {
 function fillPersonalView(fileRow) {
   if (!pfView) return;
 
-  const dept = fileRow?.forum_dept || pfDept.value || "Отдел";
-  const nick = fileRow?.forum_nick || pfNick.value || (currentUser ? currentUser.nick : "Имя_Фамилия");
-  const acc  = fileRow?.account_number || pfAccount.value || "Номер";
+  const dept = fileRow?.forum_dept || (pfDept ? pfDept.value : "") || "Отдел";
+  const nick =
+    fileRow?.forum_nick ||
+    (pfNick ? pfNick.value : "") ||
+    (currentUser ? currentUser.nick : "Имя_Фамилия");
+  const acc =
+    fileRow?.account_number || (pfAccount ? pfAccount.value : "") || "Номер";
 
   const rows = [
     { label: "Отдел (форумный)", value: dept },
     { label: "Имя_Фамилия (как в игре)", value: nick },
     { label: "Номер аккаунта", value: acc },
-    { label: "Дата рождения", value: fileRow?.birth_date || pfBirth.value || "—" },
-    { label: "Номер значка / аккаунта", value: fileRow?.badge_link || pfBadgeLink.value || "—" },
-    { label: "Текущее звание", value: fileRow?.rank || pfRank.value || "—" },
-    { label: "Контактный телефон", value: fileRow?.phone || pfPhone.value || "—" },
-    { label: "Альтернативный контакт", value: fileRow?.contact || pfContact.value || "—" },
+    { label: "Дата рождения", value: fileRow?.birth_date || (pfBirth ? pfBirth.value : "") || "—" },
+    { label: "Номер значка / аккаунта", value: fileRow?.badge_link || (pfBadgeLink ? pfBadgeLink.value : "") || "—" },
+    { label: "Текущее звание", value: fileRow?.rank || (pfRank ? pfRank.value : "") || "—" },
+    { label: "Контактный телефон", value: fileRow?.phone || (pfPhone ? pfPhone.value : "") || "—" },
+    { label: "Альтернативный контакт", value: fileRow?.contact || (pfContact ? pfContact.value : "") || "—" },
   ];
 
   pfView.innerHTML = "";
@@ -1993,14 +2012,9 @@ function fillPersonalView(fileRow) {
   });
 }
 
-pfDept.addEventListener("change", updatePfHeaderPreview);
-pfNick.addEventListener("input", updatePfHeaderPreview);
-pfAccount.addEventListener("input", () => {
-  pfAccount.value = pfAccount.value.replace(/\D+/g, "");
-  updatePfHeaderPreview();
-});
-
 function fillPersonalForm(fileRow, editable) {
+  if (!pfDept) return; // форма ещё не инициализирована
+
   if (!fileRow) {
     pfDept.value = "";
     pfNick.value = currentUser ? currentUser.nick : "";
@@ -2033,9 +2047,12 @@ function fillPersonalForm(fileRow, editable) {
   const controls = [
     pfDept, pfNick, pfAccount, pfBirth,
     pfBadgeLink, pfRank, pfPhone, pfContact
-  ];
+  ].filter(Boolean);
   controls.forEach((el) => (el.disabled = !editable));
-  pfSaveBtn.style.display = editable ? "inline-block" : "none";
+
+  if (pfSaveBtn) {
+    pfSaveBtn.style.display = editable ? "inline-block" : "none";
+  }
 
   if (editable) {
     pfEditBadge.textContent = "Можно редактировать";
@@ -2054,10 +2071,23 @@ function fillPersonalForm(fileRow, editable) {
     }
   }
 
-  // при открытии ВСЕГДА начинаем в режиме просмотра
   pfEditMode = false;
   if (pfView) pfView.style.display = "block";
   if (pfForm) pfForm.style.display = "none";
+}
+
+// навешиваем слушатели только если поля есть
+if (pfDept) {
+  pfDept.addEventListener("change", updatePfHeaderPreview);
+}
+if (pfNick) {
+  pfNick.addEventListener("input", updatePfHeaderPreview);
+}
+if (pfAccount) {
+  pfAccount.addEventListener("input", () => {
+    pfAccount.value = pfAccount.value.replace(/\D+/g, "");
+    updatePfHeaderPreview();
+  });
 }
 
 function openPersonalFile(id) {
@@ -2220,7 +2250,8 @@ async function loadPersonalFiles() {
   }
 }
 
-pfForm.addEventListener("submit", async (e) => {
+if (pfForm) {
+  pfForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!currentUser) return;
 
@@ -2294,7 +2325,8 @@ pfForm.addEventListener("submit", async (e) => {
   if (pfEditToggleBtn && currentFileEditable) {
     pfEditToggleBtn.textContent = "✏️ Редактировать";
   }
-});
+  });
+}
 
 /* =============== АДМИН ПАНЕЛЬ / РУКОВОДСТВО =============== */
 
@@ -3326,3 +3358,4 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
