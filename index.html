@@ -53,19 +53,20 @@
     /* ---------- КНОПКИ ---------- */
 
     .btn {
-      padding: 8px 14px;
+      padding: 8px 16px;
       background: var(--accent);
       color: var(--text);
-      border-radius: 6px;
+      border-radius: 999px;            /* стало более круглым */
       border: 1px solid var(--border);
       font-size: 14px;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, transform 0.1s;
     }
     .btn:hover {
       background: var(--accent-hover);
+      transform: translateY(-1px);
     }
-
+    
     .btn-outline {
       background: transparent;
       border-color: var(--border);
@@ -73,11 +74,45 @@
     .btn-outline:hover {
       background: var(--bg-lighter);
     }
-
+    
     .btn-sm {
-      padding: 4px 8px;
+      padding: 4px 10px;
       font-size: 12px;
+      border-radius: 999px;           /* тоже скруглённая */
     }
+    
+    .nav-btn {
+      padding: 7px 14px;
+      background: var(--bg-lighter);
+      border-radius: 999px;           /* меню в виде чипов */
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .nav-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .nav-btn.active {
+      background: var(--accent);
+    }
+    
+    .back-home-btn {
+      padding: 5px 12px;
+      font-size: 12px;
+      background: var(--bg-lighter);
+      border-radius: 999px;          /* тоже пилюлька */
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .back-home-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
 
     /* ---------- ИНПУТЫ ---------- */
 
@@ -924,12 +959,13 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     .storage
     .from("avatars")
     .upload(filePath, avatarFile, { upsert: true });
-
+  
   if (uploadError) {
-    console.error(uploadError);
-    alert("Ошибка загрузки аватарки в хранилище.");
+    console.error("Ошибка Supabase Storage:", uploadError);
+    alert("Ошибка загрузки аватарки в хранилище: " + uploadError.message);
     return;
   }
+
 
   const { data: urlData } = supabaseClient
     .storage
@@ -1451,3 +1487,4 @@ function renderAdminUsers() {
 </script>
 </body>
 </html>
+
