@@ -1866,15 +1866,38 @@ function renderAdminUsers() {
       }
       if (canEdit) {
         statusSelect.onchange = async () => {
-          await updateUserFields(user.id, { status: statusSelect.value });
+          const newStatus = statusSelect.value;
+      
+          const patch = { status: newStatus };
+      
+          // Если назначаем генерала – автоматически делаем его офицером и
+          // выставляем корректный департамент
+          if (newStatus === "Генерал LSPD") {
+            patch.is_officer = true;
+            patch.department = "LSPD";
+          } else if (newStatus === "Генерал SFPD") {
+            patch.is_officer = true;
+            patch.department = "SFPD";
+          } else if (newStatus === "Генерал LVPD") {
+            patch.is_officer = true;
+            patch.department = "LVPD";
+          } else if (newStatus === "Министр внутренних дел") {
+            // Министр тоже должен отображаться в офицерах
+            patch.is_officer = true;
+          }
+      
+          await updateUserFields(user.id, patch);
         };
+      
         colorInput.onchange = async () => {
           await updateUserFields(user.id, { border_color: colorInput.value });
         };
+      
         orderInput.onchange = async () => {
           const v = orderInput.value === "" ? null : Number(orderInput.value);
           await updateUserFields(user.id, { sort_order: v });
         };
+      
         avatarInput.onchange = async () => {
           const file = avatarInput.files[0];
           if (!file) return;
@@ -2004,7 +2027,13 @@ async function loadOfficers() {
     return;
   }
 
-  officersCache = (data || []).filter((u) => u.is_officer);
+  officersCache = (data || []).filter((u) =>
+    u.is_officer ||
+    u.status === "Министр внутренних дел" ||
+    u.status === "Генерал LSPD" ||
+    u.status === "Генерал SFPD" ||
+    u.status === "Генерал LVPD"
+  );
 
   const minister = officersCache.find((u) => u.status === "Министр внутренних дел");
   if (minister) {
@@ -2224,3 +2253,4 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
