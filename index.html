@@ -29,6 +29,91 @@
     .admin-navbar {
       justify-content: flex-start;
     }
+    /* --- Read-only карточка личного дела --- */
+
+    #personal-view {
+      margin-top: 6px;
+      margin-bottom: 4px;
+    }
+    
+    .pf-view-row {
+      display: flex;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    
+    .pf-view-label {
+      width: 180px;
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+    
+    .pf-view-value {
+      flex: 1;
+      color: var(--text);
+    }
+    
+    /* --- Ответы по личному делу --- */
+    
+    .pf-separator {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 12px 0 10px;
+    }
+    
+    .pf-replies-title {
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+    
+    .pf-replies-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    
+    .pf-reply-card {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4);
+    }
+    
+    .pf-reply-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+    
+    .pf-reply-author {
+      font-weight: 500;
+      color: var(--text);
+    }
+    
+    .pf-reply-text {
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+    
+    .pf-reply-textarea {
+      width: 100%;
+      min-height: 70px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      padding: 7px 9px;
+      font-size: 13px;
+      resize: vertical;
+    }
+
 
     body {
       background: #0f172a;
@@ -1051,59 +1136,49 @@
           </div>
 
           <form id="personal-form" novalidate>
-            <div class="field">
-              <label for="pf-dept">Отдел (форумный)</label>
-              <select id="pf-dept">
-                <option value="">Выберите отдел…</option>
-                <option value="SWAT">SWAT</option>
-                <option value="PD">PD</option>
-                <option value="PA">PA</option>
-                <option value="CHIEF">CHIEF</option>
-                <option value="IAG">IAG</option>
-                <option value="Cmdr.SWAT">Cmdr.SWAT</option>
-                <option value="DCmdr.SWAT">DCmdr.SWAT</option>
-              </select>
+            <div class="files-detail-header">
+            <div>
+              <strong id="pf-detail-title">Личное дело</strong>
+              <div id="pf-detail-sub" style="font-size:12px; color:var(--muted);"></div>
             </div>
-
-            <div class="field">
-              <label for="pf-nick">Имя_Фамилия (как в игре)</label>
-              <input id="pf-nick" type="text" placeholder="Имя_Фамилия" />
+          
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+              <div id="pf-edit-badge" class="badge-readonly">
+                Только просмотр
+              </div>
+              <button id="pf-edit-toggle-btn" class="btn btn-sm" style="display:none;">
+                ✏️ Редактировать
+              </button>
             </div>
-
-            <div class="field">
-              <label for="pf-account">Номер аккаунта (только цифры)</label>
-              <input id="pf-account" type="text" placeholder="522501" />
+          </div>
+          
+          <!-- READ-ONLY ПРОСМОТР -->
+          <div id="personal-view"></div>
+          
+          <!-- РЕЖИМ РЕДАКТИРОВАНИЯ (форма), по умолчанию скрыта -->
+          <form id="personal-form" novalidate style="display:none; margin-top:10px;">
+            <!-- поля оставь те же, что были раньше -->
+            ...
+          </form>
+          
+          <div class="personal-note" id="pf-readonly-note" style="display:none;">
+            Вы просматриваете чужое личное дело. Редактирование доступно только модераторам и администраторам.
+          </div>
+          
+          <hr class="pf-separator" />
+          
+          <!-- БЛОК ОТВЕТОВ -->
+          <div id="pf-replies-section">
+            <h3 class="pf-replies-title">Ответы по личному делу</h3>
+            <div id="pf-replies-list">Сначала выберите личное дело слева.</div>
+          
+            <div id="pf-replies-form-wrapper" style="margin-top:10px; display:none;">
+              <textarea id="pf-reply-text" class="pf-reply-textarea" placeholder="Напишите ответ..."></textarea>
+              <button id="pf-reply-send" class="btn btn-sm" style="margin-top:6px;">
+                Отправить ответ
+              </button>
             </div>
-
-            <div class="field">
-              <label for="pf-birth">Дата рождения</label>
-              <input id="pf-birth" type="text" placeholder="01.01.2000" />
-            </div>
-
-            <div class="field">
-              <label for="pf-badge-link">Номер значка / аккаунта (ссылка)</label>
-              <input id="pf-badge-link" type="text" placeholder="Ссылка на аккаунт / профиль" />
-            </div>
-
-            <div class="field">
-              <label for="pf-rank">Текущее звание</label>
-              <input id="pf-rank" type="text" placeholder="Сержант / Капитан / ..." />
-            </div>
-
-            <div class="field">
-              <label for="pf-phone">Контактный номер телефона</label>
-              <input id="pf-phone" type="text" placeholder="Номер телефона" />
-            </div>
-
-            <div class="field">
-              <label for="pf-contact">Альтернативное средство связи</label>
-              <input id="pf-contact" type="text" placeholder="VK / Discord" />
-            </div>
-
-            <button type="submit" id="save-personal-btn" class="btn" style="margin-top:6px;">
-              💾 Сохранить личное дело
-            </button>
-            <div id="personal-save-note" class="personal-note"></div>
+          </div>
           </form>
 
           <div class="personal-note" id="pf-readonly-note" style="display:none;">
@@ -1586,6 +1661,16 @@ const themeBlurValue = document.getElementById("theme-blur-value");
 const themeSaveBtn = document.getElementById("theme-save-btn");
 
 const bgRotatorEl = document.getElementById("bg-rotator");
+const pfView = document.getElementById("personal-view");
+const pfEditToggleBtn = document.getElementById("pf-edit-toggle-btn");
+
+const pfRepliesList = document.getElementById("pf-replies-list");
+const pfRepliesFormWrapper = document.getElementById("pf-replies-form-wrapper");
+const pfReplyText = document.getElementById("pf-reply-text");
+const pfReplySendBtn = document.getElementById("pf-reply-send");
+
+let pfEditMode = false;
+  
 
 if (rookieTestBtn) {
   rookieTestBtn.addEventListener("click", () => {
@@ -1871,6 +1956,43 @@ function updatePfHeaderPreview() {
   pfDetailTitle.textContent = `[${dept}] ${nick} [${acc}]`;
 }
 
+function fillPersonalView(fileRow) {
+  if (!pfView) return;
+
+  const dept = fileRow?.forum_dept || pfDept.value || "Отдел";
+  const nick = fileRow?.forum_nick || pfNick.value || (currentUser ? currentUser.nick : "Имя_Фамилия");
+  const acc  = fileRow?.account_number || pfAccount.value || "Номер";
+
+  const rows = [
+    { label: "Отдел (форумный)", value: dept },
+    { label: "Имя_Фамилия (как в игре)", value: nick },
+    { label: "Номер аккаунта", value: acc },
+    { label: "Дата рождения", value: fileRow?.birth_date || pfBirth.value || "—" },
+    { label: "Номер значка / аккаунта", value: fileRow?.badge_link || pfBadgeLink.value || "—" },
+    { label: "Текущее звание", value: fileRow?.rank || pfRank.value || "—" },
+    { label: "Контактный телефон", value: fileRow?.phone || pfPhone.value || "—" },
+    { label: "Альтернативный контакт", value: fileRow?.contact || pfContact.value || "—" },
+  ];
+
+  pfView.innerHTML = "";
+  rows.forEach((r) => {
+    const rowEl = document.createElement("div");
+    rowEl.className = "pf-view-row";
+
+    const labelEl = document.createElement("div");
+    labelEl.className = "pf-view-label";
+    labelEl.textContent = r.label;
+
+    const valueEl = document.createElement("div");
+    valueEl.className = "pf-view-value";
+    valueEl.textContent = r.value || "—";
+
+    rowEl.appendChild(labelEl);
+    rowEl.appendChild(valueEl);
+    pfView.appendChild(rowEl);
+  });
+}
+
 pfDept.addEventListener("change", updatePfHeaderPreview);
 pfNick.addEventListener("input", updatePfHeaderPreview);
 pfAccount.addEventListener("input", () => {
@@ -1891,7 +2013,6 @@ function fillPersonalForm(fileRow, editable) {
     pfDetailSub.textContent = editable
       ? "Новое личное дело"
       : "Выберите личное дело слева или создайте своё.";
-    updatePfHeaderPreview();
   } else {
     pfDept.value = fileRow.forum_dept || "";
     pfNick.value = fileRow.forum_nick || "";
@@ -1904,8 +2025,10 @@ function fillPersonalForm(fileRow, editable) {
     pfDetailSub.textContent = fileRow.updated_at
       ? `Последнее обновление: ${new Date(fileRow.updated_at).toLocaleString()}`
       : "";
-    updatePfHeaderPreview();
   }
+
+  updatePfHeaderPreview();
+  fillPersonalView(fileRow || null);
 
   const controls = [
     pfDept, pfNick, pfAccount, pfBirth,
@@ -1918,11 +2041,23 @@ function fillPersonalForm(fileRow, editable) {
     pfEditBadge.textContent = "Можно редактировать";
     pfEditBadge.className = "badge-editable";
     pfReadonlyNote.style.display = "none";
+    if (pfEditToggleBtn) {
+      pfEditToggleBtn.style.display = "inline-block";
+      pfEditToggleBtn.textContent = "✏️ Редактировать";
+    }
   } else {
     pfEditBadge.textContent = "Только просмотр";
     pfEditBadge.className = "badge-readonly";
     pfReadonlyNote.style.display = "block";
+    if (pfEditToggleBtn) {
+      pfEditToggleBtn.style.display = "none";
+    }
   }
+
+  // при открытии ВСЕГДА начинаем в режиме просмотра
+  pfEditMode = false;
+  if (pfView) pfView.style.display = "block";
+  if (pfForm) pfForm.style.display = "none";
 }
 
 function openPersonalFile(id) {
@@ -1946,6 +2081,40 @@ function openPersonalFile(id) {
   });
 
   fillPersonalForm(file, canEdit);
+  updateRepliesAccess();
+  loadPersonalReplies(file.id);
+}
+
+if (pfEditToggleBtn) {
+  pfEditToggleBtn.onclick = () => {
+    if (!currentFileEditable) return;
+
+    pfEditMode = !pfEditMode;
+
+    if (pfEditMode) {
+      // включаем форму
+      pfForm.style.display = "block";
+      pfView.style.display = "none";
+      pfEditToggleBtn.textContent = "⬅ Вернуться к просмотру";
+    } else {
+      // обратно в просмотр
+      pfForm.style.display = "none";
+      pfView.style.display = "block";
+      pfEditToggleBtn.textContent = "✏️ Редактировать";
+
+      // обновляем read-only блок из текущих значений формы
+      fillPersonalView({
+        forum_dept: pfDept.value.trim(),
+        forum_nick: pfNick.value.trim(),
+        account_number: pfAccount.value.trim(),
+        birth_date: pfBirth.value.trim(),
+        badge_link: pfBadgeLink.value.trim(),
+        rank: pfRank.value.trim(),
+        phone: pfPhone.value.trim(),
+        contact: pfContact.value.trim()
+      });
+    }
+  };
 }
 
 async function loadPersonalFiles() {
@@ -1965,6 +2134,23 @@ async function loadPersonalFiles() {
     return;
   }
 
+  if (!personalFilesCache.length) {
+    filesListEl.textContent = "Пока нет ни одного личного дела.";
+    currentFileId = null;
+    currentFileOwnerId = currentUser.id;
+    currentFileEditable = false;
+    fillPersonalForm(null, false);
+    currentFileId = null;
+    currentFileOwnerId = currentUser.id;
+    currentFileEditable = false;
+    if (pfRepliesList) pfRepliesList.textContent = "Сначала выберите личное дело слева.";
+    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
+  
+    if (pfRepliesList) pfRepliesList.textContent = "Сначала создайте и сохраните личное дело.";
+    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
+    return;
+  }
+
   personalFilesCache = data || [];
   filesListEl.innerHTML = "";
 
@@ -1979,6 +2165,11 @@ async function loadPersonalFiles() {
     currentFileOwnerId = currentUser.id;
     currentFileEditable = false;
     fillPersonalForm(null, false);
+    currentFileId = null;
+    currentFileOwnerId = currentUser.id;
+    currentFileEditable = false;
+    if (pfRepliesList) pfRepliesList.textContent = "Сначала выберите личное дело слева.";
+    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
     return;
   }
 
@@ -2026,6 +2217,11 @@ async function loadPersonalFiles() {
   currentFileOwnerId = currentUser.id;
   currentFileEditable = false;
   fillPersonalForm(null, false);
+  currentFileId = null;
+  currentFileOwnerId = currentUser.id;
+  currentFileEditable = false;
+  if (pfRepliesList) pfRepliesList.textContent = "Сначала выберите личное дело слева.";
+  if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
 }
 
 if (createPersonalBtn) {
@@ -2035,6 +2231,10 @@ if (createPersonalBtn) {
     currentFileOwnerId = currentUser.id;
     currentFileEditable = true;
     fillPersonalForm(null, true);
+    if (pfRepliesList) pfRepliesList.textContent = "После сохранения личного дела вы сможете оставлять ответы.";
+    if (pfRepliesFormWrapper) pfRepliesFormWrapper.style.display = "none";
+    currentFileId = null;
+    updateRepliesAccess();
   };
 }
 
@@ -2106,6 +2306,12 @@ pfForm.addEventListener("submit", async (e) => {
   setTimeout(() => (pfSaveNote.textContent = ""), 2500);
 
   await loadPersonalFiles();
+  pfEditMode = false;
+  if (pfForm) pfForm.style.display = "none";
+  if (pfView) pfView.style.display = "block";
+  if (pfEditToggleBtn && currentFileEditable) {
+    pfEditToggleBtn.textContent = "✏️ Редактировать";
+  }
 });
 
 /* =============== АДМИН ПАНЕЛЬ / РУКОВОДСТВО =============== */
@@ -2121,6 +2327,145 @@ const adminBorderColor = document.getElementById("admin-border-color");
 const adminAddCancel = document.getElementById("admin-add-cancel");
 const adminAddSave = document.getElementById("admin-add-save");
 
+
+async function loadPersonalReplies(fileId) {
+  if (!pfRepliesList) return;
+  if (!fileId) {
+    pfRepliesList.textContent = "Сначала выберите личное дело слева.";
+    return;
+  }
+
+  pfRepliesList.textContent = "Загрузка ответов...";
+
+  const { data: replies, error } = await supabaseClient
+    .from("personal_file_replies")
+    .select("*")
+    .eq("file_id", fileId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    pfRepliesList.textContent = "Ошибка загрузки ответов.";
+    showErrorModal("Ошибка загрузки ответов по личному делу.");
+    return;
+  }
+
+  if (!replies || !replies.length) {
+    pfRepliesList.textContent = "Ответов пока нет.";
+    return;
+  }
+
+  const userIds = [...new Set(replies.map((r) => r.user_id).filter(Boolean))];
+
+  let usersMap = {};
+  if (userIds.length) {
+    const { data: usersData, error: usersError } = await supabaseClient
+      .from("users")
+      .select("id, nick, avatar_url, border_color, role")
+      .in("id", userIds);
+
+    if (!usersError && usersData) {
+      usersMap = Object.fromEntries(usersData.map((u) => [u.id, u]));
+    }
+  }
+
+  pfRepliesList.innerHTML = "";
+
+  replies.forEach((r) => {
+    const u = usersMap[r.user_id] || {};
+    const card = document.createElement("div");
+    card.className = "pf-reply-card";
+
+    const borderColor = u.border_color || "#3b82f6";
+    // лёгкое свечение рамки пользователя
+    card.style.borderColor = borderColor;
+    card.style.boxShadow = `0 0 0 1px ${borderColor}66, 0 0 14px ${borderColor}55`;
+
+    const header = document.createElement("div");
+    header.className = "pf-reply-header";
+
+    const left = document.createElement("div");
+    left.className = "pf-reply-author";
+    left.textContent = u.nick || "Неизвестный";
+
+    const right = document.createElement("div");
+    right.textContent = r.created_at
+      ? new Date(r.created_at).toLocaleString()
+      : "";
+
+    header.appendChild(left);
+    header.appendChild(right);
+
+    const text = document.createElement("div");
+    text.className = "pf-reply-text";
+    text.textContent = r.message;
+
+    card.appendChild(header);
+    card.appendChild(text);
+
+    pfRepliesList.appendChild(card);
+  });
+}
+
+if (pfReplySendBtn) {
+  pfReplySendBtn.onclick = async () => {
+    if (!currentUser || !currentFileId) return;
+
+    const canReply =
+      currentUser.role === "admin" ||
+      currentUser.role === "moderator" ||
+      currentUser.role === "creator" ||
+      currentUser.id === currentFileOwnerId;
+
+    if (!canReply) {
+      showErrorModal("Вы не можете оставлять ответы в этом личном деле.");
+      return;
+    }
+
+    const text = (pfReplyText.value || "").trim();
+    if (!text) return;
+
+    pfReplySendBtn.disabled = true;
+    try {
+      const { error } = await supabaseClient
+        .from("personal_file_replies")
+        .insert({
+          file_id: currentFileId,
+          user_id: currentUser.id,
+          message: text
+        });
+
+      if (error) {
+        console.error(error);
+        showErrorModal("Ошибка отправки ответа.");
+        return;
+      }
+
+      pfReplyText.value = "";
+      await loadPersonalReplies(currentFileId);
+    } finally {
+      pfReplySendBtn.disabled = false;
+    }
+  };
+}
+
+  
+function updateRepliesAccess() {
+  if (!pfRepliesFormWrapper) return;
+  const canReply =
+    currentUser &&
+    currentFileId &&
+    (
+      currentUser.role === "admin" ||
+      currentUser.role === "moderator" ||
+      currentUser.role === "creator" ||
+      currentUser.id === currentFileOwnerId
+    );
+
+  pfRepliesFormWrapper.style.display = canReply ? "block" : "none";
+}
+
+  
 function leadershipPriority(user) {
   const s = (user.status || "").trim();
 
@@ -2999,6 +3344,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
