@@ -1114,7 +1114,7 @@
       </div>
       <!-- Панель оформления для роли creator -->
       <div id="creator-theme-panel" style="margin-top:16px; display:none;">
-        <h3 style="font-size:16px; margin-bottom:6px;">Настройки оформления (для creator)</h3>
+        <h3 style="font-size:16px; margin-bottom:6px;">Настройки оформления</h3>
         <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">
           Здесь можно задать фоновые картинки, прозрачность блоков, размытость фона и цвет обводки.
           Настройки сохраняются локально и будут применяться при входе.
@@ -1321,7 +1321,6 @@ function clearSession() {
 function roleLabel(role) {
   if (role === "admin") return "Администратор";
   if (role === "moderator") return "Модератор";
-  if (role === "creator") return "Creator";
   return "Офицер";
 }
 
@@ -1343,24 +1342,41 @@ if (errorModalClose) {
 
 /* =============== ТЕМА: сохранение / загрузка / применение =============== */
 
-function loadThemeFromStorage() {
-  try {
-    const raw = localStorage.getItem(THEME_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    themeConfig = {
-      images: parsed.images || [],
-      opacity: typeof parsed.opacity === "number" ? parsed.opacity : 80,
-      blur: typeof parsed.blur === "number" ? parsed.blur : 0,
-      borderColor: parsed.borderColor || "#374151",
-    };
-  } catch (e) {
-    console.warn("Не удалось прочитать настройки темы:", e);
+async function loadThemeFromDB() {
+  const { data, error } = await supabaseClient
+    .from("theme_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+  if (error || !data) {
+    console.warn("Ошибка загрузки темы:", error);
+    return;
   }
+
+  themeConfig = {
+    images: data.images || [],
+    opacity: data.opacity,
+    blur: data.blur,
+    borderColor: data.border_color
+  };
 }
 
-function saveThemeToStorage() {
-  localStorage.setItem(THEME_KEY, JSON.stringify(themeConfig));
+async function saveThemeToDB() {
+  const { error } = await supabaseClient
+    .from("theme_settings")
+    .update({
+      images: themeConfig.images,
+      opacity: themeConfig.opacity,
+      blur: themeConfig.blur,
+      border_color: themeConfig.borderColor
+    })
+    .eq("id", 1);
+
+  if (error) {
+    showErrorModal("Ошибка сохранения темы!");
+    console.error(error);
+  }
 }
 
 function applyThemeToBlocks() {
@@ -1423,7 +1439,7 @@ function applyThemeBackground() {
 }
 
 function applyThemeFromStorage() {
-  loadThemeFromStorage();
+  await loadThemeFromDB();
   applyThemeToBlocks();
   applyThemeBackground();
 }
@@ -1449,26 +1465,24 @@ function initThemePanel() {
     themeOpacityValue.textContent = themeOpacityInput.value;
     themeConfig.opacity = Number(themeOpacityInput.value);
     applyThemeToBlocks();
-    saveThemeToStorage();
   };
 
   themeBlurInput.oninput = () => {
     themeBlurValue.textContent = themeBlurInput.value;
     themeConfig.blur = Number(themeBlurInput.value);
     applyThemeBackground();
-    saveThemeToStorage();
+    applyThemeToBlocks();
   };
 
   themeBorderColorInput.onchange = () => {
     themeConfig.borderColor = themeBorderColorInput.value || "#374151";
     applyThemeToBlocks();
-    saveThemeToStorage();
   };
 
   if (themeSaveBtn) {
     themeSaveBtn.onclick = () => {
       // уже сохраняем по oninput/onchange, но можно продублировать
-      saveThemeToStorage();
+      applyThemeToBlocks();
       showErrorModal("Оформление сохранено. При следующем входе будет применено автоматически.");
     };
   }
@@ -1492,7 +1506,7 @@ function initThemePanel() {
         );
 
         themeConfig.images = dataUrls;
-        saveThemeToStorage();
+        applyThemeToBlocks();
         applyThemeBackground();
       } catch (e) {
         console.error(e);
@@ -1738,25 +1752,29 @@ function refreshTopBar() {
   updateAdminTexts();
 }
 
-function loadPanelUI(user) {
+async function loadPanelUI(user) {
   authRoot.style.display = "none";
   panelRoot.style.display = "block";
   refreshTopBar();
-  applyThemeFromStorage();
-  initThemePanel();      // настроить панель, если creator
+
+  await loadThemeFromDB();
+  applyThemeBackground();
+  applyThemeToBlocks();
+  initThemePanel(); // если creator
+
   switchSection("home");
 }
 
 /* восстановление сессии */
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+  await loadThemeFromDB();
+  applyThemeBackground();
+  applyThemeToBlocks();
+
   const session = loadSession();
-  loadThemeFromStorage();      // подтягиваем тему из localStorage
   if (session) {
     currentUser = session;
     loadPanelUI(session);
-  } else {
-    // если не залогинен, всё равно применим фон/оформление
-    applyThemeFromStorage();
   }
 });
 
@@ -2108,7 +2126,7 @@ async function loadAdminPanel() {
     return;
   }
 
-  const isAdmin = currentUser.role === "admin";
+  const isAdmin = currentUser.role === "admin" || currentUser.role === "creator";
   const isModerator = currentUser.role === "moderator";
   const isOfficer = !isAdmin && !isModerator;
 
@@ -2292,14 +2310,27 @@ function renderAdminUsers() {
 
       const roleSelect = document.createElement("select");
       roleSelect.className = "admin-select";
-      ["user", "moderator", "admin", "creator"].forEach((r) => {
+      
+      // creator НЕ попадает в список выбора
+      ["user", "moderator", "admin"].forEach((r) => {
         const opt = document.createElement("option");
         opt.value = r;
         opt.textContent = roleLabel(r);
         roleSelect.appendChild(opt);
       });
-      roleSelect.value = user.role || "user";
-      roleSelect.disabled = !canChangeRole;
+      
+      // если пользователь creator — показываем как текст, но не даём менять
+      if (user.role === "creator") {
+        const opt = document.createElement("option");
+        opt.value = "creator";
+        opt.textContent = roleLabel("creator");
+        roleSelect.appendChild(opt);
+        roleSelect.value = "creator";
+        roleSelect.disabled = true; // вообще нельзя трогать
+      } else {
+        roleSelect.value = user.role || "user";
+        roleSelect.disabled = !canChangeRole;
+      }
 
       const statusSelect = document.createElement("select");
       statusSelect.className = "admin-select";
@@ -2915,6 +2946,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
