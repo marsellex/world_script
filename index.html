@@ -54,8 +54,8 @@
       color: var(--text);
     }
     
-    /* --- Ответы по личному делу --- */
-    
+    /* --- Ответы по личному делу (обновлённый стиль) --- */
+
     .pf-separator {
       border: none;
       border-top: 1px solid var(--border);
@@ -71,16 +71,22 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 220px;
+      max-height: 260px;
       overflow-y: auto;
     }
     
     .pf-reply-card {
       padding: 8px 10px;
       border-radius: 8px;
-      border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.9);
-      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4);
+      background: #020617;
+      border: 1px solid #4b5563;          /* обычный спокойный бордер */
+      font-size: 13px;
+    }
+    
+    /* Рамка только у админов */
+    .pf-reply-card.admin-reply {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 1px rgba(251,191,36,0.6);
     }
     
     .pf-reply-header {
@@ -102,12 +108,41 @@
       white-space: pre-wrap;
     }
     
-    .pf-reply-textarea {
-      width: 100%;
-      min-height: 70px;
+    /* Кнопки действий над ответом (редактировать/удалить) */
+    .pf-reply-actions {
+      display: flex;
+      gap: 6px;
+      margin-left: 8px;
+    }
+    
+    .pf-reply-action-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .pf-reply-action-btn:hover {
+      color: var(--accent-hover);
+      text-decoration: underline;
+    }
+    
+    /* Форма нового ответа в стиле формы форума */
+    #pf-replies-form-wrapper {
+      margin-top: 12px;
+      padding: 10px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      background: var(--input-bg);
+      background: rgba(15,23,42,0.9);
+    }
+    
+    .pf-reply-textarea {
+      width: 100%;
+      min-height: 80px;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      background: #111827;
       color: var(--text);
       padding: 7px 9px;
       font-size: 13px;
@@ -2342,6 +2377,15 @@ const adminAddCancel = document.getElementById("admin-add-cancel");
 const adminAddSave = document.getElementById("admin-add-save");
 
 
+function isAdminLike(user) {
+  if (!user) return false;
+  return (
+    user.role === "admin" ||
+    user.role === "moderator" ||
+    user.role === "creator"
+  );
+}
+
 async function loadPersonalReplies(fileId) {
   if (!pfRepliesList) return;
   if (!fileId) {
@@ -2387,13 +2431,14 @@ async function loadPersonalReplies(fileId) {
 
   replies.forEach((r) => {
     const u = usersMap[r.user_id] || {};
+    const isAdminAuthor = isAdminLike(u);
+    const canModerate = isAdminLike(currentUser); // кто может редактировать/удалять
+
     const card = document.createElement("div");
     card.className = "pf-reply-card";
-
-    const borderColor = u.border_color || "#3b82f6";
-    // лёгкое свечение рамки пользователя
-    card.style.borderColor = borderColor;
-    card.style.boxShadow = `0 0 0 1px ${borderColor}66, 0 0 14px ${borderColor}55`;
+    if (isAdminAuthor) {
+      card.classList.add("admin-reply"); // рамка только для админа/мода автора
+    }
 
     const header = document.createElement("div");
     header.className = "pf-reply-header";
@@ -2403,9 +2448,72 @@ async function loadPersonalReplies(fileId) {
     left.textContent = u.nick || "Неизвестный";
 
     const right = document.createElement("div");
-    right.textContent = r.created_at
+    right.style.display = "flex";
+    right.style.alignItems = "center";
+
+    const dateEl = document.createElement("div");
+    dateEl.textContent = r.created_at
       ? new Date(r.created_at).toLocaleString()
       : "";
+
+    right.appendChild(dateEl);
+
+    // Кнопки "редактировать" и "удалить" только для модерации
+    if (canModerate) {
+      const actions = document.createElement("div");
+      actions.className = "pf-reply-actions";
+
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "pf-reply-action-btn";
+      editBtn.textContent = "Изменить";
+      editBtn.onclick = async () => {
+        const newText = prompt("Измените текст ответа:", r.message || "");
+        if (newText === null) return;
+
+        const trimmed = newText.trim();
+        if (!trimmed) {
+          if (!confirm("Текст пустой. Удалить ответ?")) return;
+          await supabaseClient
+            .from("personal_file_replies")
+            .delete()
+            .eq("id", r.id);
+        } else {
+          const { error: updError } = await supabaseClient
+            .from("personal_file_replies")
+            .update({ message: trimmed })
+            .eq("id", r.id);
+          if (updError) {
+            console.error(updError);
+            showErrorModal("Не удалось изменить ответ.");
+            return;
+          }
+        }
+        await loadPersonalReplies(fileId);
+      };
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "pf-reply-action-btn";
+      delBtn.textContent = "Удалить";
+      delBtn.onclick = async () => {
+        if (!confirm("Точно удалить этот ответ?")) return;
+        const { error: delError } = await supabaseClient
+          .from("personal_file_replies")
+          .delete()
+          .eq("id", r.id);
+        if (delError) {
+          console.error(delError);
+          showErrorModal("Не удалось удалить ответ.");
+          return;
+        }
+        await loadPersonalReplies(fileId);
+      };
+
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+      right.appendChild(actions);
+    }
 
     header.appendChild(left);
     header.appendChild(right);
@@ -3358,4 +3466,5 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
