@@ -706,6 +706,146 @@
         margin-top: 6px;
       }
     }
+    /* --- Главная панель: важные кнопки --- */
+
+    .home-actions {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .btn-critical {
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #b91c1c;
+      color: #f9fafb;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(248,113,113,0.6), 0 10px 18px rgba(127,29,29,0.9);
+      animation: critical-blink 1.2s infinite alternate;
+      transition: transform 0.1s ease, box-shadow 0.12s ease, filter 0.1s ease;
+    }
+    
+    .btn-critical:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 0 0 1px rgba(248,113,113,0.9), 0 14px 24px rgba(127,29,29,1);
+    }
+    
+    @keyframes critical-blink {
+      0% {
+        box-shadow: 0 0 0 1px rgba(248,113,113,0.5), 0 8px 14px rgba(127,29,29,0.7);
+        background: #b91c1c;
+      }
+      100% {
+        box-shadow: 0 0 0 2px rgba(248,113,113,0.9), 0 14px 24px rgba(127,29,29,1);
+        background: #dc2626;
+      }
+    }
+    
+    .btn-glow {
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #1d4ed8;
+      color: #e5e7eb;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.6), 0 8px 16px rgba(15,23,42,0.9);
+      animation: soft-glow 2.4s infinite ease-in-out;
+      transition: transform 0.1s ease, box-shadow 0.12s ease, filter 0.1s ease;
+    }
+    
+    .btn-glow:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 0 0 1px rgba(96,165,250,0.9), 0 14px 24px rgba(15,23,42,1);
+    }
+    
+    @keyframes soft-glow {
+      0%, 100% {
+        box-shadow: 0 0 0 1px rgba(59,130,246,0.5), 0 8px 16px rgba(15,23,42,0.8);
+      }
+      50% {
+        box-shadow: 0 0 0 2px rgba(96,165,250,0.9), 0 14px 24px rgba(15,23,42,1);
+      }
+    }
+    
+    /* --- Круглые карточки: Министр + Генералы + Руководство --- */
+    
+    .circle-leader-wrapper {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    
+    .circle-leader-card {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .circle-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #facc15;
+      background: var(--bg-lighter);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    
+    .circle-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .circle-label {
+      font-size: 12px;
+      text-align: center;
+    }
+    
+    .circle-label .name {
+      display: block;
+      font-weight: 600;
+    }
+    
+    .circle-label .role {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    
+    /* отдельные акценты */
+    .circle-avatar-minister {
+      border-color: #38bdf8;
+    }
+    
+    .circle-avatar-general {
+      border-color: #facc15;
+    }
+    
+    /* для блока руководства (офицерский режим) */
+    .leadership-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .leadership-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
   </style>
 </head>
 <body>
@@ -829,6 +969,8 @@
         <button id="download-binder-btn" class="btn">⬇ Скачать биндер</button>
         <button id="open-files-from-home" class="btn-outline">Личные дела</button>
         <button id="open-rookie-modal" class="btn-outline">Начать обучаться игре за полицейского</button>
+        <button id="btn-rookie-test" class="btn-critical">Сдать зачёт рядового</button>
+        <button id="btn-captain-exam" class="btn-glow">Сдать экзамен Капитана</button>
       </div>
     </section>
 
@@ -1133,6 +1275,24 @@ if (errorModalClose) {
   };
 }
 
+if (rookieTestBtn) {
+  rookieTestBtn.addEventListener("click", () => {
+    showErrorModal(
+      "Переход на сдачу зачёта рядового ещё не настроен. " +
+      "Администратор позже может привязать сюда ссылку или отдельную страницу."
+    );
+  });
+}
+
+if (captainExamBtn) {
+  captainExamBtn.addEventListener("click", () => {
+    showErrorModal(
+      "Переход на экзамен Капитана пока не настроен. " +
+      "Добавьте сюда ссылку или функционал позже."
+    );
+  });
+}
+
 /* =============== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =============== */
 
 let currentUser = null;
@@ -1160,6 +1320,8 @@ const navAdminBtn = document.getElementById("nav-admin");
 const navOfficersBtn = document.getElementById("nav-officers");
 const sectionAdminTitle = document.querySelector("#section-admin h2");
 const sectionAdminDesc = document.querySelector("#section-admin p");
+const rookieTestBtn = document.getElementById("btn-rookie-test");
+const captainExamBtn = document.getElementById("btn-captain-exam");
 
 /* =============== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ АВТОРИЗАЦИИ =============== */
 
@@ -1673,21 +1835,12 @@ const adminAddSave = document.getElementById("admin-add-save");
 function leadershipPriority(user) {
   const s = (user.status || "").trim();
 
-  if (s === "Ответственный за структуру") {
-    return 0;
-  }
-  if (s === "Министр" || s === "Министр внутренних дел") {
-    return 1;
-  }
-  if (s === "Куратор") {
-    return 2;
-  }
-  if (s === "Генерал LSPD" || s === "Генерал SFPD" || s === "Генерал LVPD") {
-    return 3;
-  }
-  return 4; // все остальные ниже
+  if (s === "Ответственный за структуру") return 0;
+  if (s === "Министр" || s === "Министр внутренних дел") return 1;
+  if (s === "Куратор") return 2;
+  if (s === "Генерал LSPD" || s === "Генерал SFPD" || s === "Генерал LVPD") return 3;
+  return 4;
 }
-
   
 async function loadAdminPanel() {
   if (!currentUser) {
@@ -1717,8 +1870,7 @@ async function loadAdminPanel() {
 
   let arr = data || [];
 
-  // Для отображения руководства — сортируем по статусу:
-  // Ответственный → Министр → Кураторы → Генералы → остальные.
+  // сортировка по приоритету статуса + sort_order + ник
   arr.sort((a, b) => {
     const pA = leadershipPriority(a);
     const pB = leadershipPriority(b);
@@ -1732,7 +1884,14 @@ async function loadAdminPanel() {
   });
 
   adminUsersCache = arr;
-  renderAdminUsers();
+
+  if (isOfficer) {
+    // Офицер видит красивую «ёлочку» руководства в кругляшках
+    renderLeadershipForOfficer();
+  } else {
+    // Модераторы и админы — стандартная админ-панель со списком и кнопками
+    renderAdminUsers();
+  }
 }
 
 async function updateUserFields(userId, patch) {
@@ -1980,6 +2139,112 @@ function renderAdminUsers() {
   });
 }
 
+function makeCircleCardFromUser(u, customRoleText) {
+  const wrap = document.createElement("div");
+  wrap.className = "circle-leader-card";
+
+  const avatar = document.createElement("div");
+  avatar.className = "circle-avatar";
+  // для конкретных ролей можно оттенки
+  if ((u.status || "").includes("Министр")) {
+    avatar.classList.add("circle-avatar-minister");
+  } else if ((u.status || "").includes("Генерал")) {
+    avatar.classList.add("circle-avatar-general");
+  }
+
+  avatar.style.borderColor = u.border_color || avatar.style.borderColor || "#facc15";
+
+  if (u.avatar_url) {
+    const img = document.createElement("img");
+    img.src = u.avatar_url;
+    avatar.appendChild(img);
+  } else {
+    avatar.textContent = u.nick ? u.nick[0] : "?";
+  }
+
+  const label = document.createElement("div");
+  label.className = "circle-label";
+
+  const spanName = document.createElement("span");
+  spanName.className = "name";
+  spanName.textContent = u.nick;
+
+  const spanRole = document.createElement("span");
+  spanRole.className = "role";
+  spanRole.textContent = customRoleText || (u.status || "Руководство");
+
+  label.appendChild(spanName);
+  label.appendChild(spanRole);
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(label);
+
+  return wrap;
+}
+
+function renderLeadershipForOfficer() {
+  adminUsersListEl.innerHTML = "";
+
+  const all = adminUsersCache || [];
+
+  const responsible = all.find((u) => u.status === "Ответственный за структуру");
+  const minister = all.find((u) => u.status === "Министр" || u.status === "Министр внутренних дел");
+  const curators = all.filter((u) => u.status === "Куратор");
+  const generals = all.filter((u) =>
+    u.status === "Генерал LSPD" ||
+    u.status === "Генерал SFPD" ||
+    u.status === "Генерал LVPD"
+  );
+
+  const layout = document.createElement("div");
+  layout.className = "leadership-layout";
+
+  if (responsible) {
+    const wrap = document.createElement("div");
+    wrap.className = "circle-leader-wrapper";
+    wrap.appendChild(makeCircleCardFromUser(responsible, "Ответственный за структуру"));
+    layout.appendChild(wrap);
+  }
+
+  if (minister) {
+    const wrap = document.createElement("div");
+    wrap.className = "circle-leader-wrapper";
+    wrap.appendChild(makeCircleCardFromUser(minister, minister.status || "Министр"));
+    layout.appendChild(wrap);
+  }
+
+  if (curators.length) {
+    const row = document.createElement("div");
+    row.className = "leadership-row";
+    curators.forEach((u) => {
+      row.appendChild(makeCircleCardFromUser(u, "Куратор"));
+    });
+    layout.appendChild(row);
+  }
+
+  if (generals.length) {
+    const row = document.createElement("div");
+    row.className = "leadership-row";
+    generals.forEach((u) => {
+      let roleLabel = u.status;
+      if (u.status === "Генерал LSPD") roleLabel = "Генерал LSPD";
+      if (u.status === "Генерал SFPD") roleLabel = "Генерал SFPD";
+      if (u.status === "Генерал LVPD") roleLabel = "Генерал LVPD";
+      row.appendChild(makeCircleCardFromUser(u, roleLabel));
+    });
+    layout.appendChild(row);
+  }
+
+  if (!responsible && !minister && !curators.length && !generals.length) {
+    const empty = document.createElement("div");
+    empty.className = "panel-note";
+    empty.textContent = "Руководство пока не назначено.";
+    layout.appendChild(empty);
+  }
+
+  adminUsersListEl.appendChild(layout);
+}
+
 /* ---------- Модалка "Добавить / настроить пользователя" ---------- */
 
 function renderAdminAddResults(filterText) {
@@ -2088,7 +2353,6 @@ async function loadOfficers() {
     return;
   }
 
-  // Берём тех, кто либо явно отмечен как офицер, либо имеет один из ключевых статусов
   officersCache = (data || []).filter((u) =>
     u.is_officer ||
     u.status === "Министр внутренних дел" ||
@@ -2097,25 +2361,45 @@ async function loadOfficers() {
     u.status === "Генерал LVPD"
   );
 
-  // ===== Министр внутренних дел (самый верх) =====
+  // ===== Министр (самый верх, круглая карточка) =====
   const minister = officersCache.find((u) => u.status === "Министр внутренних дел");
   if (minister) {
-    const card = document.createElement("div");
-    card.className = "officer-minister-card";
+    const wrap = document.createElement("div");
+    wrap.className = "circle-leader-wrapper";
 
+    const card = document.createElement("div");
+    card.className = "circle-leader-card";
+
+    const avatar = document.createElement("div");
+    avatar.className = "circle-avatar circle-avatar-minister";
+    avatar.style.borderColor = minister.border_color || "#38bdf8";
+    if (minister.avatar_url) {
+      const img = document.createElement("img");
+      img.src = minister.avatar_url;
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = minister.nick ? minister.nick[0] : "?";
+    }
+
+    const label = document.createElement("div");
+    label.className = "circle-label";
     const spanName = document.createElement("span");
     spanName.className = "name";
     spanName.textContent = minister.nick;
+    const spanRole = document.createElement("span");
+    spanRole.className = "role";
+    spanRole.textContent = "Министр внутренних дел";
 
-    const spanLabel = document.createElement("span");
-    spanLabel.className = "label";
-    spanLabel.textContent = "Министр внутренних дел";
+    label.appendChild(spanName);
+    label.appendChild(spanRole);
 
-    card.appendChild(spanName);
-    card.appendChild(spanLabel);
+    card.appendChild(avatar);
+    card.appendChild(label);
+    wrap.appendChild(card);
 
-    officersMinisterEl.className = "officer-minister";
-    officersMinisterEl.appendChild(card);
+    officersMinisterEl.className = "circle-leader-wrapper";
+    officersMinisterEl.innerHTML = "";
+    officersMinisterEl.appendChild(wrap);
   } else {
     officersMinisterEl.innerHTML = "";
   }
@@ -2244,34 +2528,49 @@ async function loadOfficers() {
 
     const leader = generals[deptCode];
 
-    // Круглая карточка лидера над колонкой
+    // Круглая карточка Генерала над списком департамента
     if (leader) {
       const wrap = document.createElement("div");
-      wrap.className = "officer-leader-wrapper";
+      wrap.className = "circle-leader-wrapper";
 
       const card = document.createElement("div");
-      card.className = "officer-leader-card";
+      card.className = "circle-leader-card";
 
-      const nameSpan = document.createElement("span");
-      nameSpan.className = "name";
-      nameSpan.textContent = leader.nick;
+      const avatar = document.createElement("div");
+      avatar.className = "circle-avatar circle-avatar-general";
+      avatar.style.borderColor = leader.border_color || "#facc15";
+      if (leader.avatar_url) {
+        const img = document.createElement("img");
+        img.src = leader.avatar_url;
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = leader.nick ? leader.nick[0] : "?";
+      }
 
-      const labelSpan = document.createElement("span");
-      labelSpan.className = "label";
-      labelSpan.textContent = `Лидер ${labelForLeader}`;
+      const label = document.createElement("div");
+      label.className = "circle-label";
+      const spanName = document.createElement("span");
+      spanName.className = "name";
+      spanName.textContent = leader.nick;
+      const spanRole = document.createElement("span");
+      spanRole.className = "role";
+      spanRole.textContent = `Генерал ${labelForLeader}`;
 
-      card.appendChild(nameSpan);
-      card.appendChild(labelSpan);
+      label.appendChild(spanName);
+      label.appendChild(spanRole);
+
+      card.appendChild(avatar);
+      card.appendChild(label);
       wrap.appendChild(card);
 
       colEl.appendChild(wrap);
     }
 
-    // Ниже — обычный состав (без лидера и без министра)
+    // Ниже — обычный состав
     officersCache
       .filter((u) =>
         u.department === deptCode &&
-        u.id !== (leader ? leader.id : null) &&
+        (!leader || u.id !== leader.id) &&
         u.status !== "Министр внутренних дел"
       )
       .forEach((u) => renderOfficerUser(u, colEl, false));
@@ -2354,5 +2653,6 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
