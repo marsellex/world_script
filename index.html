@@ -26,6 +26,9 @@
       padding: 0;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
+    .admin-navbar {
+      justify-content: flex-start;
+    }
 
     body {
       background: #0f172a;
@@ -958,16 +961,19 @@
   <!-- ===================== ПАНЕЛЬ ===================== -->
   <div id="panel-root" style="display:none;">
 
+    <div class="navbar admin-navbar" id="admin-navbar" style="display:none; margin-top:8px;">
+      <button class="nav-btn" id="nav-admin">Админ панель</button>
+    </div>
     <!-- Навбар -->
     <div class="navbar">
       <button class="nav-btn active" id="nav-home">Главная</button>
       <button class="nav-btn" id="nav-files">Личные дела</button>
-      <button class="nav-btn" id="nav-admin">Админ панель</button>
+      <button class="nav-btn" id="nav-leadership">Руководство PD</button>
       <button class="nav-btn" id="nav-officers">Офицеры</button>
-
+    
       <div class="nav-right">
         <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную панель</button>
-
+    
         <div class="top-user">
           <div class="top-avatar" id="top-avatar">PP</div>
           <div>
@@ -975,10 +981,11 @@
             <div class="top-role" id="top-role">Роль</div>
           </div>
         </div>
-
+    
         <button class="btn-outline btn-sm" id="logout-btn">Выйти</button>
       </div>
     </div>
+
 
     <!-- Главная -->
     <section id="section-home" class="section active">
@@ -997,6 +1004,17 @@
         <button id="open-rookie-modal" class="btn-outline">Начать обучаться игре за полицейского</button>
         <button id="btn-rookie-test" class="btn-critical">Сдать зачёт рядового</button>
         <button id="btn-captain-exam" class="btn-glow">Сдать экзамен Капитана</button>
+      </div>
+    </section>
+
+    <section id="section-leadership" class="section">
+      <h2>Руководство PD</h2>
+      <p>
+        В данном списке содержатся личности, которые числятся вышестоящими в структуре.
+      </p>
+    
+      <div id="leadership-container" class="admin-users-list">
+        Загрузка руководства...
       </div>
     </section>
 
@@ -1553,6 +1571,9 @@ const sectionAdminTitle = document.querySelector("#section-admin h2");
 const sectionAdminDesc = document.querySelector("#section-admin p");
 const rookieTestBtn = document.getElementById("btn-rookie-test");
 const captainExamBtn = document.getElementById("btn-captain-exam");
+const navLeadershipBtn = document.getElementById("nav-leadership");
+const adminNavbar = document.getElementById("admin-navbar");
+const leadershipContainer = document.getElementById("leadership-container");
 
 /* элементы панели темы */
 const creatorThemePanel = document.getElementById("creator-theme-panel");
@@ -1706,21 +1727,13 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
 function updateAdminTexts() {
   if (!currentUser) return;
-  const isAdminOrMod = currentUser.role === "admin" || currentUser.role === "moderator";
+  const hasAdminPanelAccess =
+    currentUser.role === "admin" ||
+    currentUser.role === "moderator" ||
+    currentUser.role === "creator";
 
-  if (navAdminBtn) {
-    navAdminBtn.textContent = isAdminOrMod ? "Админ панель" : "Руководство PD";
-  }
-  if (sectionAdminTitle && sectionAdminDesc) {
-    if (isAdminOrMod) {
-      sectionAdminTitle.textContent = "Админ панель";
-      sectionAdminDesc.textContent =
-        "Раздел доступен администраторам и модераторам. Офицеры видят только список модераторов и админов в режиме просмотра.";
-    } else {
-      sectionAdminTitle.textContent = "Руководство PD";
-      sectionAdminDesc.textContent =
-        "В данном списке содержатся личности, которые числятся вышестоящими в структуре";
-    }
+  if (adminNavbar) {
+    adminNavbar.style.display = hasAdminPanelAccess ? "flex" : "none";
   }
 }
 
@@ -1737,10 +1750,6 @@ function refreshTopBar() {
     topAvatar.appendChild(img);
   } else {
     topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
-  }
-
-  if (navAdminBtn) {
-    navAdminBtn.style.display = "inline-block";
   }
 
   updateAdminTexts();
@@ -1781,14 +1790,21 @@ document.getElementById("logout-btn").onclick = () => {
 /* =============== НАВИГАЦИЯ РАЗДЕЛОВ =============== */
 
 function switchSection(name) {
-  const sections = ["home", "files", "admin", "officers"];
+  const sections = ["home", "files", "leadership", "officers", "admin"];
+
   sections.forEach((sec) => {
-    document.getElementById(`section-${sec}`).classList.remove("active");
-    document.getElementById(`nav-${sec}`).classList.remove("active");
+    const sectionEl = document.getElementById(`section-${sec}`);
+    if (sectionEl) sectionEl.classList.remove("active");
+
+    const navBtn = document.getElementById(`nav-${sec}`);
+    if (navBtn) navBtn.classList.remove("active");
   });
 
-  document.getElementById(`section-${name}`).classList.add("active");
-  document.getElementById(`nav-${name}`).classList.add("active");
+  const targetSection = document.getElementById(`section-${name}`);
+  if (targetSection) targetSection.classList.add("active");
+
+  const targetNav = document.getElementById(`nav-${name}`);
+  if (targetNav) targetNav.classList.add("active");
 
   document.getElementById("back-home-btn").style.display =
     name === "home" ? "none" : "inline-block";
@@ -1796,13 +1812,15 @@ function switchSection(name) {
   if (name === "files") loadPersonalFiles();
   if (name === "admin") loadAdminPanel();
   if (name === "officers") loadOfficers();
+  if (name === "leadership") loadLeadership();
 }
+
 
 document.getElementById("nav-home").onclick = () => switchSection("home");
 document.getElementById("nav-files").onclick = () => switchSection("files");
-document.getElementById("nav-admin").onclick = () => switchSection("admin");
 document.getElementById("nav-officers").onclick = () => switchSection("officers");
-document.getElementById("back-home-btn").onclick = () => switchSection("home");
+document.getElementById("nav-leadership").onclick = () => switchSection("leadership");
+document.getElementById("nav-admin").onclick = () => switchSection("admin");
 
 document.getElementById("open-files-from-home").onclick = () => switchSection("files");
 
@@ -2116,16 +2134,29 @@ function leadershipPriority(user) {
 async function loadAdminPanel() {
   if (!currentUser) {
     adminUsersListEl.textContent = "Вы не авторизованы.";
-    adminAddBtn.style.display = "none";
+    if (adminAddBtn) adminAddBtn.style.display = "none";
     return;
   }
 
-  const isAdmin = currentUser.role === "admin" || currentUser.role === "creator";
-  const isModerator = currentUser.role === "moderator";
-  const isOfficer = !isAdmin && !isModerator;
+  const isAdminOrMod =
+    currentUser.role === "admin" ||
+    currentUser.role === "moderator" ||
+    currentUser.role === "creator";
+
+  if (!isAdminOrMod) {
+    adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
+    if (adminAddBtn) adminAddBtn.style.display = "none";
+    return;
+  }
+
+  const canUseAddBtn =
+    currentUser.role === "admin" || currentUser.role === "creator";
+
+  if (adminAddBtn) {
+    adminAddBtn.style.display = canUseAddBtn ? "inline-block" : "none";
+  }
 
   adminUsersListEl.textContent = "Загрузка пользователей...";
-  adminAddBtn.style.display = isAdmin ? "inline-block" : "none";
 
   const { data, error } = await supabaseClient
     .from("users")
@@ -2135,16 +2166,12 @@ async function loadAdminPanel() {
   if (error) {
     console.error(error);
     adminUsersListEl.textContent = "Ошибка загрузки пользователей.";
-    applyThemeToBlocks();
-    applyThemeBackground();
-    initThemePanel();
     showErrorModal("Ошибка загрузки пользователей. Попробуйте позже.");
     return;
   }
 
   let arr = data || [];
 
-  // сортировка по приоритету статуса + sort_order + ник
   arr.sort((a, b) => {
     const pA = leadershipPriority(a);
     const pB = leadershipPriority(b);
@@ -2158,14 +2185,7 @@ async function loadAdminPanel() {
   });
 
   adminUsersCache = arr;
-
-  if (isOfficer) {
-    // Офицер видит красивую «ёлочку» руководства в кругляшках
-    renderLeadershipForOfficer();
-  } else {
-    // Модераторы и админы — стандартная админ-панель со списком и кнопками
-    renderAdminUsers();
-  }
+  renderAdminUsers();
 }
 
 async function updateUserFields(userId, patch) {
@@ -2469,13 +2489,15 @@ function makeCircleCardFromUser(u, customRoleText) {
   return wrap;
 }
 
-function renderLeadershipForOfficer() {
-  adminUsersListEl.innerHTML = "";
+function renderLeadershipTree(targetEl) {
+  targetEl.innerHTML = "";
 
   const all = adminUsersCache || [];
 
   const responsible = all.find((u) => u.status === "Ответственный за структуру");
-  const minister = all.find((u) => u.status === "Министр" || u.status === "Министр внутренних дел");
+  const minister = all.find(
+    (u) => u.status === "Министр" || u.status === "Министр внутренних дел"
+  );
   const curators = all.filter((u) => u.status === "Куратор");
   const generals = all.filter((u) =>
     u.status === "Генерал LSPD" ||
@@ -2529,8 +2551,45 @@ function renderLeadershipForOfficer() {
     layout.appendChild(empty);
   }
 
-  adminUsersListEl.appendChild(layout);
+  targetEl.appendChild(layout);
 }
+
+async function loadLeadership() {
+  if (!currentUser || !leadershipContainer) return;
+
+  leadershipContainer.textContent = "Загрузка руководства...";
+
+  const { data, error } = await supabaseClient
+    .from("users")
+    .select("id, nick, department, role, avatar_url, created_at, status, border_color, sort_order")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    leadershipContainer.textContent = "Ошибка загрузки руководства.";
+    showErrorModal("Ошибка загрузки руководства. Попробуйте позже.");
+    return;
+  }
+
+  let arr = data || [];
+
+  // сортируем, как в админке: по приоритету, потом по sort_order, потом по нику
+  arr.sort((a, b) => {
+    const pA = leadershipPriority(a);
+    const pB = leadershipPriority(b);
+    if (pA !== pB) return pA - pB;
+
+    const soA = a.sort_order ?? 9999;
+    const soB = b.sort_order ?? 9999;
+    if (soA !== soB) return soA - soB;
+
+    return (a.nick || "").localeCompare(b.nick || "", "ru");
+  });
+
+  adminUsersCache = arr;
+  renderLeadershipTree(leadershipContainer);
+}
+
 
 /* ---------- Модалка "Добавить / настроить пользователя" ---------- */
 
@@ -2940,6 +2999,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
