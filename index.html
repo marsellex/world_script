@@ -1298,6 +1298,22 @@
           <input id="theme-blur" type="range" min="0" max="15" step="1" value="0" />
         </div>
 
+        <div class="field">
+        <label for="theme-favicon">Иконка</label>
+        <input id="theme-favicon" type="file" accept="image/*" />
+        <div class="hint">
+          Рекомендуется квадратная картинка 32×32 или 64×64. Будет сохранена в базе как base64.
+        </div>
+      </div>
+    
+      <div class="field">
+        <label for="theme-site-title">Название сайту</label>
+        <input id="theme-site-title" type="text" placeholder="Police Platinum — Панель офицера" />
+        <div class="hint">
+          Это будет заголовок вкладки браузера
+        </div>
+      </div>
+
         <button id="theme-save-btn" class="btn btn-sm">💾 Сохранить оформление</button>
       </div>
     </section>
@@ -1509,9 +1525,13 @@ async function loadThemeFromDB() {
     images: data.images || [],
     opacity: data.opacity,
     blur: data.blur,
-    borderColor: data.border_color
+    borderColor: data.border_color,
+    favicon: data.favicon || null,
+    siteTitle: data.site_title || null
   };
 }
+
+
 
 async function saveThemeToDB() {
   const { error } = await supabaseClient
@@ -1520,7 +1540,9 @@ async function saveThemeToDB() {
       images: themeConfig.images,
       opacity: themeConfig.opacity,
       blur: themeConfig.blur,
-      border_color: themeConfig.borderColor
+      border_color: themeConfig.borderColor,
+      favicon: themeConfig.favicon,
+      site_title: themeConfig.siteTitle
     })
     .eq("id", 1);
 
@@ -1529,6 +1551,7 @@ async function saveThemeToDB() {
     console.error(error);
   }
 }
+
 
 function applyThemeToBlocks() {
   const opacity = (themeConfig.opacity || 80) / 100;
@@ -1589,6 +1612,28 @@ function applyThemeBackground() {
   }
 }
 
+function applySiteBranding() {
+  // Заголовок
+  if (themeConfig.siteTitle) {
+    document.title = themeConfig.siteTitle;
+  } else {
+    // дефолтный заголовок, если в настройках ничего нет
+    document.title = "Police Platinum — Панель офицера";
+  }
+
+  // Favicon
+  if (themeConfig.favicon) {
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    link.href = themeConfig.favicon;
+  }
+}
+
+
 /* UI для панели темы (creator) */
 
 function initThemePanel() {
@@ -1623,6 +1668,33 @@ function initThemePanel() {
     themeConfig.borderColor = themeBorderColorInput.value || "#374151";
     applyThemeToBlocks();
   };
+
+    // начальные значения
+  if (themeSiteTitleInput) {
+    themeSiteTitleInput.value = themeConfig.siteTitle || "";
+    themeSiteTitleInput.oninput = () => {
+      themeConfig.siteTitle = themeSiteTitleInput.value.trim() || null;
+      applySiteBranding();
+    };
+  }
+
+  if (themeFaviconInput) {
+    themeFaviconInput.onchange = () => {
+      const file = themeFaviconInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        themeConfig.favicon = reader.result;   // dataURL
+        applySiteBranding();
+      };
+      reader.onerror = () => {
+        showErrorModal("Не удалось прочитать файл иконки.");
+      };
+      reader.readAsDataURL(file);
+    };
+  }
+
 
   if (themeSaveBtn) {
     themeSaveBtn.onclick = async () => {
@@ -1681,8 +1753,11 @@ let themeConfig = {
   images: [],          // массив dataURL строк
   opacity: 80,         // 30–100
   blur: 0,             // px
-  borderColor: "#374151"
+  borderColor: "#374151",
+  favicon: null,       // dataURL иконки
+  siteTitle: null      // строка заголовка
 };
+
 
 let bgRotationTimer = null;
 let bgCurrentIndex = 0;
@@ -1732,6 +1807,9 @@ const pfRepliesList = document.getElementById("pf-replies-list");
 const pfRepliesFormWrapper = document.getElementById("pf-replies-form-wrapper");
 const pfReplyText = document.getElementById("pf-reply-text");
 const pfReplySendBtn = document.getElementById("pf-reply-send");
+
+const themeFaviconInput = document.getElementById("theme-favicon");
+const themeSiteTitleInput = document.getElementById("theme-site-title");
 
 let pfEditMode = false;
   
@@ -1974,6 +2052,8 @@ async function loadPanelUI(user) {
   applyThemeBackground();
   applyThemeToBlocks();
   initThemePanel(); // если creator
+  applySiteBranding();
+
 
   switchSection("home");
 }
@@ -1984,6 +2064,7 @@ window.addEventListener("load", async () => {
   await loadThemeFromDB();
   applyThemeBackground();
   applyThemeToBlocks();
+  applySiteBranding();
 
   const session = loadSession();
   if (session) {
@@ -3605,6 +3686,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
