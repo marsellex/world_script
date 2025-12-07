@@ -1470,8 +1470,10 @@ function clearSession() {
 function roleLabel(role) {
   if (role === "admin") return "Администратор";
   if (role === "moderator") return "Модератор";
+  if (role === "creator") return "Редактор";
   return "Офицер";
 }
+
 
 /* =============== МОДАЛКА ОШИБОК =============== */
 
@@ -2814,7 +2816,7 @@ function renderAdminUsers() {
     return;
   }
 
-  const isAdmin = currentUser && currentUser.role === "admin";
+  const isAdmin = currentUser && (currentUser.role === "admin" || currentUser.role === "creator");
   const isModerator = currentUser && currentUser.role === "moderator";
   const isOfficer = !isAdmin && !isModerator;
 
@@ -2885,34 +2887,67 @@ function renderAdminUsers() {
     if (!isOfficer) {
       const actions = document.createElement("div");
       actions.className = "admin-user-actions";
-
-      const canEdit = isAdmin;
-      const canChangeRole = isAdmin && (!currentUser || user.id !== currentUser.id);
-
+    
+      // creator = супер-админ
+      const isCurrentCreator = currentUser && currentUser.role === "creator";
+      const canEdit = isAdmin; // admin + creator
+      let canChangeRole = isAdmin && (!currentUser || user.id !== currentUser.id);
+    
+      // Запрещаем именно АДМИНУ менять роль другим админам и creator'ам
+      if (
+        currentUser &&
+        currentUser.role === "admin" &&
+        (user.role === "admin" || user.role === "creator")
+      ) {
+        canChangeRole = false;
+      }
+    
+      // --- SELECT ролей ---
       const roleSelect = document.createElement("select");
       roleSelect.className = "admin-select";
-      
-      // creator НЕ попадает в список выбора
-      ["user", "moderator", "admin"].forEach((r) => {
+    
+      // Какие роли можно выбирать:
+      // creator может ставить user/moderator/admin
+      // admin — только user/moderator (офицер или модератор)
+      let roleOptions;
+      if (isCurrentCreator) {
+        roleOptions = ["user", "moderator", "admin"];
+      } else {
+        roleOptions = ["user", "moderator"];
+      }
+    
+      roleOptions.forEach((r) => {
         const opt = document.createElement("option");
         opt.value = r;
         opt.textContent = roleLabel(r);
         roleSelect.appendChild(opt);
       });
-      
-      // если пользователь creator — показываем как текст, но не даём менять
-      if (user.role === "creator") {
+    
+      // Если у пользователя сейчас какая-то роль вне списка (admin для обычного admin или creator),
+      // добавляем её, чтобы корректно отображалась в select
+      if (user.role && !roleOptions.includes(user.role)) {
         const opt = document.createElement("option");
-        opt.value = "creator";
-        opt.textContent = roleLabel("creator");
+        opt.value = user.role;
+        opt.textContent = roleLabel(user.role);
         roleSelect.appendChild(opt);
-        roleSelect.value = "creator";
-        roleSelect.disabled = true; // вообще нельзя трогать
+      }
+    
+      roleSelect.value = user.role || "user";
+    
+      // creator вообще нельзя менять через select
+      if (user.role === "creator") {
+        roleSelect.disabled = true;
       } else {
-        roleSelect.value = user.role || "user";
         roleSelect.disabled = !canChangeRole;
       }
-
+    
+      if (canChangeRole) {
+        roleSelect.onchange = async () => {
+          await updateUserFields(user.id, { role: roleSelect.value });
+        };
+      }
+    
+      // === Остальные элементы в actions остаются как были ===
       const statusSelect = document.createElement("select");
       statusSelect.className = "admin-select";
       [
@@ -2932,39 +2967,32 @@ function renderAdminUsers() {
       });
       statusSelect.value = user.status || "";
       statusSelect.disabled = !canEdit;
-
+    
       const colorInput = document.createElement("input");
       colorInput.type = "color";
       colorInput.className = "admin-color";
       colorInput.value = user.border_color || "#3a7ca5";
       colorInput.disabled = !canEdit;
-
+    
       const orderInput = document.createElement("input");
       orderInput.type = "number";
       orderInput.className = "order-input";
       orderInput.value = user.sort_order ?? "";
       orderInput.placeholder = "#";
       orderInput.disabled = !canEdit;
-
+    
       const avatarInput = document.createElement("input");
       avatarInput.type = "file";
       avatarInput.accept = "image/*";
       avatarInput.className = "admin-avatar-input";
       avatarInput.disabled = !canEdit;
-
-      if (canChangeRole) {
-        roleSelect.onchange = async () => {
-          await updateUserFields(user.id, { role: roleSelect.value });
-        };
-      }
+    
       if (canEdit) {
         statusSelect.onchange = async () => {
           const newStatus = statusSelect.value;
-      
+    
           const patch = { status: newStatus };
-      
-          // Если назначаем генерала – автоматически делаем его офицером и
-          // выставляем корректный департамент
+    
           if (newStatus === "Генерал LSPD") {
             patch.is_officer = true;
             patch.department = "LSPD";
@@ -2975,35 +3003,34 @@ function renderAdminUsers() {
             patch.is_officer = true;
             patch.department = "LVPD";
           } else if (newStatus === "Министр внутренних дел") {
-            // Министр тоже должен отображаться в офицерах
             patch.is_officer = true;
           }
-      
+    
           await updateUserFields(user.id, patch);
         };
-      
+    
         colorInput.onchange = async () => {
           await updateUserFields(user.id, { border_color: colorInput.value });
         };
-      
+    
         orderInput.onchange = async () => {
           const v = orderInput.value === "" ? null : Number(orderInput.value);
           await updateUserFields(user.id, { sort_order: v });
         };
-      
+    
         avatarInput.onchange = async () => {
           const file = avatarInput.files[0];
           if (!file) return;
           await adminChangeAvatarForUser(user, file);
         };
       }
-
+    
       actions.appendChild(roleSelect);
       actions.appendChild(statusSelect);
       actions.appendChild(colorInput);
       actions.appendChild(orderInput);
       actions.appendChild(avatarInput);
-
+    
       main.appendChild(actions);
     }
 
@@ -3243,7 +3270,11 @@ const officersColLVPD = document.getElementById("officers-col-lvpd");
 async function loadOfficers() {
   if (!currentUser) return;
 
-  const isAdminOrMod = currentUser.role === "admin" || currentUser.role === "moderator";
+  const isAdminOrMod =
+  currentUser.role === "admin" ||
+  currentUser.role === "moderator" ||
+  currentUser.role === "creator";
+
 
   if (officersAddBtn) officersAddBtn.style.display = isAdminOrMod ? "inline-block" : "none";
   if (!isAdminOrMod && officersAddBlock) officersAddBlock.style.display = "none";
@@ -3378,7 +3409,12 @@ async function loadOfficers() {
     right.style.alignItems = "flex-end";
     right.style.gap = "4px";
 
-    const isAdminOrModInner = currentUser && (currentUser.role === "admin" || currentUser.role === "moderator");
+    const isAdminOrModInner =
+      currentUser &&
+      (currentUser.role === "admin" ||
+       currentUser.role === "moderator" ||
+       currentUser.role === "creator");
+
     const isSelf = currentUser && currentUser.id === u.id;
 
     if (isAdminOrModInner) {
@@ -3496,7 +3532,10 @@ async function loadOfficers() {
 
 if (officersAddBtn) {
   officersAddBtn.onclick = async () => {
-    if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "moderator")) return;
+    if (
+      !currentUser ||
+      !["admin", "moderator", "creator"].includes(currentUser.role)
+    ) return;
 
     officersAddBlock.style.display =
       officersAddBlock.style.display === "none" || !officersAddBlock.style.display
@@ -3535,7 +3574,7 @@ if (officersAddBtn) {
 
 if (document.getElementById("officers-add-save")) {
   document.getElementById("officers-add-save").onclick = async () => {
-    if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "moderator")) return;
+    if (!currentUser || !["admin", "moderator", "creator"].includes(currentUser.role)) return;
 
     const userId = Number(officersAddUserSelect.value);
     const dept = officersAddDept.value.trim();
@@ -3566,6 +3605,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
