@@ -3717,6 +3717,73 @@ if (examHistoryTabs) {
   });
 }
 
+
+async function loadAdminPanel() {
+  if (!currentUser) {
+    adminUsersListEl.textContent = "Вы не авторизованы.";
+    if (adminAddBtn) adminAddBtn.style.display = "none";
+    if (examAdminPanel) examAdminPanel.style.display = "none";
+    return;
+  }
+
+  const isAdminOrMod =
+    currentUser.role === "admin" ||
+    currentUser.role === "moderator" ||
+    currentUser.role === "creator";
+
+  if (!isAdminOrMod) {
+    adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
+    if (adminAddBtn) adminAddBtn.style.display = "none";
+    if (examAdminPanel) examAdminPanel.style.display = "none";
+    return;
+  }
+
+  const canUseAddBtn =
+    currentUser.role === "admin" || currentUser.role === "creator";
+
+  if (adminAddBtn) {
+    adminAddBtn.style.display = canUseAddBtn ? "inline-block" : "none";
+  }
+
+  adminUsersListEl.textContent = "Загрузка пользователей...";
+
+  const { data, error } = await supabaseClient
+    .from("users")
+    .select(
+      "id, nick, department, role, avatar_url, created_at, status, border_color, sort_order"
+    )
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    adminUsersListEl.textContent = "Ошибка загрузки пользователей.";
+    showErrorModal("Ошибка загрузки пользователей. Попробуйте позже.");
+    return;
+  }
+
+  let arr = data || [];
+  arr.sort((a, b) => {
+    const pA = leadershipPriority(a);
+    const pB = leadershipPriority(b);
+    if (pA !== pB) return pA - pB;
+
+    const soA = a.sort_order ?? 9999;
+    const soB = b.sort_order ?? 9999;
+    if (soA !== soB) return soA - soB;
+
+    return (a.nick || "").localeCompare(b.nick || "", "ru");
+  });
+
+  adminUsersCache = arr;
+  renderAdminUsers();
+
+  if (examAdminPanel) {
+    examAdminPanel.style.display = "block";
+    await loadExamQuestionsForAdmin();
+  }
+}
+
+
 async function loadExamHistory(type) {
   if (!examHistoryList) return;
   if (!currentUser) {
@@ -3784,129 +3851,7 @@ async function loadExamHistory(type) {
   }
 }
 
-async function loadAdminPanel() {
-  if (!currentUser) {
-    adminUsersListEl.textContent = "Вы не авторизованы.";
-    if (adminAddBtn) adminAddBtn.style.display = "none";
-    if (examAdminPanel) examAdminPanel.style.display = "none";
-    return;
-  }
 
-  const isAdminOrMod =
-    currentUser.role === "admin" ||
-    currentUser.role === "moderator" ||
-    currentUser.role === "creator";
-
-  if (!isAdminOrMod) {
-    adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
-    if (adminAddBtn) adminAddBtn.style.display = "none";
-    if (examAdminPanel) examAdminPanel.style.display = "none";
-    return;
-  }
-
-  const canUseAddBtn =
-    currentUser.role === "admin" || currentUser.role === "creator";
-
-  if (adminAddBtn) {
-    adminAddBtn.style.display = canUseAddBtn ? "inline-block" : "none";
-  }
-
-  adminUsersListEl.textContent = "Загрузка пользователей...";
-
-  const { data, error } = await supabaseClient
-    .from("users")
-    .select("id, nick, department, role, avatar_url, created_at, status, border_color, sort_order")
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error(error);
-    adminUsersListEl.textContent = "Ошибка загрузки пользователей.";
-    showErrorModal("Ошибка загрузки пользователей. Попробуйте позже.");
-    return;
-  }
-
-  let arr = data || [];
-  arr.sort((a, b) => {
-    const pA = leadershipPriority(a);
-    const pB = leadershipPriority(b);
-    if (pA !== pB) return pA - pB;
-
-    const soA = a.sort_order ?? 9999;
-    const soB = b.sort_order ?? 9999;
-    if (soA !== soB) return soA - soB;
-
-    return (a.nick || "").localeCompare(b.nick || "", "ru");
-  });
-
-  adminUsersCache = arr;
-  renderAdminUsers();
-
-  // показать/спрятать блок управления вопросами экзамена
-  if (examAdminPanel) {
-    examAdminPanel.style.display = isAdminOrMod ? "block" : "none";
-    if (isAdminOrMod) {
-      loadExamQuestionsForAdmin();
-    }
-  }
-}
-
-
-  const isAdminOrMod = currentUser &&
-  (currentUser.role === "admin" ||
-   currentUser.role === "moderator" ||
-   currentUser.role === "creator");
-
-  if (!isAdminOrMod) {
-    adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
-    if (adminAddBtn) adminAddBtn.style.display = "none";
-    return;
-  }
-
-  const canUseAddBtn =
-    currentUser.role === "admin" || currentUser.role === "creator";
-
-  if (adminAddBtn) {
-    adminAddBtn.style.display = canUseAddBtn ? "inline-block" : "none";
-  }
-
-  adminUsersListEl.textContent = "Загрузка пользователей...";
-
-  const { data, error } = await supabaseClient
-    .from("users")
-    .select("id, nick, department, role, avatar_url, created_at, status, border_color, sort_order")
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error(error);
-    adminUsersListEl.textContent = "Ошибка загрузки пользователей.";
-    showErrorModal("Ошибка загрузки пользователей. Попробуйте позже.");
-    return;
-  }
-
-  let arr = data || [];
-
-  arr.sort((a, b) => {
-    const pA = leadershipPriority(a);
-    const pB = leadershipPriority(b);
-    if (pA !== pB) return pA - pB;
-
-    const soA = a.sort_order ?? 9999;
-    const soB = b.sort_order ?? 9999;
-    if (soA !== soB) return soA - soB;
-
-    return (a.nick || "").localeCompare(b.nick || "", "ru");
-  });
-
-  adminUsersCache = arr;
-  renderAdminUsers();
-  // Показ / скрытие панели вопросов
-  if (examAdminPanel) {
-    examAdminPanel.style.display = isAdminOrMod ? "block" : "none";
-    if (isAdminOrMod) {
-      loadExamQuestionsForAdmin();
-    }
-  }
-}
 
 async function updateUserFields(userId, patch) {
   // запрет админам менять себе роль
@@ -4370,7 +4315,8 @@ function renderAdminAddResults(filterText) {
 }
 
 function openAdminAddModal() {
-  if (!currentUser || currentUser.role !== "admin") return;
+  if (!currentUser) return;
+  if (!["admin", "creator"].includes(currentUser.role)) return;
   adminSelectedUserId = null;
   adminAddSearchInput.value = "";
   renderAdminAddResults("");
@@ -4756,6 +4702,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
