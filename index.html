@@ -32,21 +32,95 @@
 
     .exam-history-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
     }
     
+    /* сам «кирпичик» */
     .exam-history-card {
-      background: var(--bg);
-      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 32px;
       border: 1px solid var(--border);
-      padding: 10px 14px;
+      padding: 14px 18px;
       font-size: 13px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      justify-content: space-between;
+      min-height: 120px;              /* одинаковая высота */
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.8);
     }
+    
+    /* верхняя строка: ник + дата */
+    .exam-history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    
+    .exam-history-nick {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .exam-history-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    /* середина: тип экзамена / баллы */
+    .exam-history-body {
+      font-size: 13px;
+      color: var(--text);
+    }
+    
+    /* низ: статус, прилипает к низу карточки */
+    .exam-history-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+    }
+    
+    /* бейджи статуса */
+    .exam-history-status-badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    
+    .exam-history-status-badge.passed {
+      color: var(--success);
+      border-color: rgba(34,197,94,0.5);
+    }
+    
+    .exam-history-status-badge.failed {
+      color: var(--danger);
+      border-color: rgba(239,68,68,0.6);
+    }
+    
+    /* подпись «баллы» */
+    .exam-history-score {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    /* адаптив как был */
+    @media (max-width: 900px) {
+      .exam-history-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 600px) {
+      .exam-history-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     
     .exam-history-nick {
       font-weight: 600;
@@ -3816,31 +3890,65 @@ async function loadExamHistory(type) {
     data.forEach((row) => {
       const card = document.createElement("div");
       card.className = "exam-history-card";
-
+    
+      // ===== HEADER =====
+      const header = document.createElement("div");
+      header.className = "exam-history-header";
+    
       const nickEl = document.createElement("div");
       nickEl.className = "exam-history-nick";
       nickEl.textContent = currentUser.nick;
-
-      const meta = document.createElement("div");
-      meta.className = "exam-history-meta";
-      meta.textContent = new Date(row.created_at).toLocaleString();
-
-      const status = document.createElement("div");
-      status.className =
-        "exam-history-status " + (row.passed ? "passed" : "failed");
-      status.textContent = row.passed ? "Сдано" : "Не сдано";
-
-      const score = document.createElement("div");
-      score.className = "exam-history-meta";
-      score.textContent = `Набрано баллов: ${row.score} / ${row.total_questions}`;
-
-      card.appendChild(nickEl);
-      card.appendChild(meta);
-      card.appendChild(status);
-      card.appendChild(score);
-
+    
+      const dateEl = document.createElement("div");
+      dateEl.className = "exam-history-meta";
+      dateEl.textContent = new Date(row.created_at).toLocaleString();
+    
+      header.appendChild(nickEl);
+      header.appendChild(dateEl);
+    
+      // ===== BODY =====
+      const body = document.createElement("div");
+      body.className = "exam-history-body";
+    
+      const examName =
+        type === "rookie" ? "Зачёт рядового" :
+        type === "captain" ? "Экзамен капитана" :
+        "Экзамен";
+    
+      const examText = document.createElement("div");
+      examText.textContent = examName;
+    
+      const scoreEl = document.createElement("div");
+      scoreEl.className = "exam-history-score";
+      scoreEl.textContent = `Баллы: ${row.score} / ${row.total_questions} (${Math.round((row.score / row.total_questions) * 100)}%)`;
+    
+      body.appendChild(examText);
+      body.appendChild(scoreEl);
+    
+      // ===== FOOTER =====
+      const footer = document.createElement("div");
+      footer.className = "exam-history-footer";
+    
+      const statusBadge = document.createElement("div");
+      statusBadge.className =
+        "exam-history-status-badge " + (row.passed ? "passed" : "failed");
+      statusBadge.textContent = row.passed ? "Сдано" : "Не сдано";
+    
+      const attemptMeta = document.createElement("div");
+      attemptMeta.className = "exam-history-meta";
+      attemptMeta.textContent = "Попытка #" + (row.attempt_number || 1);
+    
+      footer.appendChild(statusBadge);
+      footer.appendChild(attemptMeta);
+    
+      // собираем карточку
+      card.appendChild(header);
+      card.appendChild(body);
+      card.appendChild(footer);
+    
       examHistoryList.appendChild(card);
     });
+
 
     return;
   }
@@ -4702,6 +4810,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
