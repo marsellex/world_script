@@ -3766,90 +3766,97 @@ async function loadExamHistory(type) {
   }
 }
 
+
+/* EXAM ADMIN DOM: DOM-ссылки и переменные ДОЛЖНЫ идти ВЫШЕ, чем они используются */
+const examAdminPanel = document.getElementById("exam-admin-panel");
+const examAdminTypeSelect = document.getElementById("exam-admin-type");
+const examAdminNewBtn = document.getElementById("exam-admin-new");
+const examAdminForm = document.getElementById("exam-admin-form");
+const examQuestionText = document.getElementById("exam-question-text");
+const examOptionA = document.getElementById("exam-option-a");
+const examOptionB = document.getElementById("exam-option-b");
+const examOptionC = document.getElementById("exam-option-c");
+const examOptionD = document.getElementById("exam-option-d");
+const examCorrectOption = document.getElementById("exam-correct-option");
+const examImageInput = document.getElementById("exam-image-input");
+const examAdminCancel = document.getElementById("exam-admin-cancel");
+const examAdminSave = document.getElementById("exam-admin-save");
+const examAdminList = document.getElementById("exam-admin-list");
+
+let examAdminCurrentId = null;
+let examAdminImageData = null;
+
 async function loadAdminPanel() {
   if (!currentUser) {
     adminUsersListEl.textContent = "Вы не авторизованы.";
     if (adminAddBtn) adminAddBtn.style.display = "none";
+    if (examAdminPanel) examAdminPanel.style.display = "none";
     return;
   }
-
-  examHistoryList.textContent = "Загрузка...";
-
-  if (type === "rookie" || type === "captain") {
-    const { data, error } = await supabaseClient
-      .from("exam_attempts")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .eq("exam_type", type)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      examHistoryList.textContent = "Ошибка загрузки истории.";
-      return;
-    }
-
-    if (!data || !data.length) {
-      examHistoryList.textContent = "Пока нет попыток сдачи этого экзамена.";
-      return;
-    }
-
-    examHistoryList.innerHTML = "";
-    data.forEach((row) => {
-      const card = document.createElement("div");
-      card.className = "exam-history-card";
-
-      const nickEl = document.createElement("div");
-      nickEl.className = "exam-history-nick";
-      nickEl.textContent = currentUser.nick;
-
-      const meta = document.createElement("div");
-      meta.className = "exam-history-meta";
-      meta.textContent = new Date(row.created_at).toLocaleString();
-
-      const status = document.createElement("div");
-      status.className = "exam-history-status " + (row.passed ? "passed" : "failed");
-      status.textContent = row.passed ? "Сдано" : "Не сдано";
-
-      const score = document.createElement("div");
-      score.className = "exam-history-meta";
-      score.textContent = `Набрано баллов: ${row.score} / ${row.total_questions}`;
-
-      card.appendChild(nickEl);
-      card.appendChild(meta);
-      card.appendChild(status);
-      card.appendChild(score);
-
-      examHistoryList.appendChild(card);
-    });
-
-    return;
-  }
-}
-
-    /* EXAM ADMIN DOM */
-  const examAdminPanel = document.getElementById("exam-admin-panel");
-  const examAdminTypeSelect = document.getElementById("exam-admin-type");
-  const examAdminNewBtn = document.getElementById("exam-admin-new");
-  const examAdminForm = document.getElementById("exam-admin-form");
-  const examQuestionText = document.getElementById("exam-question-text");
-  const examOptionA = document.getElementById("exam-option-a");
-  const examOptionB = document.getElementById("exam-option-b");
-  const examOptionC = document.getElementById("exam-option-c");
-  const examOptionD = document.getElementById("exam-option-d");
-  const examCorrectOption = document.getElementById("exam-correct-option");
-  const examImageInput = document.getElementById("exam-image-input");
-  const examAdminCancel = document.getElementById("exam-admin-cancel");
-  const examAdminSave = document.getElementById("exam-admin-save");
-  const examAdminList = document.getElementById("exam-admin-list");
-  
-  let examAdminCurrentId = null; // редактируемый вопрос или null
-  let examAdminImageData = null; // base64 картинки
 
   const isAdminOrMod =
     currentUser.role === "admin" ||
     currentUser.role === "moderator" ||
     currentUser.role === "creator";
+
+  if (!isAdminOrMod) {
+    adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
+    if (adminAddBtn) adminAddBtn.style.display = "none";
+    if (examAdminPanel) examAdminPanel.style.display = "none";
+    return;
+  }
+
+  const canUseAddBtn =
+    currentUser.role === "admin" || currentUser.role === "creator";
+
+  if (adminAddBtn) {
+    adminAddBtn.style.display = canUseAddBtn ? "inline-block" : "none";
+  }
+
+  adminUsersListEl.textContent = "Загрузка пользователей...";
+
+  const { data, error } = await supabaseClient
+    .from("users")
+    .select("id, nick, department, role, avatar_url, created_at, status, border_color, sort_order")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    adminUsersListEl.textContent = "Ошибка загрузки пользователей.";
+    showErrorModal("Ошибка загрузки пользователей. Попробуйте позже.");
+    return;
+  }
+
+  let arr = data || [];
+  arr.sort((a, b) => {
+    const pA = leadershipPriority(a);
+    const pB = leadershipPriority(b);
+    if (pA !== pB) return pA - pB;
+
+    const soA = a.sort_order ?? 9999;
+    const soB = b.sort_order ?? 9999;
+    if (soA !== soB) return soA - soB;
+
+    return (a.nick || "").localeCompare(b.nick || "", "ru");
+  });
+
+  adminUsersCache = arr;
+  renderAdminUsers();
+
+  // показать/спрятать блок управления вопросами экзамена
+  if (examAdminPanel) {
+    examAdminPanel.style.display = isAdminOrMod ? "block" : "none";
+    if (isAdminOrMod) {
+      loadExamQuestionsForAdmin();
+    }
+  }
+}
+
+
+  const isAdminOrMod = currentUser &&
+  (currentUser.role === "admin" ||
+   currentUser.role === "moderator" ||
+   currentUser.role === "creator");
 
   if (!isAdminOrMod) {
     adminUsersListEl.textContent = "У вас нет доступа к админ-панели.";
@@ -4751,6 +4758,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
