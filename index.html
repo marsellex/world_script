@@ -1752,7 +1752,23 @@
         <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">
           Модераторы и выше могут добавлять, редактировать и удалять вопросы для зачёта рядового и экзамена капитана.
         </p>
-      
+                <!-- Порог сдачи экзамена -->
+        <div class="field" style="max-width:260px; margin-bottom:10px;">
+          <label for="exam-pass-count">
+            Минимум правильных ответов для сдачи
+          </label>
+          <input
+            id="exam-pass-count"
+            type="number"
+            min="0"
+            step="1"
+            class="order-input"
+          />
+          <div class="hint" id="exam-pass-hint">
+            Значение не может быть больше количества вопросов.
+          </div>
+        </div>
+
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
           <select id="exam-admin-type" class="admin-select" style="min-width:160px;">
             <option value="rookie">Зачёт рядового</option>
@@ -2330,6 +2346,15 @@ const examImageInput = document.getElementById("exam-image-input");
 const examAdminCancel = document.getElementById("exam-admin-cancel");
 const examAdminSave = document.getElementById("exam-admin-save");
 const examAdminList = document.getElementById("exam-admin-list");
+const examPassCountInput = document.getElementById("exam-pass-count");
+const examPassHint = document.getElementById("exam-pass-hint");
+
+let examAdminCurrentId = null;
+let examAdminImageData = null;
+
+// новое:
+let examPassSettings = {};        // { rookie: 3, captain: 5, ... }
+let examAdminQuestionsCache = []; // кэш вопросов для выбранного типа
 
 let examAdminCurrentId = null;
 let examAdminImageData = null;
@@ -2337,13 +2362,56 @@ let examAdminImageData = null;
 
 let pfEditMode = false;
 
+if (examPassCountInput) {
+  examPassCountInput.onchange = async () => {
+    const examType = examAdminTypeSelect.value;
+    let value = parseInt(examPassCountInput.value, 10);
+
+    if (isNaN(value) || value < 0) value = 0;
+
+    const total = examAdminQuestionsCache.length;
+    if (total && value > total) value = total; // не больше количества вопросов
+
+    examPassCountInput.value = value;
+
+    // если настройки для этого типа ещё нет — insert, иначе update
+    const exists = examPassSettings.hasOwnProperty(examType);
+    let error;
+
+    if (exists) {
+      const { error: err } = await supabaseClient
+        .from("exam_settings")
+        .update({ pass_count: value })
+        .eq("exam_type", examType);
+      error = err;
+    } else {
+      const { error: err } = await supabaseClient
+        .from("exam_settings")
+        .insert({ exam_type: examType, pass_count: value });
+      error = err;
+    }
+
+    if (error) {
+      console.error(error);
+      showErrorModal("Не удалось сохранить порог сдачи экзамена.");
+      return;
+    }
+
+    examPassSettings[examType] = value;
+    updateExamPassUI();
+  };
+}
+
+
 if (examAdminTypeSelect) {
   examAdminTypeSelect.onchange = () => {
     examAdminCurrentId = null;
     examAdminForm.style.display = "none";
     loadExamQuestionsForAdmin();
+    updateExamPassUI(); // чтобы сразу сменился порог
   };
 }
+
 
 if (examAdminNewBtn) {
   examAdminNewBtn.onclick = () => {
@@ -2499,6 +2567,45 @@ if (examCancelBtn) {
   };
 }
 
+async function loadExamSettings() {
+  const { data, error } = await supabaseClient
+    .from("exam_settings")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    // не падаем — просто оставим значение по умолчанию (70%)
+    return;
+  }
+
+  examPassSettings = {};
+  (data || []).forEach((row) => {
+    examPassSettings[row.exam_type] = row.pass_count;
+  });
+
+  updateExamPassUI();
+}
+
+function updateExamPassUI() {
+  if (!examPassCountInput || !examPassHint) return;
+
+  const examType = examAdminTypeSelect.value;
+  const passCount = examPassSettings[examType] ?? 0;
+  const total = examAdminQuestionsCache.length;
+
+  examPassCountInput.value = passCount || "";
+
+  if (!total) {
+    examPassHint.textContent = "Для этого экзамена пока нет вопросов.";
+  } else {
+    examPassHint.textContent =
+      `Сейчас в экзамене ${total} вопросов. ` +
+      `Экзамен считается сданным при ${passCount || "…"} ` +
+      `или более правильных ответах.`;
+  }
+}
+
+
 function renderExamQuestion() {
   if (!currentExamState || !examBodyEl) return;
 
@@ -2590,7 +2697,7 @@ function collectCurrentAnswer() {
 async function finishExam() {
   collectCurrentAnswer();
 
-  const { questions, answers, type } = currentExamState;
+  const { questions, answers, type, requiredCorrect } = currentExamState;
 
   let score = 0;
   questions.forEach((q, i) => {
@@ -2600,7 +2707,8 @@ async function finishExam() {
   });
 
   const total = questions.length || 1;
-  const passed = score >= Math.ceil(total * 0.7); // 70%
+  const need = requiredCorrect || Math.ceil(total * 0.7);
+  const passed = score >= need;
 
   if (currentUser) {
     const { error } = await supabaseClient
@@ -2625,7 +2733,8 @@ async function finishExam() {
   showErrorModal(
     `Зачёт рядового завершён.\n\n` +
     `Результат: ${statusText}\n` +
-    `Набрано баллов: ${score} из ${total} (${Math.round((score / total) * 100)}%)`
+    `Набрано баллов: ${score} из ${total}\n` +
+    `Минимум для сдачи: ${need}`
   );
 }
 
@@ -2669,6 +2778,17 @@ async function startExam(examType) {
     .eq("exam_type", examType)
     .order("id", { ascending: true });
 
+  const { data: settingsRow } = await supabaseClient
+    .from("exam_settings")
+    .select("pass_count")
+    .eq("exam_type", examType)
+    .single();
+
+  const requiredCorrect =
+    settingsRow && typeof settingsRow.pass_count === "number"
+      ? settingsRow.pass_count
+      : Math.ceil(data.length * 0.7); // запасной вариант, если настроек нет
+  
   if (error) {
     console.error(error);
     showErrorModal("Не удалось загрузить вопросы экзамена.");
@@ -2685,7 +2805,9 @@ async function startExam(examType) {
     questions: data,
     index: 0,
     answers: new Array(data.length).fill(null),
+    requiredCorrect
   };
+
 
   examModal.classList.add("active");
   renderExamQuestion();
@@ -3681,9 +3803,11 @@ async function loadExamQuestionsForAdmin() {
     examAdminList.textContent = "Ошибка загрузки вопросов.";
     return;
   }
+  examAdminQuestionsCache = data || [];
 
   if (!data || !data.length) {
     examAdminList.textContent = "Вопросов пока нет. Нажмите «Новый вопрос».";
+    updateExamPassUI(); // чтобы подсказка тоже обновилась
     return;
   }
 
@@ -3767,6 +3891,7 @@ async function loadExamQuestionsForAdmin() {
       }
       await loadExamQuestionsForAdmin();
     };
+    updateExamPassUI();
 
     actions.appendChild(editBtn);
     actions.appendChild(delBtn);
@@ -3852,8 +3977,11 @@ async function loadAdminPanel() {
   renderAdminUsers();
 
   if (examAdminPanel) {
-    examAdminPanel.style.display = "block";
-    await loadExamQuestionsForAdmin();
+    examAdminPanel.style.display = isAdminOrMod ? "block" : "none";
+    if (isAdminOrMod) {
+      await loadExamSettings();         // сначала настройки
+      await loadExamQuestionsForAdmin(); // потом вопросы -> обновится UI
+    }
   }
 }
 
@@ -4835,6 +4963,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
