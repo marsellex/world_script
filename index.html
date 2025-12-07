@@ -1164,6 +1164,9 @@
               <button id="pf-edit-toggle-btn" class="btn btn-sm" style="display:none;">
                 ✏️ Редактировать
               </button>
+              <button id="create-personal-btn" class="btn btn-sm" style="margin-top:4px; display:none;">
+                ➕ Создать личное дело
+              </button>
             </div>
           </div>
 
@@ -1748,6 +1751,25 @@ if (captainExamBtn) {
     );
   });
 }
+
+if (createPersonalBtn) {
+  createPersonalBtn.onclick = () => {
+    if (!currentUser) return;
+    currentFileId = null;
+    currentFileOwnerId = currentUser.id;
+    currentFileEditable = true;
+
+    fillPersonalForm(null, true);  // включаем редактирование
+    pfEditMode = true;
+    if (pfForm) pfForm.style.display = "block";
+    if (pfView) pfView.style.display = "none";
+    if (pfEditToggleBtn) {
+      pfEditToggleBtn.style.display = "inline-block";
+      pfEditToggleBtn.textContent = "⬅ Вернуться к просмотру";
+    }
+  };
+}
+
 
 /* =============== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ АВТОРИЗАЦИИ =============== */
 
@@ -3544,6 +3566,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
