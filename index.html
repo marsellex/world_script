@@ -454,11 +454,13 @@
     /* ---------- Главная ---------- */
 
     .home-actions {
-      margin-top: 14px;
+      margin-top: 16px;
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
+      justify-content: center; /* центрируем */
     }
+
 
     /* ---------- Личные дела ---------- */
 
@@ -1093,16 +1095,21 @@
     
       <div class="nav-right">
         <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную панель</button>
-    
-        <div class="top-user">
+      
+        <div class="top-user" id="top-user">
           <div class="top-avatar" id="top-avatar">PP</div>
           <div>
             <div class="top-name" id="top-nick">Офицер</div>
             <div class="top-role" id="top-role">Роль</div>
           </div>
         </div>
-    
-        <button class="btn-outline btn-sm" id="logout-btn">Выйти</button>
+      
+        <!-- Для гостя -->
+        <button class="btn-outline btn-sm" id="login-open-btn" style="display:none;">Войти</button>
+        <button class="btn btn-sm" id="register-open-btn" style="display:none;">Зарегистрироваться</button>
+      
+        <!-- Для авторизованного -->
+        <button class="btn-outline btn-sm" id="logout-btn" style="display:none;">Выйти</button>
       </div>
     </div>
 
@@ -1119,11 +1126,14 @@
       </small>
 
       <div class="home-actions">
-        <button id="download-binder-btn" class="btn">⬇ Скачать биндер</button>
-        <button id="open-files-from-home" class="btn-outline">Личные дела</button>
-        <button id="open-rookie-modal" class="btn-outline">Начать обучаться игре за полицейского</button>
+        <!-- 3 самых важных, все по центру и крупные -->
         <button id="btn-rookie-test" class="btn-critical">Сдать зачёт рядового</button>
-        <button id="btn-captain-exam" class="btn-glow">Сдать экзамен Капитана</button>
+        <button id="download-binder-btn" class="btn">⬇ Скачать биндер</button>
+        <button id="open-rookie-modal" class="btn-glow">Начать обучаться игре за полицейского</button>
+      
+        <!-- остальные, второстепенные -->
+        <button id="open-files-from-home" class="btn-outline">Личные дела</button>
+        <button id="btn-captain-exam" class="btn-outline">Сдать экзамен Капитана</button>
       </div>
     </section>
 
@@ -1699,6 +1709,10 @@ const captainExamBtn = document.getElementById("btn-captain-exam");
 const navLeadershipBtn = document.getElementById("nav-leadership");
 const adminNavbar = document.getElementById("admin-navbar");
 const leadershipContainer = document.getElementById("leadership-container");
+const loginOpenBtn = document.getElementById("login-open-btn");
+const registerOpenBtn = document.getElementById("register-open-btn");
+const topUserBox = document.getElementById("top-user");
+
 
 /* элементы панели темы */
 const creatorThemePanel = document.getElementById("creator-theme-panel");
@@ -1750,6 +1764,35 @@ document.getElementById("to-register").onclick = () => {
   loginScreen.classList.remove("active");
   regScreen.classList.add("active");
 };
+
+function showAuth(mode) {
+  if (panelRoot) panelRoot.style.display = "none";
+  if (authRoot) authRoot.style.display = "block";
+
+  if (mode === "login") {
+    regScreen.classList.remove("active");
+    loginScreen.classList.add("active");
+  } else {
+    loginScreen.classList.remove("active");
+    regScreen.classList.add("active");
+  }
+}
+
+if (loginOpenBtn) {
+  loginOpenBtn.onclick = () => showAuth("login");
+}
+if (registerOpenBtn) {
+  registerOpenBtn.onclick = () => showAuth("register");
+}
+
+function enterGuestMode() {
+  currentUser = null;
+  if (authRoot) authRoot.style.display = "none";
+  if (panelRoot) panelRoot.style.display = "block";
+  refreshTopBar();
+  switchSection("home");
+}
+
 
 /* =============== РЕГИСТРАЦИЯ =============== */
 
@@ -1861,38 +1904,29 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 /* =============== ТОП-БАР + ПАНЕЛЬ =============== */
 
 function updateAdminTexts() {
-  if (!currentUser) return;
+  if (!adminNavbar) return;
+
+  if (!currentUser) {
+    adminNavbar.style.display = "none";
+    return;
+  }
+
   const hasAdminPanelAccess =
     currentUser.role === "admin" ||
     currentUser.role === "moderator" ||
     currentUser.role === "creator";
 
-  if (adminNavbar) {
-    adminNavbar.style.display = hasAdminPanelAccess ? "flex" : "none";
-  }
+  adminNavbar.style.display = hasAdminPanelAccess ? "flex" : "none";
 }
 
-function refreshTopBar() {
-  if (!currentUser) return;
-  topNick.textContent = currentUser.nick || "Офицер";
-  topRole.textContent = roleLabel(currentUser.role || "user");
 
-  topAvatar.innerHTML = "";
-  topAvatar.style.borderColor = currentUser.border_color || "#374151";
-  if (currentUser.avatar_url) {
-    const img = document.createElement("img");
-    img.src = currentUser.avatar_url;
-    topAvatar.appendChild(img);
-  } else {
-    topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
-  }
-
-  updateAdminTexts();
-}
-
+refreshTopBar
 async function loadPanelUI(user) {
-  authRoot.style.display = "none";
-  panelRoot.style.display = "block";
+  currentUser = user || null;
+
+  if (authRoot) authRoot.style.display = "none";
+  if (panelRoot) panelRoot.style.display = "block";
+
   refreshTopBar();
 
   await loadThemeFromDB();
@@ -1902,6 +1936,7 @@ async function loadPanelUI(user) {
 
   switchSection("home");
 }
+
 
 /* восстановление сессии */
 window.addEventListener("load", async () => {
@@ -1913,8 +1948,11 @@ window.addEventListener("load", async () => {
   if (session) {
     currentUser = session;
     loadPanelUI(session);
+  } else {
+    enterGuestMode();
   }
 });
+
 
 /* выход */
 document.getElementById("logout-btn").onclick = () => {
@@ -2183,8 +2221,6 @@ if (pfEditToggleBtn) {
 }
 
 async function loadPersonalFiles() {
-  if (!currentUser) return;
-
   filesListEl.textContent = "Загрузка списка личных дел...";
 
   const { data, error } = await supabaseClient
@@ -2206,37 +2242,42 @@ async function loadPersonalFiles() {
   if (!personalFilesCache.length) {
     filesListEl.textContent = "Пока нет ни одного личного дела.";
     currentFileId = null;
-    currentFileOwnerId = currentUser.id;
+    currentFileOwnerId = currentUser ? currentUser.id : null;
     currentFileEditable = false;
     fillPersonalForm(null, false);
-
+  
     if (pfRepliesList) {
-      pfRepliesList.textContent = "Сначала создайте и сохраните личное дело.";
+      pfRepliesList.textContent = "Сначала выберите личное дело слева.";
     }
     if (pfRepliesFormWrapper) {
       pfRepliesFormWrapper.style.display = "none";
     }
-
-    // позволяем создать своё дело
+  
+    // создать дело можно только авторизованному
     if (createPersonalBtn) {
-      createPersonalBtn.style.display = "inline-block";
+      createPersonalBtn.style.display = currentUser ? "inline-block" : "none";
     }
     return;
   }
 
+
   // ===== есть дела – рисуем список =====
   filesListEl.innerHTML = "";
 
-  const hasMyFile = personalFilesCache.some((f) => f.user_id === currentUser.id);
+  const hasMyFile = currentUser
+    ? personalFilesCache.some((f) => f.user_id === currentUser.id)
+    : false;
+  
   if (createPersonalBtn) {
-    createPersonalBtn.style.display = hasMyFile ? "none" : "inline-block";
+    // гость не видит кнопку
+    createPersonalBtn.style.display = currentUser && !hasMyFile ? "inline-block" : "none";
   }
 
   const myFiles = personalFilesCache.filter(
-    (f) => f.user_id === currentUser.id
+  (f) => currentUser && f.user_id === currentUser.id
   );
   const others = personalFilesCache
-    .filter((f) => f.user_id !== currentUser.id)
+    .filter((f) => !currentUser || f.user_id !== currentUser.id)
     .sort((a, b) =>
       (a.forum_nick || "").localeCompare(b.forum_nick || "", "ru")
     );
@@ -2385,6 +2426,7 @@ function isAdminLike(user) {
     user.role === "creator"
   );
 }
+
 
 async function loadPersonalReplies(fileId) {
   if (!pfRepliesList) return;
@@ -3466,5 +3508,6 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
