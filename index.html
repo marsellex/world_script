@@ -857,13 +857,6 @@
       }
     }
     /* --- Главная панель: важные кнопки --- */
-
-    .home-actions {
-      margin-top: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
     
     .btn-critical {
       padding: 12px 18px;
@@ -1712,6 +1705,8 @@ const leadershipContainer = document.getElementById("leadership-container");
 const loginOpenBtn = document.getElementById("login-open-btn");
 const registerOpenBtn = document.getElementById("register-open-btn");
 const topUserBox = document.getElementById("top-user");
+const logoutBtn = document.getElementById("logout-btn");
+
 
 
 /* элементы панели темы */
@@ -1919,8 +1914,49 @@ function updateAdminTexts() {
   adminNavbar.style.display = hasAdminPanelAccess ? "flex" : "none";
 }
 
+function refreshTopBar() {
+  if (!topNick || !topRole || !topAvatar) return;
 
-refreshTopBar
+  // Гость
+  if (!currentUser) {
+    topNick.textContent = "Гость";
+    topRole.textContent = "Нажмите «Войти» или «Зарегистрироваться»";
+
+    topAvatar.innerHTML = "PP";
+    topAvatar.style.borderColor = "#374151";
+
+    if (topUserBox) topUserBox.style.display = "flex";
+    if (loginOpenBtn) loginOpenBtn.style.display = "inline-block";
+    if (registerOpenBtn) registerOpenBtn.style.display = "inline-block";
+    if (logoutBtn) logoutBtn.style.display = "none";
+
+    updateAdminTexts();
+    return;
+  }
+
+  // Авторизованный
+  topNick.textContent = currentUser.nick || "Офицер";
+  topRole.textContent = roleLabel(currentUser.role || "user");
+
+  topAvatar.innerHTML = "";
+  topAvatar.style.borderColor = currentUser.border_color || "#374151";
+  if (currentUser.avatar_url) {
+    const img = document.createElement("img");
+    img.src = currentUser.avatar_url;
+    topAvatar.appendChild(img);
+  } else {
+    topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
+  }
+
+  if (topUserBox) topUserBox.style.display = "flex";
+  if (loginOpenBtn) loginOpenBtn.style.display = "none";
+  if (registerOpenBtn) registerOpenBtn.style.display = "none";
+  if (logoutBtn) logoutBtn.style.display = "inline-block";
+
+  updateAdminTexts();
+}
+
+
 async function loadPanelUI(user) {
   currentUser = user || null;
 
@@ -3508,6 +3544,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
