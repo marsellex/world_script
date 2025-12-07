@@ -2242,6 +2242,24 @@ const pfReplySendBtn = document.getElementById("pf-reply-send");
 
 const themeFaviconInput = document.getElementById("theme-favicon");
 const themeSiteTitleInput = document.getElementById("theme-site-title");
+const examAdminPanel = document.getElementById("exam-admin-panel");
+const examAdminTypeSelect = document.getElementById("exam-admin-type");
+const examAdminNewBtn = document.getElementById("exam-admin-new");
+const examAdminForm = document.getElementById("exam-admin-form");
+const examQuestionText = document.getElementById("exam-question-text");
+const examOptionA = document.getElementById("exam-option-a");
+const examOptionB = document.getElementById("exam-option-b");
+const examOptionC = document.getElementById("exam-option-c");
+const examOptionD = document.getElementById("exam-option-d");
+const examCorrectOption = document.getElementById("exam-correct-option");
+const examImageInput = document.getElementById("exam-image-input");
+const examAdminCancel = document.getElementById("exam-admin-cancel");
+const examAdminSave = document.getElementById("exam-admin-save");
+const examAdminList = document.getElementById("exam-admin-list");
+
+let examAdminCurrentId = null;
+let examAdminImageData = null;
+
 
 let pfEditMode = false;
 
@@ -3766,26 +3784,6 @@ async function loadExamHistory(type) {
   }
 }
 
-
-/* EXAM ADMIN DOM: DOM-ссылки и переменные ДОЛЖНЫ идти ВЫШЕ, чем они используются */
-const examAdminPanel = document.getElementById("exam-admin-panel");
-const examAdminTypeSelect = document.getElementById("exam-admin-type");
-const examAdminNewBtn = document.getElementById("exam-admin-new");
-const examAdminForm = document.getElementById("exam-admin-form");
-const examQuestionText = document.getElementById("exam-question-text");
-const examOptionA = document.getElementById("exam-option-a");
-const examOptionB = document.getElementById("exam-option-b");
-const examOptionC = document.getElementById("exam-option-c");
-const examOptionD = document.getElementById("exam-option-d");
-const examCorrectOption = document.getElementById("exam-correct-option");
-const examImageInput = document.getElementById("exam-image-input");
-const examAdminCancel = document.getElementById("exam-admin-cancel");
-const examAdminSave = document.getElementById("exam-admin-save");
-const examAdminList = document.getElementById("exam-admin-list");
-
-let examAdminCurrentId = null;
-let examAdminImageData = null;
-
 async function loadAdminPanel() {
   if (!currentUser) {
     adminUsersListEl.textContent = "Вы не авторизованы.";
@@ -4758,6 +4756,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
