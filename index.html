@@ -29,6 +29,124 @@
     .admin-navbar {
       justify-content: flex-start;
     }
+
+    .exam-history-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+    
+    .exam-history-card {
+      background: var(--bg);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .exam-history-nick {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .exam-history-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .exam-history-status {
+      font-size: 12px;
+    }
+    
+    .exam-history-status.passed {
+      color: var(--success);
+    }
+    
+    .exam-history-status.failed {
+      color: var(--danger);
+    }
+    
+    .exam-history-comment {
+      font-size: 12px;
+    }
+    
+    .exam-history-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    
+    .exam-history-images img {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      cursor: zoom-in;
+    }
+    
+    @media (max-width: 900px) {
+      .exam-history-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 600px) {
+      .exam-history-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    
+    .exam-question-text {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .exam-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    
+    .exam-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+    }
+    
+    .exam-image {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      cursor: zoom-in;
+    }
+    
+    .exam-image-large {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    
+    .exam-image-large img {
+      max-width: 95vw;
+      max-height: 95vh;
+      border-radius: 12px;
+    }
+
+    
     /* --- Read-only карточка личного дела --- */
 
     #personal-view {
@@ -1357,7 +1475,20 @@
       </div>
 
     </section>
-
+    <section id="section-exams" class="section">
+      <h2>История экзаменов и резюме</h2>
+      <p>Здесь отображаются твои попытки сдачи экзаменов и поданные электронные резюме.</p>
+    
+      <div style="margin-top:10px; margin-bottom:10px; display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-outline btn-sm exam-history-tab" data-type="rookie">Зачёт рядового</button>
+        <button class="btn-outline btn-sm exam-history-tab" data-type="captain">Экзамен капитана</button>
+        <button class="btn-outline btn-sm exam-history-tab" data-type="resume">Электронное резюме</button>
+      </div>
+    
+      <div id="exam-history-list" class="exam-history-grid">
+        Авторизуйтесь, чтобы увидеть историю.
+      </div>
+    </section>
     <section id="section-leadership" class="section">
       <h2>Руководство PD</h2>
       <p>
@@ -1541,6 +1672,63 @@
           Это будет заголовок вкладки браузера
         </div>
       </div>
+              <!-- Управление вопросами экзаменов -->
+      <div id="exam-admin-panel" style="margin-top:16px; display:none;">
+        <h3 style="font-size:16px; margin-bottom:6px;">Вопросы экзаменов</h3>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">
+          Модераторы и выше могут добавлять, редактировать и удалять вопросы для зачёта рядового и экзамена капитана.
+        </p>
+      
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+          <select id="exam-admin-type" class="admin-select" style="min-width:160px;">
+            <option value="rookie">Зачёт рядового</option>
+            <option value="captain">Экзамен капитана</option>
+          </select>
+          <button id="exam-admin-new" class="btn btn-sm">➕ Новый вопрос</button>
+        </div>
+      
+        <div id="exam-admin-form" class="card" style="display:none; padding:10px; margin-bottom:10px;">
+          <div class="field">
+            <label for="exam-question-text">Текст вопроса</label>
+            <textarea id="exam-question-text" rows="3"></textarea>
+          </div>
+      
+          <div class="field">
+            <label>Варианты ответа</label>
+            <input id="exam-option-a" type="text" placeholder="Вариант A" style="margin-bottom:4px;">
+            <input id="exam-option-b" type="text" placeholder="Вариант B" style="margin-bottom:4px;">
+            <input id="exam-option-c" type="text" placeholder="Вариант C" style="margin-bottom:4px;">
+            <input id="exam-option-d" type="text" placeholder="Вариант D">
+          </div>
+      
+          <div class="field">
+            <label for="exam-correct-option">Правильный вариант</label>
+            <select id="exam-correct-option" class="admin-select" style="width:auto;">
+              <option value="">Не выбран</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+      
+          <div class="field">
+            <label for="exam-image-input">Картинка к вопросу (по желанию)</label>
+            <input id="exam-image-input" type="file" accept="image/*">
+            <div class="hint">Картинка будет сохранена в базе как base64. При клике в экзамене увеличивается.</div>
+          </div>
+      
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+            <button id="exam-admin-cancel" class="btn-outline btn-sm">Отмена</button>
+            <button id="exam-admin-save" class="btn btn-sm">💾 Сохранить вопрос</button>
+          </div>
+        </div>
+      
+        <div id="exam-admin-list" class="admin-users-list" style="margin-top:0;">
+          Загрузка вопросов...
+        </div>
+      </div>
+
 
         <button id="theme-save-btn" class="btn btn-sm">💾 Сохранить оформление</button>
       </div>
@@ -1628,6 +1816,20 @@
       </div>
     </div>
   </div>
+
+    <!-- ============ МОДАЛКА: ЭКЗАМЕН ============ -->
+  <div id="exam-modal" class="modal-backdrop">
+    <div class="modal" style="max-width:640px;">
+      <h3 id="exam-title">Экзамен</h3>
+      <div id="exam-question-body" style="margin-top:8px;"></div>
+  
+      <div class="modal-footer" id="exam-footer">
+        <button class="btn-outline btn-sm" id="exam-cancel-btn">Выйти</button>
+        <button class="btn btn-sm" id="exam-next-btn">Дальше</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- ============ МОДАЛКА: ДОБАВИТЬ / НАСТРОИТЬ ПОЛЬЗОВАТЕЛЯ (АДМИН) ============ -->
   <div id="admin-add-modal" class="modal-backdrop">
@@ -2043,6 +2245,118 @@ const themeSiteTitleInput = document.getElementById("theme-site-title");
 
 let pfEditMode = false;
 
+if (examAdminTypeSelect) {
+  examAdminTypeSelect.onchange = () => {
+    examAdminCurrentId = null;
+    examAdminForm.style.display = "none";
+    loadExamQuestionsForAdmin();
+  };
+}
+
+if (examAdminNewBtn) {
+  examAdminNewBtn.onclick = () => {
+    examAdminCurrentId = null;
+    examQuestionText.value = "";
+    examOptionA.value = "";
+    examOptionB.value = "";
+    examOptionC.value = "";
+    examOptionD.value = "";
+    examCorrectOption.value = "";
+    examImageInput.value = "";
+    examAdminImageData = null;
+    examAdminForm.style.display = "block";
+  };
+}
+
+if (examAdminCancel) {
+  examAdminCancel.onclick = () => {
+    examAdminForm.style.display = "none";
+    examAdminCurrentId = null;
+  };
+}
+
+if (examImageInput) {
+  examImageInput.onchange = () => {
+    const file = examImageInput.files[0];
+    if (!file) {
+      examAdminImageData = null;
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      examAdminImageData = reader.result;
+    };
+    reader.onerror = () => {
+      showErrorModal("Не удалось прочитать файл картинки вопроса.");
+    };
+    reader.readAsDataURL(file);
+  };
+}
+
+if (examAdminSave) {
+  examAdminSave.onclick = async () => {
+    const examType = examAdminTypeSelect.value;
+    const text = examQuestionText.value.trim();
+    const a = examOptionA.value.trim();
+    const b = examOptionB.value.trim();
+    const c = examOptionC.value.trim();
+    const d = examOptionD.value.trim();
+    const correct = examCorrectOption.value;
+
+    if (!text) {
+      showErrorModal("Введите текст вопроса.");
+      return;
+    }
+
+    const hasAnyOption = a || b || c || d;
+    if (!hasAnyOption) {
+      showErrorModal("Добавьте хотя бы один вариант ответа.");
+      return;
+    }
+
+    if (!correct) {
+      showErrorModal("Выберите правильный вариант.");
+      return;
+    }
+
+    const payload = {
+      exam_type: examType,
+      question_text: text,
+      option_a: a || null,
+      option_b: b || null,
+      option_c: c || null,
+      option_d: d || null,
+      correct_option: correct,
+      image_data: examAdminImageData,
+    };
+
+    let err = null;
+    if (examAdminCurrentId) {
+      const { error } = await supabaseClient
+        .from("exam_questions")
+        .update(payload)
+        .eq("id", examAdminCurrentId);
+      err = error;
+    } else {
+      const { error } = await supabaseClient
+        .from("exam_questions")
+        .insert(payload);
+      err = error;
+    }
+
+    if (err) {
+      console.error(err);
+      showErrorModal("Ошибка сохранения вопроса.");
+      return;
+    }
+
+    examAdminForm.style.display = "none";
+    examAdminCurrentId = null;
+    await loadExamQuestionsForAdmin();
+  };
+}
+
+
 if (joinPdBtn) {
   joinPdBtn.addEventListener("click", () => {
     showErrorModal(
@@ -2055,12 +2369,10 @@ if (joinPdBtn) {
 
 if (rookieTestBtn) {
   rookieTestBtn.addEventListener("click", () => {
-    showErrorModal(
-      "Переход на сдачу зачёта рядового ещё не настроен. " +
-      "Администратор позже может привязать сюда ссылку или отдельную страницу."
-    );
+    startExam("rookie");
   });
 }
+
 
 if (captainExamBtn) {
   captainExamBtn.addEventListener("click", () => {
@@ -2070,6 +2382,223 @@ if (captainExamBtn) {
     );
   });
 }
+
+/* =============== ЭКЗАМЕНЫ (ЗАЧЁТ РЯДОВОГО) =============== */
+
+const examModal = document.getElementById("exam-modal");
+const examTitleEl = document.getElementById("exam-title");
+const examBodyEl = document.getElementById("exam-question-body");
+const examNextBtn = document.getElementById("exam-next-btn");
+const examCancelBtn = document.getElementById("exam-cancel-btn");
+
+let currentExamState = null; 
+// { type: 'rookie', questions: [...], index: 0, answers: ['A', 'C', ...] }
+
+function closeExamModal() {
+  examModal.classList.remove("active");
+  currentExamState = null;
+}
+
+if (examCancelBtn) {
+  examCancelBtn.onclick = () => {
+    if (confirm("Вы уверены, что хотите выйти из экзамена? Прогресс не сохранится.")) {
+      closeExamModal();
+    }
+  };
+}
+
+function renderExamQuestion() {
+  if (!currentExamState || !examBodyEl) return;
+
+  const { questions, index } = currentExamState;
+  const q = questions[index];
+  if (!q) return;
+
+  examBodyEl.innerHTML = "";
+
+  const container = document.createElement("div");
+
+  // картинка, если есть
+  if (q.image_data) {
+    const img = document.createElement("img");
+    img.src = q.image_data;
+    img.className = "exam-image";
+    img.onclick = () => {
+      const overlay = document.createElement("div");
+      overlay.className = "exam-image-large";
+      const bigImg = document.createElement("img");
+      bigImg.src = q.image_data;
+      overlay.appendChild(bigImg);
+      overlay.onclick = () => document.body.removeChild(overlay);
+      document.body.appendChild(overlay);
+    };
+    container.appendChild(img);
+  }
+
+  const qText = document.createElement("div");
+  qText.className = "exam-question-text";
+  qText.textContent = `Вопрос ${index + 1} из ${questions.length}: ${q.question_text}`;
+  container.appendChild(qText);
+
+  const optionsWrap = document.createElement("div");
+  optionsWrap.className = "exam-options";
+
+  const options = [
+    { key: "A", label: q.option_a },
+    { key: "B", label: q.option_b },
+    { key: "C", label: q.option_c },
+    { key: "D", label: q.option_d },
+  ].filter((o) => o.label && o.label.trim() !== "");
+
+  if (!options.length) {
+    const warn = document.createElement("div");
+    warn.style.color = "#fbbf24";
+    warn.style.fontSize = "13px";
+    warn.textContent = "⚠ Для этого вопроса администратор ещё не добавил варианты ответа.";
+    optionsWrap.appendChild(warn);
+  } else {
+    options.forEach((opt, idx) => {
+      const row = document.createElement("label");
+      row.className = "exam-option";
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "exam-option";
+      input.value = opt.key;
+
+      const saved = currentExamState.answers[index];
+      if (saved === opt.key) input.checked = true;
+
+      const span = document.createElement("span");
+      span.textContent = opt.label;
+
+      row.appendChild(input);
+      row.appendChild(span);
+      optionsWrap.appendChild(row);
+    });
+  }
+
+  container.appendChild(optionsWrap);
+  examBodyEl.appendChild(container);
+
+  examNextBtn.textContent =
+    index === questions.length - 1 ? "Завершить" : "Дальше";
+}
+
+function collectCurrentAnswer() {
+  if (!currentExamState) return;
+
+  const { index } = currentExamState;
+  const checked = examBodyEl.querySelector("input[name='exam-option']:checked");
+  if (checked) {
+    currentExamState.answers[index] = checked.value;
+  }
+}
+
+async function finishExam() {
+  collectCurrentAnswer();
+
+  const { questions, answers, type } = currentExamState;
+
+  let score = 0;
+  questions.forEach((q, i) => {
+    if (answers[i] && q.correct_option && answers[i] === q.correct_option) {
+      score++;
+    }
+  });
+
+  const total = questions.length || 1;
+  const passed = score >= Math.ceil(total * 0.7); // 70%
+
+  if (currentUser) {
+    const { error } = await supabaseClient
+      .from("exam_attempts")
+      .insert({
+        user_id: currentUser.id,
+        exam_type: type,
+        score,
+        total_questions: total,
+        passed,
+      });
+
+    if (error) {
+      console.error(error);
+      showErrorModal("Экзамен проверен, но не удалось сохранить результат в историю.");
+    }
+  }
+
+  closeExamModal();
+
+  const statusText = passed ? "Сдано ✅" : "Не сдано ❌";
+  showErrorModal(
+    `Зачёт рядового завершён.\n\n` +
+    `Результат: ${statusText}\n` +
+    `Набрано баллов: ${score} из ${total} (${Math.round((score / total) * 100)}%)`
+  );
+}
+
+if (examNextBtn) {
+  examNextBtn.onclick = async () => {
+    if (!currentExamState) return;
+
+    collectCurrentAnswer();
+
+    if (!currentExamState.answers[currentExamState.index]) {
+      if (!confirm("Вы не выбрали вариант ответа. Перейти дальше?")) {
+        return;
+      }
+    }
+
+    if (currentExamState.index === currentExamState.questions.length - 1) {
+      await finishExam();
+    } else {
+      currentExamState.index++;
+      renderExamQuestion();
+    }
+  };
+}
+
+async function startExam(examType) {
+  if (!currentUser) {
+    showErrorModal("Чтобы сдавать экзамен, нужно войти в аккаунт.");
+    return;
+  }
+
+  const titleMap = {
+    rookie: "Зачёт рядового",
+    captain: "Экзамен капитана",
+  };
+
+  examTitleEl.textContent = titleMap[examType] || "Экзамен";
+
+  const { data, error } = await supabaseClient
+    .from("exam_questions")
+    .select("*")
+    .eq("exam_type", examType)
+    .order("id", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    showErrorModal("Не удалось загрузить вопросы экзамена.");
+    return;
+  }
+
+  if (!data || !data.length) {
+    showErrorModal("Для этого экзамена ещё не добавлены вопросы.");
+    return;
+  }
+
+  currentExamState = {
+    type: examType,
+    questions: data,
+    index: 0,
+    answers: new Array(data.length).fill(null),
+  };
+
+  examModal.classList.add("active");
+  renderExamQuestion();
+}
+
 
 /* =============== ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ АВТОРИЗАЦИИ =============== */
 
@@ -2221,10 +2750,24 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 // Кнопки на боковой панели (пока заглушки)
 document.querySelectorAll(".side-nav-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
+    const id = btn.id;
+
+    if (id === "side-exams") {
+      if (!currentUser) {
+        showErrorModal("Чтобы смотреть историю сдачи экзаменов и резюме, войдите в аккаунт.");
+        return;
+      }
+      switchSection("exams");
+      loadExamHistory("rookie");
+      return;
+    }
+
+    // остальные боковые пункты пока заглушки
     const text = btn.innerText.trim();
     showErrorModal(`Раздел «${text}» пока не настроен. Позже сюда можно повесить ссылки или отдельные страницы.`);
   });
 });
+
 
 
 /* =============== ТОП-БАР + ПАНЕЛЬ =============== */
@@ -2333,7 +2876,8 @@ document.getElementById("logout-btn").onclick = () => {
 /* =============== НАВИГАЦИЯ РАЗДЕЛОВ =============== */
 
 function switchSection(name) {
-  const sections = ["home", "files", "leadership", "officers", "admin"];
+  const sections = ["home", "files", "leadership", "officers", "admin", "exams"];
+}
 
   sections.forEach((sec) => {
     const sectionEl = document.getElementById(`section-${sec}`);
@@ -3028,6 +3572,120 @@ function leadershipPriority(user) {
   if (s === "Генерал LSPD" || s === "Генерал SFPD" || s === "Генерал LVPD") return 3;
   return 4;
 }
+
+async function loadExamQuestionsForAdmin() {
+  if (!examAdminList) return;
+  const examType = examAdminTypeSelect.value;
+
+  examAdminList.textContent = "Загрузка вопросов...";
+
+  const { data, error } = await supabaseClient
+    .from("exam_questions")
+    .select("*")
+    .eq("exam_type", examType)
+    .order("id", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    examAdminList.textContent = "Ошибка загрузки вопросов.";
+    return;
+  }
+
+  if (!data || !data.length) {
+    examAdminList.textContent = "Вопросов пока нет. Нажмите «Новый вопрос».";
+    return;
+  }
+
+  examAdminList.innerHTML = "";
+
+  data.forEach((q) => {
+    const card = document.createElement("div");
+    card.className = "admin-user-card";
+
+    const main = document.createElement("div");
+    main.className = "admin-user-main";
+    main.style.gridColumn = "1 / -1";
+
+    const title = document.createElement("div");
+    title.style.fontSize = "13px";
+    title.style.marginBottom = "4px";
+    title.textContent = q.question_text;
+
+    const meta = document.createElement("div");
+    meta.className = "admin-user-meta";
+    meta.textContent = `Правильный ответ: ${q.correct_option || "не указан"}`;
+
+    main.appendChild(title);
+    main.appendChild(meta);
+
+    if (q.image_data) {
+      const img = document.createElement("img");
+      img.src = q.image_data;
+      img.style.maxWidth = "120px";
+      img.style.maxHeight = "80px";
+      img.style.borderRadius = "6px";
+      img.style.border = "1px solid var(--border)";
+      img.style.marginTop = "4px";
+      img.style.cursor = "zoom-in";
+      img.onclick = () => {
+        const overlay = document.createElement("div");
+        overlay.className = "exam-image-large";
+        const bigImg = document.createElement("img");
+        bigImg.src = q.image_data;
+        overlay.appendChild(bigImg);
+        overlay.onclick = () => document.body.removeChild(overlay);
+        document.body.appendChild(overlay);
+      };
+      main.appendChild(img);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "admin-user-actions";
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn-outline btn-sm";
+    editBtn.type = "button";
+    editBtn.textContent = "Редактировать";
+    editBtn.onclick = () => {
+      examAdminCurrentId = q.id;
+      examQuestionText.value = q.question_text || "";
+      examOptionA.value = q.option_a || "";
+      examOptionB.value = q.option_b || "";
+      examOptionC.value = q.option_c || "";
+      examOptionD.value = q.option_d || "";
+      examCorrectOption.value = q.correct_option || "";
+      examAdminImageData = q.image_data || null;
+      examImageInput.value = "";
+      examAdminForm.style.display = "block";
+    };
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn-outline btn-sm";
+    delBtn.type = "button";
+    delBtn.textContent = "Удалить";
+    delBtn.onclick = async () => {
+      if (!confirm("Удалить этот вопрос?")) return;
+      const { error: delError } = await supabaseClient
+        .from("exam_questions")
+        .delete()
+        .eq("id", q.id);
+      if (delError) {
+        console.error(delError);
+        showErrorModal("Не удалось удалить вопрос.");
+        return;
+      }
+      await loadExamQuestionsForAdmin();
+    };
+
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    main.appendChild(actions);
+
+    card.appendChild(main);
+    examAdminList.appendChild(card);
+  });
+}
+
   
 async function loadAdminPanel() {
   if (!currentUser) {
@@ -3035,6 +3693,105 @@ async function loadAdminPanel() {
     if (adminAddBtn) adminAddBtn.style.display = "none";
     return;
   }
+
+const examHistoryList = document.getElementById("exam-history-list");
+const examHistoryTabs = document.querySelectorAll(".exam-history-tab");
+
+if (examHistoryTabs) {
+  examHistoryTabs.forEach((btn) => {
+    btn.onclick = () => {
+      const type = btn.dataset.type;
+      examHistoryTabs.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadExamHistory(type);
+    };
+  });
+}
+
+async function loadExamHistory(type) {
+  if (!examHistoryList) return;
+  if (!currentUser) {
+    examHistoryList.textContent = "Авторизуйтесь, чтобы увидеть историю.";
+    return;
+  }
+
+  examHistoryList.textContent = "Загрузка...";
+
+  if (type === "rookie" || type === "captain") {
+    const { data, error } = await supabaseClient
+      .from("exam_attempts")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .eq("exam_type", type)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      examHistoryList.textContent = "Ошибка загрузки истории.";
+      return;
+    }
+
+    if (!data || !data.length) {
+      examHistoryList.textContent = "Пока нет попыток сдачи этого экзамена.";
+      return;
+    }
+
+    examHistoryList.innerHTML = "";
+    data.forEach((row) => {
+      const card = document.createElement("div");
+      card.className = "exam-history-card";
+
+      const nickEl = document.createElement("div");
+      nickEl.className = "exam-history-nick";
+      nickEl.textContent = currentUser.nick;
+
+      const meta = document.createElement("div");
+      meta.className = "exam-history-meta";
+      meta.textContent = new Date(row.created_at).toLocaleString();
+
+      const status = document.createElement("div");
+      status.className = "exam-history-status " + (row.passed ? "passed" : "failed");
+      status.textContent = row.passed ? "Сдано" : "Не сдано";
+
+      const score = document.createElement("div");
+      score.className = "exam-history-meta";
+      score.textContent = `Набрано баллов: ${row.score} / ${row.total_questions}`;
+
+      card.appendChild(nickEl);
+      card.appendChild(meta);
+      card.appendChild(status);
+      card.appendChild(score);
+
+      examHistoryList.appendChild(card);
+    });
+
+    return;
+  }
+
+  if (type === "resume") {
+    // пока только заглушка — каркас под будущую таблицу резюме
+    examHistoryList.textContent = "История электронных резюме будет добавлена позже.";
+  }
+}
+
+    /* EXAM ADMIN DOM */
+  const examAdminPanel = document.getElementById("exam-admin-panel");
+  const examAdminTypeSelect = document.getElementById("exam-admin-type");
+  const examAdminNewBtn = document.getElementById("exam-admin-new");
+  const examAdminForm = document.getElementById("exam-admin-form");
+  const examQuestionText = document.getElementById("exam-question-text");
+  const examOptionA = document.getElementById("exam-option-a");
+  const examOptionB = document.getElementById("exam-option-b");
+  const examOptionC = document.getElementById("exam-option-c");
+  const examOptionD = document.getElementById("exam-option-d");
+  const examCorrectOption = document.getElementById("exam-correct-option");
+  const examImageInput = document.getElementById("exam-image-input");
+  const examAdminCancel = document.getElementById("exam-admin-cancel");
+  const examAdminSave = document.getElementById("exam-admin-save");
+  const examAdminList = document.getElementById("exam-admin-list");
+  
+  let examAdminCurrentId = null; // редактируемый вопрос или null
+  let examAdminImageData = null; // base64 картинки
 
   const isAdminOrMod =
     currentUser.role === "admin" ||
@@ -3084,6 +3841,13 @@ async function loadAdminPanel() {
 
   adminUsersCache = arr;
   renderAdminUsers();
+  // Показ / скрытие панели вопросов
+  if (examAdminPanel) {
+    examAdminPanel.style.display = isAdminOrMod ? "block" : "none";
+    if (isAdminOrMod) {
+      loadExamQuestionsForAdmin();
+    }
+  }
 }
 
 async function updateUserFields(userId, patch) {
@@ -3934,6 +4698,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
