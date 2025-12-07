@@ -371,6 +371,97 @@
       align-items: center;
       gap: 8px;
     }
+    /* ===== Макет панели: слева навигация, справа контент ===== */
+
+    #panel-layout {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    
+    /* Левая вертикальная панель */
+    
+    .side-nav-panel {
+      width: 230px;
+      flex-shrink: 0;
+      padding: 12px;
+      background: rgba(15,23,42,0.9);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .side-nav-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    
+    .side-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      text-align: left;
+    }
+    
+    .side-nav-btn:hover {
+      background: var(--accent-hover);
+      transform: translateX(2px);
+      box-shadow: 0 6px 14px rgba(15,23,42,0.9);
+    }
+    
+    .side-nav-icon {
+      width: 22px;
+      display: flex;
+      justify-content: center;
+      font-size: 15px;
+    }
+    
+    /* Правая часть */
+    .panel-main {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    /* Адаптив: на телефонах боковая панель уходит вверх и становится горизонтальной прокруткой */
+    @media (max-width: 900px) {
+      #panel-layout {
+        flex-direction: column;
+      }
+    
+      .side-nav-panel {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        align-items: center;
+      }
+    
+      .side-nav-title {
+        margin-bottom: 0;
+        margin-right: 8px;
+        white-space: nowrap;
+      }
+    
+      .side-nav-btn {
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+    }
+
 
     .top-user {
       display: flex;
@@ -456,10 +547,24 @@
     .home-actions {
       margin-top: 16px;
       display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    
+    .home-primary-row {
+      display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      justify-content: center; /* центрируем */
+      justify-content: center;
     }
+    
+    .home-secondary-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
 
 
     /* ---------- Личные дела ---------- */
@@ -917,6 +1022,62 @@
         box-shadow: 0 0 0 2px rgba(96,165,250,0.9), 0 14px 24px rgba(15,23,42,1);
       }
     }
+
+    /* Большие круглые кнопки с "антигравитацией" при наведении */
+
+    .btn-circle {
+      padding: 16px 26px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 10px 18px rgba(15,23,42,0.9);
+      border: none;
+      cursor: pointer;
+      transition: filter 0.15s, box-shadow 0.15s;
+    }
+    
+    /* Цвета для разных кнопок */
+    .btn-circle.btn-critical {
+      /* базовый цвет берём из критической, но можно чуть донастроить */
+      background: #b91c1c;
+      color: #f9fafb;
+    }
+    
+    .btn-circle.btn-join {
+      background: #1d4ed8;
+      color: #e5e7eb;
+    }
+    
+    .btn-circle.btn-download {
+      background: #065f46;
+      color: #e5e7eb;
+    }
+    
+    /* "Плавающая" анимация при наведении */
+    @keyframes floaty-btn {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+      25% {
+        transform: translate(3px, -4px) scale(1.03);
+      }
+      50% {
+        transform: translate(-3px, -2px) scale(1.04);
+      }
+      75% {
+        transform: translate(2px, -5px) scale(1.03);
+      }
+      100% {
+        transform: translate(-2px, -7px) scale(1.05);
+      }
+    }
+    
+    .btn-circle:hover {
+      animation: floaty-btn 1.6s ease-in-out infinite alternate;
+      filter: brightness(1.08);
+      box-shadow: 0 14px 26px rgba(15,23,42,1);
+    }
+
     
     /* --- Круглые карточки: Министр + Генералы + Руководство --- */
     
@@ -1079,34 +1240,81 @@
     <div class="navbar admin-navbar" id="admin-navbar" style="display:none; margin-top:8px;">
       <button class="nav-btn" id="nav-admin">Админ панель</button>
     </div>
-    <!-- Навбар -->
-    <div class="navbar">
-      <button class="nav-btn active" id="nav-home">Главная</button>
-      <button class="nav-btn" id="nav-files">Личные дела</button>
-      <button class="nav-btn" id="nav-leadership">Руководство PD</button>
-      <button class="nav-btn" id="nav-officers">Офицеры</button>
-    
-      <div class="nav-right">
-        <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную панель</button>
-      
-        <div class="top-user" id="top-user">
-          <div class="top-avatar" id="top-avatar">PP</div>
-          <div>
-            <div class="top-name" id="top-nick">Офицер</div>
-            <div class="top-role" id="top-role">Роль</div>
+  <!-- ОБЁРТКА: слева боковая панель, справа – всё остальное -->
+    <div id="panel-layout">
+      <!-- ЛЕВАЯ ПАНЕЛЬ -->
+      <aside class="side-nav-panel">
+        <h3 class="side-nav-title">Навигация PD</h3>
+  
+        <button class="side-nav-btn" id="side-exams">
+          <span class="side-nav-icon">📘</span>
+          <span>История сдачи экзаменов</span>
+        </button>
+  
+        <button class="side-nav-btn" id="side-forum">
+          <span class="side-nav-icon">💬</span>
+          <span>Раздел PD на форуме</span>
+        </button>
+  
+        <button class="side-nav-btn" id="side-binders">
+          <span class="side-nav-icon">📂</span>
+          <span>Все биндеры</span>
+        </button>
+  
+        <button class="side-nav-btn" id="side-handbook">
+          <span class="side-nav-icon">📖</span>
+          <span>Большой справочник</span>
+        </button>
+  
+        <button class="side-nav-btn" id="side-blacklist">
+          <span class="side-nav-icon">⛔</span>
+          <span>Чёрный список PD</span>
+        </button>
+  
+        <button class="side-nav-btn" id="side-news">
+          <span class="side-nav-icon">📰</span>
+          <span>Новости и обновления</span>
+        </button>
+  
+        <button class="side-nav-btn" id="side-swat">
+          <span class="side-nav-icon">🛡️</span>
+          <span>SWAT</span>
+        </button>
+  
+        <button class="side-nav-btn" id="side-thefts">
+          <span class="side-nav-icon">🚔</span>
+          <span>Угоны</span>
+        </button>
+      </aside>
+  
+      <!-- ПРАВАЯ ЧАСТЬ: верхний навбар + секции -->
+      <div class="panel-main">
+        <!-- Навбар -->
+        <div class="navbar">
+          <button class="nav-btn active" id="nav-home">Главная</button>
+          <button class="nav-btn" id="nav-files">Личные дела</button>
+          <button class="nav-btn" id="nav-leadership">Руководство PD</button>
+          <button class="nav-btn" id="nav-officers">Офицеры</button>
+        
+          <div class="nav-right">
+            <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную панель</button>
+          
+            <div class="top-user" id="top-user">
+              <div class="top-avatar" id="top-avatar">PP</div>
+              <div>
+                <div class="top-name" id="top-nick">Офицер</div>
+                <div class="top-role" id="top-role">Роль</div>
+              </div>
+            </div>
+          
+            <!-- Для гостя -->
+            <button class="btn-outline btn-sm" id="login-open-btn" style="display:none;">Войти</button>
+            <button class="btn btn-sm" id="register-open-btn" style="display:none;">Зарегистрироваться</button>
+          
+            <!-- Для авторизованного -->
+            <button class="btn-outline btn-sm" id="logout-btn" style="display:none;">Выйти</button>
           </div>
         </div>
-      
-        <!-- Для гостя -->
-        <button class="btn-outline btn-sm" id="login-open-btn" style="display:none;">Войти</button>
-        <button class="btn btn-sm" id="register-open-btn" style="display:none;">Зарегистрироваться</button>
-      
-        <!-- Для авторизованного -->
-        <button class="btn-outline btn-sm" id="logout-btn" style="display:none;">Выйти</button>
-      </div>
-    </div>
-
-
     <!-- Главная -->
     <section id="section-home" class="section active">
       <h2>Главная панель</h2>
@@ -1119,15 +1327,35 @@
       </small>
 
       <div class="home-actions">
-        <!-- 3 самых важных, все по центру и крупные -->
-        <button id="btn-rookie-test" class="btn-critical">Сдать зачёт рядового</button>
-        <button id="download-binder-btn" class="btn">⬇ Скачать биндер</button>
-        <button id="open-rookie-modal" class="btn-glow">Начать обучаться игре за полицейского</button>
+        <!-- Верхний ряд: три большие круглые кнопки -->
+        <div class="home-primary-row">
+          <button id="btn-rookie-test" class="btn-circle btn-critical">
+            Сдать зачёт рядового
+          </button>
       
-        <!-- остальные, второстепенные -->
-        <button id="open-files-from-home" class="btn-outline">Личные дела</button>
-        <button id="btn-captain-exam" class="btn-outline">Сдать экзамен Капитана</button>
+          <button id="btn-join-pd" class="btn-circle btn-join">
+            Вступить в PD
+          </button>
+      
+          <button id="download-binder-btn" class="btn-circle btn-download">
+            Скачать биндер
+          </button>
+        </div>
+      
+        <!-- Нижний ряд: стандартные кнопки -->
+        <div class="home-secondary-row">
+          <button id="open-rookie-modal" class="btn-glow">
+            Начать обучаться игре за полицейского
+          </button>
+          <button id="open-files-from-home" class="btn-outline">
+            Личные дела
+          </button>
+          <button id="btn-captain-exam" class="btn-outline">
+            Сдать экзамен Капитана
+          </button>
+        </div>
       </div>
+
     </section>
 
     <section id="section-leadership" class="section">
@@ -1786,6 +2014,10 @@ const loginOpenBtn = document.getElementById("login-open-btn");
 const registerOpenBtn = document.getElementById("register-open-btn");
 const topUserBox = document.getElementById("top-user");
 const logoutBtn = document.getElementById("logout-btn");
+const rookieTestBtn = document.getElementById("btn-rookie-test");
+const captainExamBtn = document.getElementById("btn-captain-exam");
+const joinPdBtn = document.getElementById("btn-join-pd");
+
 
 
 
@@ -1812,7 +2044,16 @@ const themeFaviconInput = document.getElementById("theme-favicon");
 const themeSiteTitleInput = document.getElementById("theme-site-title");
 
 let pfEditMode = false;
-  
+
+if (joinPdBtn) {
+  joinPdBtn.addEventListener("click", () => {
+    showErrorModal(
+      "Переход в раздел «Вступить в PD» ещё не настроен. " +
+      "Позже сюда можно добавить ссылку на форум или форму подачи заявки."
+    );
+  });
+}
+
 
 if (rookieTestBtn) {
   rookieTestBtn.addEventListener("click", () => {
@@ -1978,6 +2219,15 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   saveSession(data);
   loadPanelUI(data);
 });
+
+// Кнопки на боковой панели (пока заглушки)
+document.querySelectorAll(".side-nav-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const text = btn.innerText.trim();
+    showErrorModal(`Раздел «${text}» пока не настроен. Позже сюда можно повесить ссылки или отдельные страницы.`);
+  });
+});
+
 
 /* =============== ТОП-БАР + ПАНЕЛЬ =============== */
 
@@ -3686,6 +3936,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
