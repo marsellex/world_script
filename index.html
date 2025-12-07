@@ -2877,8 +2877,7 @@ document.getElementById("logout-btn").onclick = () => {
 
 function switchSection(name) {
   const sections = ["home", "files", "leadership", "officers", "admin", "exams"];
-}
-
+  
   sections.forEach((sec) => {
     const sectionEl = document.getElementById(`section-${sec}`);
     if (sectionEl) sectionEl.classList.remove("active");
@@ -3686,14 +3685,6 @@ async function loadExamQuestionsForAdmin() {
   });
 }
 
-  
-async function loadAdminPanel() {
-  if (!currentUser) {
-    adminUsersListEl.textContent = "Вы не авторизованы.";
-    if (adminAddBtn) adminAddBtn.style.display = "none";
-    return;
-  }
-
 const examHistoryList = document.getElementById("exam-history-list");
 const examHistoryTabs = document.querySelectorAll(".exam-history-tab");
 
@@ -3750,7 +3741,8 @@ async function loadExamHistory(type) {
       meta.textContent = new Date(row.created_at).toLocaleString();
 
       const status = document.createElement("div");
-      status.className = "exam-history-status " + (row.passed ? "passed" : "failed");
+      status.className =
+        "exam-history-status " + (row.passed ? "passed" : "failed");
       status.textContent = row.passed ? "Сдано" : "Не сдано";
 
       const score = document.createElement("div");
@@ -3769,8 +3761,69 @@ async function loadExamHistory(type) {
   }
 
   if (type === "resume") {
-    // пока только заглушка — каркас под будущую таблицу резюме
-    examHistoryList.textContent = "История электронных резюме будет добавлена позже.";
+    examHistoryList.textContent =
+      "История электронных резюме будет добавлена позже.";
+  }
+}
+
+async function loadAdminPanel() {
+  if (!currentUser) {
+    adminUsersListEl.textContent = "Вы не авторизованы.";
+    if (adminAddBtn) adminAddBtn.style.display = "none";
+    return;
+  }
+
+  examHistoryList.textContent = "Загрузка...";
+
+  if (type === "rookie" || type === "captain") {
+    const { data, error } = await supabaseClient
+      .from("exam_attempts")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .eq("exam_type", type)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      examHistoryList.textContent = "Ошибка загрузки истории.";
+      return;
+    }
+
+    if (!data || !data.length) {
+      examHistoryList.textContent = "Пока нет попыток сдачи этого экзамена.";
+      return;
+    }
+
+    examHistoryList.innerHTML = "";
+    data.forEach((row) => {
+      const card = document.createElement("div");
+      card.className = "exam-history-card";
+
+      const nickEl = document.createElement("div");
+      nickEl.className = "exam-history-nick";
+      nickEl.textContent = currentUser.nick;
+
+      const meta = document.createElement("div");
+      meta.className = "exam-history-meta";
+      meta.textContent = new Date(row.created_at).toLocaleString();
+
+      const status = document.createElement("div");
+      status.className = "exam-history-status " + (row.passed ? "passed" : "failed");
+      status.textContent = row.passed ? "Сдано" : "Не сдано";
+
+      const score = document.createElement("div");
+      score.className = "exam-history-meta";
+      score.textContent = `Набрано баллов: ${row.score} / ${row.total_questions}`;
+
+      card.appendChild(nickEl);
+      card.appendChild(meta);
+      card.appendChild(status);
+      card.appendChild(score);
+
+      examHistoryList.appendChild(card);
+    });
+
+    return;
   }
 }
 
@@ -4698,6 +4751,7 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
 
 
