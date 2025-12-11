@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Police Platinum — Рейтинг лидеров</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-card: rgba(15, 23, 42, 0.95);
+      --bg-card-soft: rgba(15, 23, 42, 0.8);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --accent-pink: #ec4899;
+      --accent-purple: #8b5cf6;
+      --accent-green: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 18px 12px 24px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* ===== Верхняя панель ===== */
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #f97316, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 0 20px rgba(59,130,246,0.6);
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .topbar-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+
+    .btn:hover {
+      background: #1f2937;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(15,23,42,0.8);
+    }
+
+    .top-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .top-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .top-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .top-name {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .top-role {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ===== Карточка рейтинга ===== */
+
+    .rating-card {
+      background: linear-gradient(145deg, rgba(15,23,42,0.98), #020617);
+      border-radius: 24px;
+      border: 1px solid rgba(148,163,184,0.25);
+      padding: 18px 20px 18px;
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,1),
+        0 28px 60px rgba(15,23,42,0.9);
+    }
+
+    /* Tabs */
+
+    .rating-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .rating-tab {
+      position: relative;
+      padding: 10px 26px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #0f172a, #020617);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 0 1px rgba(55,65,81,0.8);
+      overflow: hidden;
+    }
+
+    .rating-tab-icon {
+      font-size: 16px;
+    }
+
+    .rating-tab.active {
+      color: #f9fafb;
+      background: radial-gradient(circle at 10% 0, #f97316, #ec4899 40%, #6366f1 100%);
+      box-shadow:
+        0 0 0 1px rgba(248,250,252,0.3),
+        0 0 40px rgba(236,72,153,0.9);
+    }
+
+    .rating-tab.active::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.24), transparent 55%);
+      pointer-events: none;
+    }
+
+    .rating-date {
+      text-align: center;
+      font-size: 14px;
+      padding: 6px 0 4px;
+      color: var(--muted);
+    }
+
+    .rating-date span {
+      color: #e5e7eb;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    /* List */
+
+    .leaders-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .leaders-empty {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 32px 12px;
+    }
+
+    .leader-card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid rgba(15,23,42,1);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+
+    .leader-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .leader-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .leader-place {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .leader-place-1 { color: #facc15; }
+    .leader-place-2 { color: #e5e7eb; }
+    .leader-place-3 { color: #fb923c; }
+
+    .leader-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 20px;
+      padding: 2px;
+      background: linear-gradient(130deg, #ec4899, #6366f1);
+      cursor: default;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .leader-avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .leader-avatar-inner img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .leader-avatar-editable {
+      cursor: pointer;
+    }
+
+    .leader-avatar-editable::after {
+      content: "✎";
+      position: absolute;
+      bottom: 4px;
+      right: 6px;
+      font-size: 13px;
+      background: rgba(15,23,42,0.85);
+      border-radius: 999px;
+      padding: 1px 6px;
+      border: 1px solid rgba(148,163,184,0.9);
+      color: #e5e7eb;
+    }
+
+    .leader-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .leader-nick {
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: 0.01em;
+    }
+
+    .leader-account {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .leader-score {
+      text-align: right;
+      min-width: 80px;
+    }
+
+    .leader-score-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: #f472b6;
+    }
+
+    .leader-score-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .leader-edit-btn {
+      margin-top: 4px;
+      align-self: flex-end;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .leader-edit-btn:hover {
+      background: #1f2937;
+      color: var(--text);
+    }
+
+    .leader-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* Статус для админов */
+
+    .admin-chip {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+    }
+
+    .admin-chip.admin {
+      border-color: #4ade80;
+      color: #bbf7d0;
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .leader-row {
+        align-items: flex-start;
+      }
+
+      .leader-score {
+        text-align: left;
+      }
+
+      .leader-score-value {
+        font-size: 22px;
+      }
+
+      .leader-card {
+        padding: 10px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- ===== Верхняя панель ===== -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo-circle">PP</div>
+      <div>
+        <div class="topbar-title">Рейтинг лидеров</div>
+        <div class="topbar-sub">Статистика активности игроков</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="top-user" id="top-user">
+        <div class="top-avatar" id="top-avatar">P</div>
+        <div>
+          <div class="top-name" id="top-nick">Гость</div>
+          <div class="top-role" id="top-role">Авторизуйтесь на основной панели</div>
+        </div>
+      </div>
+      <a href="index.html" class="btn">⟵ На главную панель</a>
+    </div>
+  </header>
+
+  <!-- ===== Основной блок рейтинга ===== -->
+  <main class="rating-card">
+    <div class="rating-tabs">
+      <button class="rating-tab active" data-period="day" id="tab-day">
+        <span class="rating-tab-icon">💖</span>
+        <span>Статистика дня</span>
+      </button>
+      <button class="rating-tab" data-period="week" id="tab-week">
+        <span class="rating-tab-icon">💚</span>
+        <span>Статистика недели</span>
+      </button>
+    </div>
+
+    <div class="rating-date">
+      Дата: <span id="leaders-date-label">—</span>
+    </div>
+
+    <section id="leaders-list" class="leaders-list">
+      <div class="leaders-empty">Загрузка рейтинга...</div>
+    </section>
+
+    <div class="leader-hint" id="admin-hint" style="display:none;">
+      Администраторы и выше могут кликать по аватарке, чтобы сменить её, и
+      использовать кнопку «Редактировать» для изменения никнейма и аккаунта.
+    </div>
+  </main>
+</div>
+
+<!-- Supabase JS -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+  /* =============== НАСТРОЙКА SUPABASE =============== */
+
+  const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
+
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* =============== УТИЛИТЫ / СЕССИЯ =============== */
+
+  function loadSession() {
+    try {
+      return JSON.parse(localStorage.getItem("pp_user"));
+    } catch {
+      return null;
+    }
+  }
+
+  function roleLabel(role) {
+    if (role === "admin") return "Администратор";
+    if (role === "moderator") return "Модератор";
+    if (role === "creator") return "Редактор";
+    return "Офицер";
+  }
+
+  function isAdminLike(user) {
+    if (!user) return false;
+    return (
+      user.role === "admin" ||
+      user.role === "moderator" ||
+      user.role === "creator"
+    );
+  }
+
+  /* =============== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =============== */
+
+  let currentUser = null;
+  let leadersCurrentPeriod = "day";
+
+  const topNick = document.getElementById("top-nick");
+  const topRole = document.getElementById("top-role");
+  const topAvatar = document.getElementById("top-avatar");
+  const leadersListEl = document.getElementById("leaders-list");
+  const leadersDateLabel = document.getElementById("leaders-date-label");
+  const adminHint = document.getElementById("admin-hint");
+
+  const tabDay = document.getElementById("tab-day");
+  const tabWeek = document.getElementById("tab-week");
+
+  function refreshTopBar() {
+    if (!topNick || !topRole || !topAvatar) return;
+
+    if (!currentUser) {
+      topNick.textContent = "Гость";
+      topRole.textContent = "Авторизуйтесь на основной панели";
+      topAvatar.innerHTML = "PP";
+      topAvatar.style.borderColor = "#1f2937";
+      return;
+    }
+
+    topNick.textContent = currentUser.nick || "Офицер";
+    topRole.textContent = roleLabel(currentUser.role || "user");
+    topAvatar.innerHTML = "";
+    topAvatar.style.borderColor = currentUser.border_color || "#374151";
+
+    if (currentUser.avatar_url) {
+      const img = document.createElement("img");
+      img.src = currentUser.avatar_url;
+      topAvatar.appendChild(img);
+    } else {
+      topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
+    }
+
+    adminHint.style.display = isAdminLike(currentUser) ? "block" : "none";
+  }
+
+  /* =============== РЕЙТИНГ: ОТРИСОВКА =============== */
+
+  function renderLeaderCard(row, index) {
+    const isAdmin = isAdminLike(currentUser);
+
+    const card = document.createElement("div");
+    card.className = "leader-card";
+
+    const rowEl = document.createElement("div");
+    rowEl.className = "leader-row";
+
+    const left = document.createElement("div");
+    left.className = "leader-left";
+
+    // место
+    const place = document.createElement("div");
+    place.className = "leader-place leader-place-" + (index + 1);
+    if (index === 0) place.textContent = "🏆";
+    else if (index === 1) place.textContent = "🥈";
+    else if (index === 2) place.textContent = "🥉";
+    else place.textContent = index + 1;
+
+    // аватарка
+    const avatarWrap = document.createElement("div");
+    avatarWrap.className = "leader-avatar";
+
+    const avatarInner = document.createElement("div");
+    avatarInner.className = "leader-avatar-inner";
+
+    const img = document.createElement("img");
+    img.src = row.avatar_url || "";
+    img.alt = row.nick || "avatar";
+
+    avatarInner.appendChild(img);
+    avatarWrap.appendChild(avatarInner);
+
+    if (isAdmin) {
+      avatarWrap.classList.add("leader-avatar-editable");
+      avatarWrap.addEventListener("click", () => {
+        openAvatarFileDialog(row);
+      });
+
+      // drag & drop
+      avatarWrap.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        avatarWrap.style.outline = "2px dashed rgba(148,163,184,0.9)";
+      });
+      avatarWrap.addEventListener("dragleave", () => {
+        avatarWrap.style.outline = "none";
+      });
+      avatarWrap.addEventListener("drop", (e) => {
+        e.preventDefault();
+        avatarWrap.style.outline = "none";
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) handleAvatarFile(file, row);
+      });
+    }
+
+    // основной текст
+    const main = document.createElement("div");
+    main.className = "leader-main";
+
+    const nickEl = document.createElement("div");
+    nickEl.className = "leader-nick";
+    nickEl.textContent = row.nick || "Игрок";
+
+    const accEl = document.createElement("div");
+    accEl.className = "leader-account";
+    accEl.textContent = row.account_number
+      ? `[${row.account_number}]`
+      : "[номер не указан]";
+
+    main.appendChild(nickEl);
+    main.appendChild(accEl);
+
+    left.appendChild(place);
+    left.appendChild(avatarWrap);
+    left.appendChild(main);
+
+    // очки
+    const scoreWrap = document.createElement("div");
+    scoreWrap.className = "leader-score";
+
+    const scoreValue = document.createElement("div");
+    scoreValue.className = "leader-score-value";
+    scoreValue.textContent = row.score ?? 0;
+
+    const scoreLabel = document.createElement("div");
+    scoreLabel.className = "leader-score-label";
+    scoreLabel.textContent = "АШ"; // вместо АО
+
+    scoreWrap.appendChild(scoreValue);
+    scoreWrap.appendChild(scoreLabel);
+
+    rowEl.appendChild(left);
+    rowEl.appendChild(scoreWrap);
+    card.appendChild(rowEl);
+
+    // кнопка редактирования только для админов/выше
+    if (isAdmin) {
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "leader-edit-btn";
+      editBtn.textContent = "Редактировать";
+
+      editBtn.onclick = () => editLeaderRow(row);
+
+      card.appendChild(editBtn);
+    }
+
+    return card;
+  }
+
+  /* =============== РЕЙТИНГ: ЗАГРУЗКА =============== */
+
+  async function loadLeaders(period) {
+    if (!leadersListEl) return;
+    leadersCurrentPeriod = period || leadersCurrentPeriod;
+
+    leadersListEl.innerHTML = '<div class="leaders-empty">Загрузка рейтинга...</div>';
+
+    const { data, error } = await supabaseClient
+      .from("leaders_rating")
+      .select("*")
+      .eq("period", leadersCurrentPeriod)
+      .order("score", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      leadersListEl.innerHTML = '<div class="leaders-empty">Ошибка загрузки рейтинга.</div>';
+      return;
+    }
+
+    if (!data || !data.length) {
+      leadersListEl.innerHTML = '<div class="leaders-empty">Записей рейтинга пока нет.</div>';
+      leadersDateLabel.textContent = "—";
+      return;
+    }
+
+    // дата из первой записи
+    const d = data[0].stat_date ? new Date(data[0].stat_date) : null;
+    leadersDateLabel.textContent = d ? d.toLocaleDateString("ru-RU") : "—";
+
+    leadersListEl.innerHTML = "";
+    data.forEach((row, index) => {
+      leadersListEl.appendChild(renderLeaderCard(row, index));
+    });
+  }
+
+  /* =============== РЕДАКТИРОВАНИЕ АВАТАРКИ =============== */
+
+  function openAvatarFileDialog(row) {
+    if (!isAdminLike(currentUser)) return;
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = () => {
+      const file = input.files[0];
+      if (!file) return;
+      handleAvatarFile(file, row);
+    };
+
+    input.click();
+  }
+
+  function handleAvatarFile(file, row) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result;
+
+      const { error } = await supabaseClient
+        .from("leaders_rating")
+        .update({ avatar_url: dataUrl })
+        .eq("id", row.id);
+
+      if (error) {
+        console.error(error);
+        alert("Не удалось обновить аватарку лидера.");
+        return;
+      }
+
+      await loadLeaders(leadersCurrentPeriod);
+    };
+    reader.onerror = () => {
+      alert("Не удалось прочитать файл аватарки.");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* =============== РЕДАКТИРОВАНИЕ НИКА / АККАУНТА =============== */
+
+  async function editLeaderRow(row) {
+    if (!isAdminLike(currentUser)) return;
+
+    const newNick = prompt("Новый никнейм:", row.nick || "");
+    if (newNick === null) return;
+
+    const newAcc = prompt("Новый номер аккаунта:", row.account_number || "");
+    if (newAcc === null) return;
+
+    const patch = {
+      nick: newNick.trim() || row.nick,
+      account_number: newAcc.trim() || row.account_number
+    };
+
+    const { error } = await supabaseClient
+      .from("leaders_rating")
+      .update(patch)
+      .eq("id", row.id);
+
+    if (error) {
+      console.error(error);
+      alert("Не удалось сохранить изменения по лидеру.");
+      return;
+    }
+
+    await loadLeaders(leadersCurrentPeriod);
+  }
+
+  /* =============== ИНИЦИАЛИЗАЦИЯ =============== */
+
+  function initTabs() {
+    if (!tabDay || !tabWeek) return;
+
+    function setActiveTab(period) {
+      [tabDay, tabWeek].forEach((btn) => btn.classList.remove("active"));
+      if (period === "day") tabDay.classList.add("active");
+      else tabWeek.classList.add("active");
+    }
+
+    tabDay.onclick = () => {
+      setActiveTab("day");
+      loadLeaders("day");
+    };
+
+    tabWeek.onclick = () => {
+      setActiveTab("week");
+      loadLeaders("week");
+    };
+  }
+
+  window.addEventListener("load", async () => {
+    currentUser = loadSession();
+    refreshTopBar();
+    initTabs();
+    await loadLeaders("day");
+  });
+</script>
+</body>
+</html>
