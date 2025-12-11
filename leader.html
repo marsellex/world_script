@@ -894,64 +894,79 @@
     };
   }
 
-  if (editSaveBtn) {
-    editSaveBtn.onclick = async () => {
-      if (!isAdminLike(currentUser)) {
+if (editSaveBtn) {
+  editSaveBtn.onclick = async () => {
+    // 1. Проверяем права
+    if (!isAdminLike(currentUser)) {
+      showErrorModal(
+        "Редактирование доступно только администраторам, модераторам и создателям (creator)."
+      );
+      return;
+    }
+
+    // 2. Собираем данные из формы
+    const dept = editDept.value || "LSPD";
+    const nick = editNick.value.trim();
+    const account = editAccount.value.trim();
+    let pts = parseInt(editPoints.value, 10);
+    if (isNaN(pts) || pts < 0) pts = 0;
+
+    if (!nick || !account) {
+      editError.style.display = "block";
+      editError.textContent = "Ник и номер аккаунта обязательны.";
+      return;
+    }
+    editError.style.display = "none";
+
+    const payload = {
+      period: currentPeriod,      // "day" или "week"
+      department: dept,          // LSPD / SFPD / LVPD
+      nick,
+      account_id: account,
+      points: pts,
+    };
+
+    if (editingAvatarData) {
+      payload.avatar_url = editingAvatarData;
+    }
+
+    try {
+      let resp;
+
+      if (editingRowId) {
+        // Обновляем существующего лидера
+        resp = await supabaseClient
+          .from("leader_stats")
+          .update(payload)
+          .eq("id", editingRowId)
+          .select("*")
+          .single();
+      } else {
+        // Создаём нового лидера
+        resp = await supabaseClient
+          .from("leader_stats")
+          .insert(payload)
+          .select("*")
+          .single();
+      }
+
+      if (resp.error) {
+        console.error("Supabase error on save leader:", resp.error);
         showErrorModal(
-          "Редактирование доступно только администраторам, модераторам и редакторам."
+          "Ошибка сохранения лидера: " + (resp.error.message || "см. консоль браузера")
         );
         return;
       }
 
-      const dept = editDept.value || "LSPD";
-      const nick = editNick.value.trim();
-      const account = editAccount.value.trim();
-      let pts = parseInt(editPoints.value, 10);
-      if (isNaN(pts) || pts < 0) pts = 0;
-
-      if (!nick || !account) {
-        editError.style.display = "block";
-        editError.textContent = "Ник и номер аккаунта обязательны.";
-        return;
-      }
-      editError.style.display = "none";
-
-      const payload = {
-        period: currentPeriod,
-        department: dept,
-        nick,
-        account_id: account,
-        points: pts,
-      };
-
-      if (editingAvatarData) {
-        payload.avatar_url = editingAvatarData;
-      }
-
-      let error = null;
-      if (editingRowId) {
-        const { error: updError } = await supabaseClient
-          .from("leader_stats")
-          .update(payload)
-          .eq("id", editingRowId);
-        error = updError;
-      } else {
-        const { error: insError } = await supabaseClient
-          .from("leader_stats")
-          .insert(payload);
-        error = insError;
-      }
-
-      if (error) {
-        console.error(error);
-        showErrorModal("Ошибка сохранения лидера.");
-        return;
-      }
-
+      // всё ок
       closeEditModal();
       await loadLeaders(currentPeriod);
-    };
-  }
+    } catch (e) {
+      console.error("Unexpected error on save leader:", e);
+      showErrorModal("Неожиданная ошибка при сохранении лидера (см. консоль браузера).");
+    }
+  };
+}
 
   function attachAvatarHandlers(avatarEl, row) {
     if (!isAdminLike(currentUser)) return;
