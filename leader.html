@@ -2,21 +2,22 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Police Platinum — Рейтинг лидеров</title>
+  <title>Рейтинг лидеров PD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     :root {
-      --bg: #020617;
-      --bg-soft: #020617;
-      --bg-card: #020617;
-      --border: #1e293b;
+      --bg: #0b1220;
+      --bg-light: #111827;
+      --bg-lighter: #1f2937;
       --text: #e5e7eb;
       --muted: #9ca3af;
-      --accent-pink: #ec4899;
-      --accent-green: #22c55e;
-      --accent-blue: #6366f1;
-      --danger: #f97373;
+      --border: #374151;
+      --accent: #2563eb;
+      --accent-hover: #3b82f6;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --input-bg: #020617;
     }
 
     * {
@@ -27,9 +28,9 @@
     }
 
     body {
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      background: #0f172a;
       color: var(--text);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -40,9 +41,10 @@
       position: fixed;
       inset: 0;
       z-index: -1;
+      background: #0f172a;
       overflow: hidden;
-      background: radial-gradient(circle at top, #111827 0, #020617 55%);
     }
+
     #bg-rotator img {
       position: absolute;
       inset: 0;
@@ -53,320 +55,208 @@
       transition: opacity 1s ease-in-out;
       pointer-events: none;
     }
+
     #bg-rotator img.active {
       opacity: 1;
     }
 
     #app {
       width: 100%;
-      max-width: 1200px;
+      max-width: 900px;
     }
 
     a {
-      color: var(--accent-pink);
+      color: var(--accent-hover);
       text-decoration: none;
     }
     a:hover {
       text-decoration: underline;
     }
 
-    /* ---------- Общие элементы ---------- */
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      padding: 4px 10px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #cbd5f5;
-    }
-
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
       padding: 8px 16px;
+      background: var(--accent);
+      color: var(--text);
       border-radius: 999px;
       border: 1px solid var(--border);
-      background: linear-gradient(135deg, #1f2937, #020617);
-      color: var(--text);
       font-size: 14px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(15, 23, 42, 0.8);
-      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
-      text-decoration: none;
-      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.7);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     }
     .btn:hover {
+      background: var(--accent-hover);
       transform: translateY(-1px);
-      filter: brightness(1.05);
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.95);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
     }
+
+    .btn-outline {
+      padding: 8px 16px;
+      background: var(--bg-lighter);
+      color: var(--text);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.6);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+    .btn-outline:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
+    }
+
     .btn-sm {
       padding: 4px 10px;
       font-size: 12px;
-    }
-    .btn-primary {
-      background: radial-gradient(circle at top, #ec4899 0, #6366f1 70%);
-      border-color: rgba(248, 250, 252, 0.2);
-    }
-    .btn-outline {
-      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
     }
 
     .card {
-      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.12) 0, rgba(15, 23, 42, 0.96) 50%, #020617 100%);
-      border-radius: 24px;
+      background: var(--bg-light);
+      border-radius: 10px;
       border: 1px solid var(--border);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.8);
     }
 
-    /* ---------- Верхняя панель ---------- */
-
-    .topbar {
+    /* Верхняя панель */
+    .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 12px 18px;
-      border-radius: 18px;
-      margin-bottom: 14px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(8, 47, 73, 0.98));
-      box-shadow:
-        0 0 0 1px rgba(15, 23, 42, 0.9),
-        0 16px 40px rgba(15, 23, 42, 0.9);
+      margin-bottom: 12px;
+      gap: 8px;
     }
 
-    .topbar-left {
+    .top-bar-title {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .top-bar-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .top-bar-left {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
     }
 
-    .logo-circle {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 0, #f97316 0, #e11d48 35%, #0ea5e9 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 17px;
-      color: #0f172a;
-      box-shadow: 0 0 18px rgba(236, 72, 153, 0.9);
-    }
-
-    .topbar-title {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .topbar-sub {
+    .user-tag {
       font-size: 12px;
       color: var(--muted);
     }
 
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .top-user {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .top-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      background: #020617;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .top-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .top-name {
-      font-size: 13px;
-      color: var(--text);
-    }
-    .top-role {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    /* ---------- Хиро ---------- */
-
-    .hero {
-      margin-bottom: 16px;
-      padding: 12px 18px;
-      border-radius: 20px;
-      background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.16), rgba(15, 23, 42, 0.96));
-      border: 1px solid rgba(248, 250, 252, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
-    }
-
-    .hero-main {
+    /* Лидеры (3 плашки сверху вниз) */
+    .leaders-wrapper {
+      margin-top: 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-    }
-
-    .hero-title {
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    .hero-sub {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .hero-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    /* ---------- Лидеры департаментов ---------- */
-
-    .leaders-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 22px;
-    }
-
-    @media (max-width: 900px) {
-      .leaders-grid {
-        grid-template-columns: 1fr;
-      }
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .topbar-right {
-        align-self: stretch;
-        justify-content: space-between;
-      }
-      .hero {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      gap: 10px;
     }
 
     .leader-card {
       position: relative;
-      padding: 16px 16px 14px;
-      border-radius: 24px;
-      background:
-        radial-gradient(circle at top left, rgba(236, 72, 153, 0.18), rgba(15, 23, 42, 0.98)),
-        radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.18), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(148, 163, 184, 0.55);
-      box-shadow:
-        0 0 0 1px rgba(15, 23, 42, 0.9),
-        0 18px 40px rgba(15, 23, 42, 0.95);
-      overflow: hidden;
-    }
-
-    .leader-card-header {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
     }
 
-    .leader-dept-badge {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 4px 10px;
+    .leader-rank-badge {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
+      border: 1px solid rgba(249, 250, 251, 0.08);
       background: rgba(15, 23, 42, 0.9);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-    }
-    .leader-dept-badge span {
-      opacity: 0.85;
+      gap: 4px;
     }
 
-    .leader-card-body {
+    .leader-rank-badge span.place-number {
+      font-size: 13px;
+    }
+
+    .leader-rank-1 .leader-rank-badge {
+      border-color: #facc15;
+      color: #facc15;
+    }
+
+    .leader-rank-2 .leader-rank-badge {
+      border-color: #9ca3af;
+      color: #e5e7eb;
+    }
+
+    .leader-rank-3 .leader-rank-badge {
+      border-color: #f97316;
+      color: #fed7aa;
+    }
+
+    .leader-main-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .leader-avatar {
       width: 64px;
       height: 64px;
       border-radius: 50%;
-      border: 2px solid rgba(251, 191, 36, 0.9);
-      background: radial-gradient(circle at top, #0f172a 0, #020617 100%);
+      border: 2px solid var(--border);
+      background: var(--bg-lighter);
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 22px;
       overflow: hidden;
       flex-shrink: 0;
-      font-size: 20px;
-      font-weight: 600;
-      color: #fbbf24;
       position: relative;
-      transition: box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
     }
+
     .leader-avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    /* подсветка, что можно редактировать аватарку */
     .leader-avatar-editable {
       cursor: pointer;
+      border-style: dashed;
     }
+
     .leader-avatar-editable::after {
-      content: "Изм.";
+      content: "✎";
       position: absolute;
       bottom: -2px;
       right: -2px;
-      font-size: 9px;
-      padding: 2px 4px;
+      width: 18px;
+      height: 18px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(248, 250, 252, 0.4);
-      color: #e5e7eb;
-    }
-    .leader-avatar.drag-over {
-      border-color: #22c55e;
-      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
-      transform: translateY(-1px) scale(1.02);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .leader-main {
+    .leader-avatar.drag-over {
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.8);
+    }
+
+    .leader-info-block {
       flex: 1;
       min-width: 0;
     }
@@ -374,258 +264,185 @@
     .leader-nick {
       font-size: 16px;
       font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      margin-bottom: 2px;
     }
 
     .leader-account {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .leader-empty {
       font-size: 13px;
       color: var(--muted);
-      margin-top: 2px;
     }
 
-    .leader-score {
+    .leader-dept-tag {
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      margin-top: 4px;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .leader-score-block {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
+      justify-content: center;
       gap: 2px;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
 
-    .leader-points {
-      font-size: 26px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #f97316, #ec4899, #6366f1);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 18px rgba(236, 72, 153, 0.5);
-    }
-
-    .leader-points-label {
+    .score-label {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #c4b5fd;
-    }
-
-    .leader-footer {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
       color: var(--muted);
     }
 
-    .leader-updated {
-      opacity: 0.8;
+    .score-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .leader-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
     }
 
     .leader-actions {
       display: flex;
-      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 6px;
     }
 
-    /* ---------- Статистика ---------- */
+    .leader-empty-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    /* Статистика (ТОПы) */
 
     .stats-section {
-      margin-top: 6px;
-      padding: 14px 16px 16px;
-      border-radius: 22px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: radial-gradient(circle at top, rgba(236, 72, 153, 0.18), rgba(15, 23, 42, 0.98));
-      box-shadow:
-        0 0 0 1px rgba(15, 23, 42, 0.9),
-        0 20px 48px rgba(15, 23, 42, 0.95);
+      margin-top: 16px;
     }
 
     .stats-header {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
+      align-items: baseline;
+      margin-bottom: 8px;
     }
 
     .stats-title {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    }
+
+    .stats-subtitle {
+      font-size: 12px;
+      color: var(--muted);
     }
 
     .stats-tabs {
       display: inline-flex;
-      background: rgba(15, 23, 42, 0.9);
       border-radius: 999px;
-      padding: 4px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--bg-lighter);
     }
 
     .stats-tab {
-      border-radius: 999px;
-      border: none;
-      padding: 6px 14px;
-      font-size: 13px;
+      padding: 4px 10px;
+      font-size: 12px;
       cursor: pointer;
+      border: none;
       background: transparent;
-      color: #cbd5f5;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
-    }
-
-    .stats-tab span.icon {
-      font-size: 14px;
+      color: var(--muted);
     }
 
     .stats-tab.active {
-      background: linear-gradient(135deg, #ec4899, #6366f1);
-      color: #f9fafb;
-      box-shadow: 0 0 0 1px rgba(248, 250, 252, 0.6), 0 0 30px rgba(236, 72, 153, 0.8);
-      transform: translateY(-1px);
-    }
-
-    .stats-date {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      text-align: center;
+      background: var(--accent);
+      color: var(--text);
     }
 
     .stats-list {
-      margin-top: 6px;
+      margin-top: 8px;
     }
 
-    .stats-row {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 14px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      border-radius: 18px;
-      background: radial-gradient(circle at left, rgba(148, 163, 184, 0.14), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(30, 64, 175, 0.6);
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
-    }
-
-    .stats-row-medal {
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
+    .stats-item {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    .stats-row-medal.gold {
-      color: #fde047;
-      text-shadow: 0 0 16px rgba(250, 204, 21, 0.9);
-    }
-    .stats-row-medal.silver {
-      color: #e5e7eb;
-      text-shadow: 0 0 16px rgba(148, 163, 184, 0.9);
-    }
-    .stats-row-medal.bronze {
-      color: #fb923c;
-      text-shadow: 0 0 16px rgba(248, 150, 70, 0.9);
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(55, 65, 81, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 13px;
+      margin-bottom: 6px;
     }
 
-    .stats-row-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
+    .stats-place {
+      width: 22px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 13px;
     }
 
     .stats-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-lighter);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
       overflow: hidden;
-      border: 2px solid rgba(236, 72, 153, 0.8);
-      box-shadow: 0 0 18px rgba(236, 72, 153, 0.6);
       flex-shrink: 0;
     }
+
     .stats-avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .stats-name-block {
-      min-width: 0;
+    .stats-main {
+      flex: 1;
     }
 
     .stats-nick {
-      font-size: 15px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-weight: 500;
     }
+
     .stats-account {
       font-size: 12px;
       color: var(--muted);
     }
 
-    .stats-score-block {
-      text-align: right;
-    }
-
     .stats-points {
-      font-size: 22px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #f97316, #ec4899, #6366f1);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .stats-points-suffix {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #c4b5fd;
+      font-size: 13px;
+      font-weight: 600;
     }
 
     .stats-empty {
       font-size: 13px;
       color: var(--muted);
-      padding: 16px 4px 6px;
-      text-align: center;
     }
 
-    .error-banner {
-      font-size: 13px;
-      color: #fecaca;
-      background: rgba(220, 38, 38, 0.15);
-      border-radius: 12px;
-      padding: 8px 10px;
-      border: 1px solid rgba(248, 113, 113, 0.4);
-      margin-top: 6px;
-      text-align: center;
-    }
-
-    /* ---------- Модалка редактирования лидера ---------- */
-
+    /* Модалки */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0,0,0,0.6);
       display: none;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       z-index: 50;
     }
     .modal-backdrop.active {
@@ -634,49 +451,19 @@
     .modal {
       width: 100%;
       max-width: 420px;
-      background: #020617;
-      border-radius: 18px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      padding: 14px 16px 16px;
-      box-shadow:
-        0 0 0 1px rgba(15, 23, 42, 0.9),
-        0 24px 56px rgba(15, 23, 42, 1);
+      background: var(--bg-light);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 16px;
     }
     .modal h3 {
-      font-size: 17px;
-      margin-bottom: 4px;
+      font-size: 18px;
+      margin-bottom: 6px;
     }
     .modal p {
       font-size: 13px;
       color: var(--muted);
-      margin-bottom: 8px;
-    }
-    .field {
-      margin-bottom: 8px;
-    }
-    .field label {
-      display: block;
-      font-size: 12px;
-      margin-bottom: 3px;
-    }
-    .field input,
-    .field select {
-      width: 100%;
-      border-radius: 9px;
-      border: 1px solid var(--border);
-      padding: 7px 9px;
-      background: #020617;
-      color: var(--text);
-      font-size: 13px;
-    }
-    .field input[type="file"] {
-      padding: 4px;
-      font-size: 12px;
-      background: #020617;
-    }
-    .field small {
-      font-size: 11px;
-      color: var(--muted);
+      margin-bottom: 6px;
     }
     .modal-footer {
       margin-top: 10px;
@@ -685,263 +472,300 @@
       gap: 8px;
     }
 
+    .field {
+      margin-bottom: 8px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 14px;
+    }
     .hint {
       font-size: 11px;
       color: var(--muted);
-      margin-top: 2px;
+      margin-top: 3px;
+    }
+
+    .edit-avatar-preview {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px dashed var(--border);
+      background: var(--bg-lighter);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .edit-avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .edit-avatar-preview::after {
+      content: "✎";
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .error-text {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 3px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 8px;
+      }
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
 <div id="bg-rotator"></div>
+
 <div id="app">
-
-  <!-- Верхняя панель -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="logo-circle">PP</div>
-      <div>
-        <div class="topbar-title">Рейтинг лидеров</div>
-        <div class="topbar-sub">Лидеры департаментов и общая статистика</div>
+  <div class="card">
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <div class="top-bar-title">Рейтинг лидеров PD</div>
+        <div class="top-bar-subtitle">
+          Топ-3 лидеров по АШ. У кого больше АШ — тот выше в списке.
+        </div>
+        <div class="user-tag" id="user-tag"></div>
       </div>
+      <button class="btn-outline btn-sm" id="back-to-panel">
+        ⟵ К панели офицера
+      </button>
     </div>
 
-    <div class="topbar-right">
-      <div class="top-user" id="top-user">
-        <div class="top-avatar" id="top-avatar">P</div>
+    <!-- 3 плашки лидеров сверху вниз -->
+    <div class="leaders-wrapper" id="leaders-wrapper">
+      Загрузка лидеров...
+    </div>
+
+    <!-- Статистика / ТОПы -->
+    <div class="stats-section">
+      <div class="stats-header">
         <div>
-          <div class="top-name" id="top-nick">Гость</div>
-          <div class="top-role" id="top-role">Авторизуйтесь в основной панели</div>
+          <div class="stats-title">Статистика</div>
+          <div class="stats-subtitle">Топ по АШ за период</div>
+        </div>
+        <div class="stats-tabs">
+          <button class="stats-tab active" data-period="day" id="stats-tab-day">За день</button>
+          <button class="stats-tab" data-period="week" id="stats-tab-week">За неделю</button>
         </div>
       </div>
 
-      <!-- Кнопка возврата на главную -->
-      <a href="index.html" class="btn btn-outline btn-sm">⟵ Вернуться в панель PD</a>
-    </div>
-  </header>
-
-  <!-- Хиро -->
-  <section class="hero">
-    <div class="hero-main">
-      <div class="hero-title">Лидеры департаментов PD</div>
-      <div class="hero-sub">
-        Здесь отображаются назначенные лидеры LSPD, SFPD и LVPD.
-        Администраторы могут редактировать данные и аватарки лидеров.
-      </div>
-      <div class="hero-badges">
-        <div class="chip">
-          ⭐ <span>Рейтинг лидеров</span>
-        </div>
-        <div class="chip">
-          📊 <span>Статистика</span>
-        </div>
+      <div class="stats-list" id="stats-list">
+        Загрузка статистики...
       </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- Лидеры департаментов -->
-  <section class="leaders-grid">
-    <!-- LSPD -->
-    <article class="leader-card" data-dept="LSPD">
-      <div class="leader-card-header">
-        <div class="leader-dept-badge">
-          <span>🚔 LSPD</span>
-          <span>Los Santos PD</span>
-        </div>
-      </div>
-
-      <div class="leader-card-body">
-        <div class="leader-avatar" data-dept-avatar="LSPD">
-          LS
-        </div>
-
-        <div class="leader-main">
-          <div class="leader-nick" data-leader-nick="LSPD">Лидер не назначен</div>
-          <div class="leader-account" data-leader-account="LSPD"></div>
-          <div class="leader-empty" data-leader-empty="LSPD">Укажите лидера департамента LSPD.</div>
-        </div>
-
-        <div class="leader-score">
-          <div class="leader-points" data-leader-points="LSPD">0</div>
-          <div class="leader-points-label">АШ — очки активности</div>
-        </div>
-      </div>
-
-      <div class="leader-footer">
-        <div class="leader-updated" data-leader-updated="LSPD">Обновлено: —</div>
-        <div class="leader-actions">
-          <button class="btn btn-sm btn-outline" data-leader-edit="LSPD" style="display:none;">
-            ✏️ Редактировать
-          </button>
-        </div>
-      </div>
-    </article>
-
-    <!-- SFPD -->
-    <article class="leader-card" data-dept="SFPD">
-      <div class="leader-card-header">
-        <div class="leader-dept-badge">
-          <span>🚔 SFPD</span>
-          <span>San Fierro PD</span>
-        </div>
-      </div>
-
-      <div class="leader-card-body">
-        <div class="leader-avatar" data-dept-avatar="SFPD">
-          SF
-        </div>
-
-        <div class="leader-main">
-          <div class="leader-nick" data-leader-nick="SFPD">Лидер не назначен</div>
-          <div class="leader-account" data-leader-account="SFPD"></div>
-          <div class="leader-empty" data-leader-empty="SFPD">Укажите лидера департамента SFPD.</div>
-        </div>
-
-        <div class="leader-score">
-          <div class="leader-points" data-leader-points="SFPD">0</div>
-          <div class="leader-points-label">АШ — очки активности</div>
-        </div>
-      </div>
-
-      <div class="leader-footer">
-        <div class="leader-updated" data-leader-updated="SFPD">Обновлено: —</div>
-        <div class="leader-actions">
-          <button class="btn btn-sm btn-outline" data-leader-edit="SFPD" style="display:none;">
-            ✏️ Редактировать
-          </button>
-        </div>
-      </div>
-    </article>
-
-    <!-- LVPD -->
-    <article class="leader-card" data-dept="LVPD">
-      <div class="leader-card-header">
-        <div class="leader-dept-badge">
-          <span>🚔 LVPD</span>
-          <span>Las Venturas PD</span>
-        </div>
-      </div>
-
-      <div class="leader-card-body">
-        <div class="leader-avatar" data-dept-avatar="LVPD">
-          LV
-        </div>
-
-        <div class="leader-main">
-          <div class="leader-nick" data-leader-nick="LVPD">Лидер не назначен</div>
-          <div class="leader-account" data-leader-account="LVPD"></div>
-          <div class="leader-empty" data-leader-empty="LVPD">Укажите лидера департамента LVPD.</div>
-        </div>
-
-        <div class="leader-score">
-          <div class="leader-points" data-leader-points="LVPD">0</div>
-          <div class="leader-points-label">АШ — очки активности</div>
-        </div>
-      </div>
-
-      <div class="leader-footer">
-        <div class="leader-updated" data-leader-updated="LVPD">Обновлено: —</div>
-        <div class="leader-actions">
-          <button class="btn btn-sm btn-outline" data-leader-edit="LVPD" style="display:none;">
-            ✏️ Редактировать
-          </button>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <!-- Статистика дня / недели -->
-  <section class="stats-section">
-    <div class="stats-header">
-      <div class="stats-title">
-        📊 Статистика лидеров
-      </div>
-      <div class="stats-tabs">
-        <button class="stats-tab active" data-period="day">
-          <span class="icon">💜</span>
-          <span>Статистика дня</span>
-        </button>
-        <button class="stats-tab" data-period="week">
-          <span class="icon">💚</span>
-          <span>Статистика недели</span>
-        </button>
-      </div>
+<!-- Модалка ошибки -->
+<div id="error-modal" class="modal-backdrop">
+  <div class="modal">
+    <h3>Ошибка</h3>
+    <p id="error-modal-text"></p>
+    <div class="modal-footer">
+      <button class="btn btn-sm" id="error-modal-close">Закрыть</button>
     </div>
-    <div id="stats-date" class="stats-date">—</div>
-    <div id="stats-list" class="stats-list">
-      Загрузка статистики...
-    </div>
-  </section>
+  </div>
 </div>
 
 <!-- Модалка редактирования лидера -->
 <div id="leader-edit-modal" class="modal-backdrop">
   <div class="modal">
     <h3>Редактирование лидера</h3>
-    <p>Только администраторы и модераторы могут изменять данные лидеров.</p>
+    <p>Доступно администраторам, модераторам и редакторам (creator).</p>
 
-    <form id="leader-edit-form">
-      <div class="field">
-        <label for="leader-edit-dept">Департамент</label>
-        <select id="leader-edit-dept">
-          <option value="LSPD">LSPD — Los Santos PD</option>
-          <option value="SFPD">SFPD — San Fierro PD</option>
-          <option value="LVPD">LVPD — Las Venturas PD</option>
-        </select>
-      </div>
+    <div class="edit-avatar-preview" id="edit-avatar-preview">
+      <span>?</span>
+    </div>
+    <div class="hint">Кликните или перетащите картинку, чтобы изменить аватар.</div>
 
-      <div class="field">
-        <label for="leader-edit-nick">Никнейм лидера</label>
-        <input id="leader-edit-nick" type="text" placeholder="Имя_Фамилия" />
-      </div>
+    <input type="file" id="edit-avatar-file" accept="image/*" style="display:none;" />
 
-      <div class="field">
-        <label for="leader-edit-account">Номер аккаунта (будет показан в [квадратных скобках])</label>
-        <input id="leader-edit-account" type="text" placeholder="123456" />
-      </div>
+    <div class="field">
+      <label for="edit-dept">Департамент</label>
+      <select id="edit-dept">
+        <option value="LSPD">LSPD</option>
+        <option value="SFPD">SFPD</option>
+        <option value="LVPD">LVPD</option>
+      </select>
+    </div>
 
-      <div class="field">
-        <label for="leader-edit-points">Текущее количество очков (АШ)</label>
-        <input id="leader-edit-points" type="number" min="0" step="1" />
-      </div>
+    <div class="field">
+      <label for="edit-nick">Ник</label>
+      <input id="edit-nick" type="text" placeholder="Имя_Фамилия" />
+    </div>
 
-      <div class="field">
-        <label for="leader-edit-avatar">Аватарка лидера (по желанию)</label>
-        <input id="leader-edit-avatar" type="file" accept="image/*" />
-        <small>Можно установить здесь или кликнуть/перетащить прямо по аватарке на карточке.</small>
-      </div>
-    </form>
+    <div class="field">
+      <label for="edit-account">Номер аккаунта</label>
+      <input id="edit-account" type="text" placeholder="123456" />
+    </div>
+
+    <div class="field">
+      <label for="edit-points">Текущее количество АШ</label>
+      <input id="edit-points" type="number" min="0" step="1" value="0" />
+    </div>
+
+    <div class="error-text" id="edit-error" style="display:none;"></div>
 
     <div class="modal-footer">
-      <button class="btn btn-sm btn-outline" id="leader-edit-cancel">Отмена</button>
-      <button class="btn btn-sm btn-primary" id="leader-edit-save">💾 Сохранить</button>
+      <button class="btn-outline btn-sm" id="leader-edit-cancel">Отмена</button>
+      <button class="btn btn-sm" id="leader-edit-save">Сохранить</button>
     </div>
   </div>
 </div>
 
-<!-- Скрытый инпут для смены аватарки с карточки -->
-<input type="file" id="leader-avatar-hidden" accept="image/*" style="display:none;" />
-
-<!-- Supabase JS -->
+<!-- Supabase -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
 <script>
-  /* =============== НАСТРОЙКА SUPABASE =============== */
-
   const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
-
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* =============== ГЛОБАЛЬНОЕ СОСТОЯНИЕ =============== */
+  /* ====== ТЕМА (та же, что и на главной) ====== */
+  let themeConfig = {
+    images: [],
+    opacity: 80,
+    blur: 0,
+    borderColor: "#374151",
+    favicon: null,
+    siteTitle: null
+  };
+  let bgRotationTimer = null;
+  let bgCurrentIndex = 0;
+
+  const bgRotatorEl = document.getElementById("bg-rotator");
+
+  async function loadThemeFromDB() {
+    const { data, error } = await supabaseClient
+      .from("theme_settings")
+      .select("*")
+      .eq("id", 1)
+      .single();
+
+    if (error || !data) {
+      console.warn("Ошибка загрузки темы:", error);
+      return;
+    }
+
+    themeConfig = {
+      images: data.images || [],
+      opacity: data.opacity ?? 80,
+      blur: data.blur ?? 0,
+      borderColor: data.border_color || "#374151",
+      favicon: data.favicon || null,
+      siteTitle: data.site_title || null
+    };
+  }
+
+  function applyThemeBackground() {
+    if (!bgRotatorEl) return;
+    bgRotatorEl.innerHTML = "";
+
+    const images = themeConfig.images || [];
+    const blurPx = themeConfig.blur || 0;
+
+    if (!images.length) {
+      bgRotatorEl.style.background = "#0f172a";
+      return;
+    }
+
+    images.forEach((src, index) => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.style.filter = `blur(${blurPx}px)`;
+      if (index === 0) img.classList.add("active");
+      bgRotatorEl.appendChild(img);
+    });
+
+    if (bgRotationTimer) {
+      clearInterval(bgRotationTimer);
+      bgRotationTimer = null;
+    }
+
+    if (images.length > 1) {
+      const imgs = Array.from(bgRotatorEl.querySelectorAll("img"));
+      bgCurrentIndex = 0;
+
+      bgRotationTimer = setInterval(() => {
+        const prev = imgs[bgCurrentIndex];
+        bgCurrentIndex = (bgCurrentIndex + 1) % imgs.length;
+        const next = imgs[bgCurrentIndex];
+
+        if (prev) prev.classList.remove("active");
+        if (next) next.classList.add("active");
+      }, 60 * 1000);
+    }
+  }
+
+  function applyThemeToBlocks() {
+    const opacity = (themeConfig.opacity || 80) / 100;
+    const borderColor = themeConfig.borderColor || "#374151";
+    document.documentElement.style.setProperty("--border", borderColor);
+
+    const blocks = document.querySelectorAll(".card");
+    blocks.forEach((el) => {
+      el.style.backgroundColor = `rgba(15,23,42,${opacity})`;
+    });
+  }
+
+  function applySiteBranding() {
+    if (themeConfig.siteTitle) {
+      document.title = themeConfig.siteTitle;
+    } else {
+      document.title = "Рейтинг лидеров PD";
+    }
+
+    if (themeConfig.favicon) {
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = themeConfig.favicon;
+    }
+  }
+
+  /* ======= СЕССИЯ ПОЛЬЗОВАТЕЛЯ (как в index.html) ======= */
 
   let currentUser = null;
-  const leadersState = {}; // по департаментам: { LSPD: {...}, SFPD: {...}, LVPD: {...} }
-  let avatarChangeDept = null; // для скрытого инпута
-  let modalAvatarData = null;  // аватарка из модалки
-
-  /* =============== УТИЛИТЫ =============== */
 
   function loadSession() {
     try {
@@ -967,582 +791,463 @@
     );
   }
 
-  function formatDateTime(str) {
-    if (!str) return "—";
-    const d = new Date(str);
-    if (Number.isNaN(d.getTime())) return "—";
-    return d.toLocaleString("ru-RU");
+  /* ======= ОШИБКИ ======= */
+
+  const errorModal = document.getElementById("error-modal");
+  const errorModalText = document.getElementById("error-modal-text");
+  const errorModalClose = document.getElementById("error-modal-close");
+
+  function showErrorModal(message) {
+    errorModalText.textContent = message || "Неизвестная ошибка.";
+    errorModal.classList.add("active");
   }
 
-  function showErrorBanner(container, message) {
-    if (!container) return;
-    const div = document.createElement("div");
-    div.className = "error-banner";
-    div.textContent = message || "Произошла ошибка.";
-    container.appendChild(div);
-  }
-
-  /* =============== ТЕМА (берём из theme_settings) =============== */
-
-  let themeConfig = {
-    images: [],
-    opacity: 80,
-    blur: 0,
-    borderColor: "#1e293b",
-    favicon: null,
-    siteTitle: null
-  };
-  let bgRotationTimer = null;
-  let bgCurrentIndex = 0;
-
-  async function loadThemeFromDB() {
-    const { data, error } = await supabaseClient
-      .from("theme_settings")
-      .select("*")
-      .eq("id", 1)
-      .maybeSingle();
-
-    if (error || !data) return;
-
-    themeConfig = {
-      images: data.images || [],
-      opacity: data.opacity ?? 80,
-      blur: data.blur ?? 0,
-      borderColor: data.border_color || "#1e293b",
-      favicon: data.favicon || null,
-      siteTitle: data.site_title || null
+  if (errorModalClose) {
+    errorModalClose.onclick = () => {
+      errorModal.classList.remove("active");
     };
   }
 
-  function applyThemeBackground() {
-    const bg = document.getElementById("bg-rotator");
-    if (!bg) return;
+  /* ======= ЛИДЕРЫ (pd_leaders) ======= */
 
-    bg.innerHTML = "";
-    const imgs = themeConfig.images || [];
-    const blurPx = themeConfig.blur || 0;
-
-    if (!imgs.length) {
-      bg.style.background = "radial-gradient(circle at top, #111827 0, #020617 55%)";
-      return;
-    }
-
-    imgs.forEach((src, index) => {
-      const img = document.createElement("img");
-      img.src = src;
-      img.style.filter = `blur(${blurPx}px)`;
-      if (index === 0) img.classList.add("active");
-      bg.appendChild(img);
-    });
-
-    if (bgRotationTimer) {
-      clearInterval(bgRotationTimer);
-      bgRotationTimer = null;
-    }
-
-    if (imgs.length > 1) {
-      const imgEls = Array.from(bg.querySelectorAll("img"));
-      bgCurrentIndex = 0;
-      bgRotationTimer = setInterval(() => {
-        const prev = imgEls[bgCurrentIndex];
-        bgCurrentIndex = (bgCurrentIndex + 1) % imgEls.length;
-        const next = imgEls[bgCurrentIndex];
-        if (prev) prev.classList.remove("active");
-        if (next) next.classList.add("active");
-      }, 60 * 1000);
-    }
-  }
-
-  function applyThemeToBlocks() {
-    const opacity = (themeConfig.opacity || 80) / 100;
-    const borderColor = themeConfig.borderColor || "#1e293b";
-
-    document.documentElement.style.setProperty("--border", borderColor);
-
-    const blocks = document.querySelectorAll(
-      ".topbar, .hero, .leader-card, .stats-section"
-    );
-    blocks.forEach((el) => {
-      el.style.backgroundColor = `rgba(15,23,42,${opacity})`;
-      el.style.backdropFilter = themeConfig.blur
-        ? `blur(${themeConfig.blur}px)`
-        : "blur(12px)";
-    });
-  }
-
-  function applySiteBranding() {
-    if (themeConfig.siteTitle) {
-      document.title = themeConfig.siteTitle;
-    } else {
-      document.title = "Police Platinum — Рейтинг лидеров";
-    }
-
-    if (themeConfig.favicon) {
-      let link = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "icon";
-        document.head.appendChild(link);
-      }
-      link.href = themeConfig.favicon;
-    }
-  }
-
-  /* =============== ТОП-БАР =============== */
-
-  function refreshTopBar() {
-    const topNick = document.getElementById("top-nick");
-    const topRole = document.getElementById("top-role");
-    const topAvatar = document.getElementById("top-avatar");
-
-    if (!topNick || !topRole || !topAvatar) return;
-
-    if (!currentUser) {
-      topNick.textContent = "Гость";
-      topRole.textContent = "Авторизуйтесь в основной панели";
-      topAvatar.textContent = "P";
-      topAvatar.style.borderColor = "#1e293b";
-      topAvatar.innerHTML = "P";
-      return;
-    }
-
-    topNick.textContent = currentUser.nick || "Офицер";
-    topRole.textContent = roleLabel(currentUser.role || "user");
-
-    topAvatar.innerHTML = "";
-    topAvatar.style.borderColor = currentUser.border_color || "#1e293b";
-    if (currentUser.avatar_url) {
-      const img = document.createElement("img");
-      img.src = currentUser.avatar_url;
-      topAvatar.appendChild(img);
-    } else {
-      topAvatar.textContent = currentUser.nick ? currentUser.nick[0] : "P";
-    }
-  }
-
-  /* =============== ЛИДЕРЫ ДЕПАРТАМЕНТОВ =============== */
-
-  const DEPT_LABELS = {
-    LSPD: { short: "LS", name: "LSPD — Los Santos PD" },
-    SFPD: { short: "SF", name: "SFPD — San Fierro PD" },
-    LVPD: { short: "LV", name: "LVPD — Las Venturas PD" }
-  };
-
-  async function loadLeaders() {
-    const { data, error } = await supabaseClient
-      .from("pd_leaders")
-      .select("*");
-
-    if (error) {
-      console.error("Ошибка загрузки лидеров:", error);
-    }
-
-    (["LSPD", "SFPD", "LVPD"]).forEach((dept) => {
-      leadersState[dept] = null;
-    });
-
-    (data || []).forEach((row) => {
-      if (row.department && leadersState.hasOwnProperty(row.department)) {
-        leadersState[row.department] = row;
-      }
-    });
-
-    renderAllLeaderCards();
-    initAvatarEditing();  // чтобы после перерисовки аватарки снова были интерактивны
-  }
-
-  function renderAllLeaderCards() {
-    ["LSPD", "SFPD", "LVPD"].forEach((dept) => {
-      renderLeaderCard(dept, leadersState[dept]);
-    });
-  }
-
-  function renderLeaderCard(dept, row) {
-    const avatarEl = document.querySelector(`[data-dept-avatar="${dept}"]`);
-    const nickEl = document.querySelector(`[data-leader-nick="${dept}"]`);
-    const accEl = document.querySelector(`[data-leader-account="${dept}"]`);
-    const emptyEl = document.querySelector(`[data-leader-empty="${dept}"]`);
-    const pointsEl = document.querySelector(`[data-leader-points="${dept}"]`);
-    const updatedEl = document.querySelector(`[data-leader-updated="${dept}"]`);
-    const editBtn = document.querySelector(`[data-leader-edit="${dept}"]`);
-
-    const deptInfo = DEPT_LABELS[dept];
-
-    if (avatarEl) {
-      avatarEl.innerHTML = "";
-      if (row && row.avatar_url) {
-        const img = document.createElement("img");
-        img.src = row.avatar_url;
-        avatarEl.appendChild(img);
-      } else {
-        avatarEl.textContent = deptInfo ? deptInfo.short : "?";
-      }
-    }
-
-    if (row) {
-      if (nickEl) nickEl.textContent = row.nick || "Без имени";
-      if (accEl) {
-        accEl.textContent = row.account_id ? `[${row.account_id}]` : "";
-      }
-      if (emptyEl) {
-        emptyEl.textContent = row.nick
-          ? "Назначенный лидер департамента."
-          : "Укажите данные лидера.";
-      }
-      if (pointsEl) {
-        pointsEl.textContent =
-          typeof row.points === "number" && !Number.isNaN(row.points)
-            ? row.points
-            : 0;
-      }
-      if (updatedEl) {
-        updatedEl.textContent = "Обновлено: " + formatDateTime(row.updated_at);
-      }
-    } else {
-      if (nickEl) nickEl.textContent = "Лидер не назначен";
-      if (accEl) accEl.textContent = "";
-      if (emptyEl) {
-        emptyEl.textContent = `Укажите лидера департамента ${dept}.`;
-      }
-      if (pointsEl) pointsEl.textContent = "0";
-      if (updatedEl) updatedEl.textContent = "Обновлено: —";
-    }
-
-    if (editBtn) {
-      editBtn.style.display = isAdminLike(currentUser) ? "inline-flex" : "none";
-      editBtn.onclick = () => openLeaderEditModal(dept);
-    }
-  }
-
-  /* Смена аватарки кликом / dnd прямо на карточке */
-
-  function initAvatarEditing() {
-    const canEdit = isAdminLike(currentUser);
-    const avatarInputHidden = document.getElementById("leader-avatar-hidden");
-    if (!avatarInputHidden) return;
-
-    document
-      .querySelectorAll(".leader-avatar")
-      .forEach((avatarEl) => {
-        const dept = avatarEl.getAttribute("data-dept-avatar");
-        avatarEl.classList.remove("leader-avatar-editable", "drag-over");
-        avatarEl.onclick = null;
-        avatarEl.ondragover = null;
-        avatarEl.ondragleave = null;
-        avatarEl.ondrop = null;
-
-        if (!canEdit || !dept) return;
-
-        avatarEl.classList.add("leader-avatar-editable");
-
-        avatarEl.onclick = () => {
-          avatarChangeDept = dept;
-          avatarInputHidden.value = "";
-          avatarInputHidden.click();
-        };
-
-        avatarEl.ondragover = (e) => {
-          e.preventDefault();
-          avatarEl.classList.add("drag-over");
-        };
-
-        avatarEl.ondragleave = () => {
-          avatarEl.classList.remove("drag-over");
-        };
-
-        avatarEl.ondrop = (e) => {
-          e.preventDefault();
-          avatarEl.classList.remove("drag-over");
-          const file = e.dataTransfer.files && e.dataTransfer.files[0];
-          if (file) {
-            saveLeaderAvatarFromFile(dept, file);
-          }
-        };
-      });
-
-    avatarInputHidden.onchange = () => {
-      const file = avatarInputHidden.files && avatarInputHidden.files[0];
-      if (file && avatarChangeDept) {
-        saveLeaderAvatarFromFile(avatarChangeDept, file);
-      }
-    };
-  }
-
-  async function saveLeaderAvatarFromFile(dept, file) {
-    try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result;
-        const { data: existing, error: selError } = await supabaseClient
-          .from("pd_leaders")
-          .select("id")
-          .eq("department", dept)
-          .maybeSingle();
-
-        if (selError) {
-          console.error(selError);
-        }
-
-        const payload = {
-          department: dept,
-          avatar_url: dataUrl
-        };
-
-        let upError = null;
-        if (existing && existing.id) {
-          const { error } = await supabaseClient
-            .from("pd_leaders")
-            .update(payload)
-            .eq("id", existing.id);
-          upError = error;
-        } else {
-          const { error } = await supabaseClient
-            .from("pd_leaders")
-            .insert(payload);
-          upError = error;
-        }
-
-        if (upError) {
-          console.error(upError);
-          alert("Не удалось сохранить аватарку лидера.");
-          return;
-        }
-
-        await loadLeaders();
-      };
-      reader.onerror = () => {
-        alert("Не удалось прочитать файл аватарки.");
-      };
-      reader.readAsDataURL(file);
-    } catch (e) {
-      console.error(e);
-      alert("Ошибка при обработке аватарки.");
-    }
-  }
-
-  /* =============== МОДАЛКА РЕДАКТИРОВАНИЯ ЛИДЕРА =============== */
+  const leadersWrapper = document.getElementById("leaders-wrapper");
+  let leadersCache = [];
+  let editingLeaderId = null;
+  let editingSlotIndex = null;
+  let editingAvatarData = null;
 
   const leaderEditModal = document.getElementById("leader-edit-modal");
-  const leaderEditForm = document.getElementById("leader-edit-form");
-  const leaderEditDept = document.getElementById("leader-edit-dept");
-  const leaderEditNick = document.getElementById("leader-edit-nick");
-  const leaderEditAccount = document.getElementById("leader-edit-account");
-  const leaderEditPoints = document.getElementById("leader-edit-points");
-  const leaderEditAvatar = document.getElementById("leader-edit-avatar");
-  const leaderEditCancel = document.getElementById("leader-edit-cancel");
-  const leaderEditSave = document.getElementById("leader-edit-save");
+  const editAvatarPreview = document.getElementById("edit-avatar-preview");
+  const editAvatarFile = document.getElementById("edit-avatar-file");
+  const editDept = document.getElementById("edit-dept");
+  const editNick = document.getElementById("edit-nick");
+  const editAccount = document.getElementById("edit-account");
+  const editPoints = document.getElementById("edit-points");
+  const editError = document.getElementById("edit-error");
+  const editCancelBtn = document.getElementById("leader-edit-cancel");
+  const editSaveBtn = document.getElementById("leader-edit-save");
 
-  let modalDept = "LSPD";
+  function setEditAvatarPreview(src, nickInitial) {
+    editAvatarPreview.innerHTML = "";
+    if (src) {
+      const img = document.createElement("img");
+      img.src = src;
+      editAvatarPreview.appendChild(img);
+    } else {
+      const span = document.createElement("span");
+      span.textContent = nickInitial || "?";
+      editAvatarPreview.appendChild(span);
+    }
+  }
 
-  function openLeaderEditModal(dept) {
+  function openLeaderEditModal(leader, slotIndex) {
     if (!isAdminLike(currentUser)) {
-      alert("Только администраторы и модераторы могут редактировать лидеров.");
+      showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
       return;
     }
 
-    modalDept = dept || "LSPD";
-    const row = leadersState[modalDept] || {};
+    editingLeaderId = leader ? leader.id : null;
+    editingSlotIndex = slotIndex != null ? slotIndex : null;
 
-    modalAvatarData = null;
-    leaderEditAvatar.value = "";
+    const initialNick = leader?.nick || "";
+    const initialAccount = leader?.account_id || "";
+    const initialDept = leader?.department || "LSPD";
+    const initialPoints = leader?.points ?? 0;
 
-    leaderEditDept.value = modalDept;
-    leaderEditNick.value = row.nick || "";
-    leaderEditAccount.value = row.account_id || "";
-    leaderEditPoints.value =
-      typeof row.points === "number" && !Number.isNaN(row.points)
-        ? row.points
-        : "";
+    editDept.value = initialDept;
+    editNick.value = initialNick;
+    editAccount.value = initialAccount;
+    editPoints.value = initialPoints;
 
+    if (editingAvatarData) {
+      // уже выбрали новый аватар через плашку
+      setEditAvatarPreview(editingAvatarData, initialNick ? initialNick[0] : "?");
+    } else if (leader && leader.avatar_url) {
+      setEditAvatarPreview(leader.avatar_url, initialNick ? initialNick[0] : "?");
+    } else {
+      setEditAvatarPreview(null, initialNick ? initialNick[0] : "?");
+    }
+
+    editError.style.display = "none";
     leaderEditModal.classList.add("active");
   }
 
   function closeLeaderEditModal() {
     leaderEditModal.classList.remove("active");
-    modalAvatarData = null;
-    if (leaderEditAvatar) leaderEditAvatar.value = "";
+    editingLeaderId = null;
+    editingSlotIndex = null;
+    editingAvatarData = null;
+    setEditAvatarPreview(null, "?");
   }
 
-  if (leaderEditCancel) {
-    leaderEditCancel.onclick = () => {
+  // Клик / дроп по аватару в модалке
+  if (editAvatarPreview) {
+    editAvatarPreview.addEventListener("click", () => {
+      if (!isAdminLike(currentUser)) return;
+      editAvatarFile.click();
+    });
+
+    editAvatarPreview.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      editAvatarPreview.classList.add("drag-over");
+    });
+    editAvatarPreview.addEventListener("dragleave", () => {
+      editAvatarPreview.classList.remove("drag-over");
+    });
+    editAvatarPreview.addEventListener("drop", (e) => {
+      e.preventDefault();
+      editAvatarPreview.classList.remove("drag-over");
+      if (!isAdminLike(currentUser)) return;
+      const file = e.dataTransfer.files[0];
+      if (file) handleAvatarFileForEdit(file);
+    });
+  }
+
+  if (editAvatarFile) {
+    editAvatarFile.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) handleAvatarFileForEdit(file);
+      editAvatarFile.value = "";
+    };
+  }
+
+  function handleAvatarFileForEdit(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      editingAvatarData = reader.result;
+      const nickInitial = editNick.value ? editNick.value[0] : "?";
+      setEditAvatarPreview(editingAvatarData, nickInitial);
+    };
+    reader.onerror = () => {
+      showErrorModal("Не удалось прочитать файл аватара.");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  if (editCancelBtn) {
+    editCancelBtn.onclick = () => {
       closeLeaderEditModal();
     };
   }
 
-  if (leaderEditAvatar) {
-    leaderEditAvatar.onchange = () => {
-      const file = leaderEditAvatar.files && leaderEditAvatar.files[0];
-      if (!file) {
-        modalAvatarData = null;
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        modalAvatarData = reader.result;
-      };
-      reader.onerror = () => {
-        alert("Не удалось прочитать файл аватарки.");
-      };
-      reader.readAsDataURL(file);
-    };
-  }
-
-  if (leaderEditSave) {
-    leaderEditSave.onclick = async (e) => {
-      e.preventDefault();
+  if (editSaveBtn) {
+    editSaveBtn.onclick = async () => {
       if (!isAdminLike(currentUser)) {
-        alert("Нет прав на редактирование лидеров.");
+        showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
         return;
       }
 
-      const dept = leaderEditDept.value || modalDept || "LSPD";
-      const nick = (leaderEditNick.value || "").trim();
-      const accountId = (leaderEditAccount.value || "").trim();
-      let pointsVal = leaderEditPoints.value;
-      pointsVal = pointsVal === "" ? null : Number(pointsVal);
-      if (pointsVal !== null && (Number.isNaN(pointsVal) || pointsVal < 0)) {
-        alert("Количество очков должно быть неотрицательным числом.");
+      const dept = editDept.value || "LSPD";
+      const nick = editNick.value.trim();
+      const account = editAccount.value.trim();
+      let pointsVal = parseInt(editPoints.value, 10);
+      if (isNaN(pointsVal) || pointsVal < 0) pointsVal = 0;
+
+      if (!nick || !account) {
+        editError.style.display = "block";
+        editError.textContent = "Ник и номер аккаунта обязательны.";
         return;
       }
 
-      const { data: existing, error: selError } = await supabaseClient
-        .from("pd_leaders")
-        .select("id")
-        .eq("department", dept)
-        .maybeSingle();
-
-      if (selError) {
-        console.error(selError);
-      }
+      editError.style.display = "none";
 
       const payload = {
         department: dept,
-        nick: nick || null,
-        account_id: accountId || null,
+        nick,
+        account_id: account,
         points: pointsVal,
-        updated_at: new Date().toISOString()
       };
 
-      if (modalAvatarData) {
-        payload.avatar_url = modalAvatarData;
+      if (editingAvatarData) {
+        payload.avatar_url = editingAvatarData;
       }
 
-      let upError = null;
-      if (existing && existing.id) {
-        const { error } = await supabaseClient
+      let error = null;
+      if (editingLeaderId) {
+        const { error: updError } = await supabaseClient
           .from("pd_leaders")
           .update(payload)
-          .eq("id", existing.id);
-        upError = error;
+          .eq("id", editingLeaderId);
+        error = updError;
       } else {
-        const { error } = await supabaseClient
+        const { error: insError } = await supabaseClient
           .from("pd_leaders")
           .insert(payload);
-        upError = error;
+        error = insError;
       }
 
-      if (upError) {
-        console.error(upError);
-        alert("Ошибка сохранения лидера. Проверьте таблицу pd_leaders.");
+      if (error) {
+        console.error(error);
+        showErrorModal("Ошибка сохранения данных лидера.");
         return;
       }
 
       closeLeaderEditModal();
       await loadLeaders();
+      await loadStats(currentStatsPeriod);
     };
   }
 
-  /* =============== СТАТИСТИКА ДНЯ / НЕДЕЛИ =============== */
+  function attachAvatarHandlers(avatarEl, leader, slotIndex) {
+    if (!isAdminLike(currentUser)) return;
 
-  const statsListEl = document.getElementById("stats-list");
-  const statsDateEl = document.getElementById("stats-date");
-  const statsTabs = document.querySelectorAll(".stats-tab");
-  let currentPeriod = "day";
+    avatarEl.classList.add("leader-avatar-editable");
 
-  function updateStatsDateLabel() {
-    if (!statsDateEl) return;
-    const now = new Date();
-    if (currentPeriod === "day") {
-      statsDateEl.textContent = now.toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-      });
-    } else {
-      // Очень простая подпись недели: "Неделя, заканчивающаяся ..."
-      const weekEnd = now.toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-      });
-      statsDateEl.textContent = `Неделя, заканчивающаяся ${weekEnd}`;
-    }
-  }
-
-  if (statsTabs) {
-    statsTabs.forEach((btn) => {
-      btn.onclick = () => {
-        const period = btn.dataset.period || "day";
-        currentPeriod = period;
-
-        statsTabs.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        updateStatsDateLabel();
-        loadStats();
+    const startEditWithFile = (file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        editingAvatarData = reader.result;
+        // открываем модалку, чтобы заполнить остальные поля и сохранить
+        openLeaderEditModal(leader, slotIndex);
       };
+      reader.onerror = () => {
+        showErrorModal("Не удалось прочитать файл аватара.");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    avatarEl.addEventListener("click", () => {
+      // создаём одноразовый input
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.style.display = "none";
+      document.body.appendChild(fileInput);
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) startEditWithFile(file);
+        document.body.removeChild(fileInput);
+      };
+      fileInput.click();
+    });
+
+    avatarEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      avatarEl.classList.add("drag-over");
+    });
+    avatarEl.addEventListener("dragleave", () => {
+      avatarEl.classList.remove("drag-over");
+    });
+    avatarEl.addEventListener("drop", (e) => {
+      e.preventDefault();
+      avatarEl.classList.remove("drag-over");
+      const file = e.dataTransfer.files[0];
+      if (file) startEditWithFile(file);
     });
   }
 
-  async function loadStats() {
-    if (!statsListEl) return;
+  async function loadLeaders() {
+    leadersWrapper.textContent = "Загрузка лидеров...";
 
-    statsListEl.innerHTML = "Загрузка статистики...";
-
-    // Ожидаем таблицу leader_stats:
-    // id, nick, account_id, avatar_url, points, period ('day'/'week'), created_at
     const { data, error } = await supabaseClient
-      .from("leader_stats")
-      .select("*")
-      .eq("period", currentPeriod)
-      .order("points", { ascending: false })
-      .limit(50);
+      .from("pd_leaders")
+      .select("*");
 
     if (error) {
-      console.error("Ошибка загрузки статистики:", error);
-      statsListEl.innerHTML = "";
-      showErrorBanner(
-        statsListEl,
-        "Не удалось загрузить статистику. Создайте таблицу leader_stats или проверьте права доступа."
-      );
+      console.error(error);
+      leadersWrapper.textContent = "Ошибка загрузки лидеров.";
+      showErrorModal("Ошибка загрузки лидеров. Проверьте базу данных.");
       return;
     }
 
-    if (!data || !data.length) {
+    leadersCache = data || [];
+
+    // сортируем по АШ (points) по убыванию
+    const sorted = [...leadersCache].sort((a, b) => {
+      const pa = a.points ?? 0;
+      const pb = b.points ?? 0;
+      return pb - pa;
+    });
+
+    const slots = [
+      sorted[0] || null,
+      sorted[1] || null,
+      sorted[2] || null
+    ];
+
+    leadersWrapper.innerHTML = "";
+
+    slots.forEach((leader, index) => {
+      const place = index + 1;
+      const card = document.createElement("div");
+      card.className = "leader-card leader-rank-" + place;
+
+      const badge = document.createElement("div");
+      badge.className = "leader-rank-badge";
+      const placeSpan = document.createElement("span");
+      placeSpan.className = "place-number";
+      placeSpan.textContent = place;
+      const labelSpan = document.createElement("span");
+      labelSpan.textContent =
+        place === 1 ? "место" :
+        place === 2 ? "место" :
+        "место";
+      badge.appendChild(placeSpan);
+      badge.appendChild(labelSpan);
+
+      const mainRow = document.createElement("div");
+      mainRow.className = "leader-main-row";
+
+      const avatar = document.createElement("div");
+      avatar.className = "leader-avatar";
+
+      const infoBlock = document.createElement("div");
+      infoBlock.className = "leader-info-block";
+
+      const scoreBlock = document.createElement("div");
+      scoreBlock.className = "leader-score-block";
+
+      const metaRow = document.createElement("div");
+      metaRow.className = "leader-meta-row";
+
+      const actionsRow = document.createElement("div");
+      actionsRow.className = "leader-actions";
+
+      let canEdit = isAdminLike(currentUser);
+
+      if (leader) {
+        if (leader.avatar_url) {
+          const img = document.createElement("img");
+          img.src = leader.avatar_url;
+          avatar.appendChild(img);
+        } else {
+          avatar.textContent = leader.nick ? leader.nick[0] : "?";
+        }
+
+        const nickEl = document.createElement("div");
+        nickEl.className = "leader-nick";
+        nickEl.textContent = leader.nick || "Без имени";
+
+        const accountEl = document.createElement("div");
+        accountEl.className = "leader-account";
+        const acc = leader.account_id || "—";
+        accountEl.textContent = `[${acc}]`;
+
+        const deptTag = document.createElement("div");
+        deptTag.className = "leader-dept-tag";
+        deptTag.textContent = leader.department || "Департамент не указан";
+
+        infoBlock.appendChild(nickEl);
+        infoBlock.appendChild(accountEl);
+        infoBlock.appendChild(deptTag);
+
+        const scoreLabel = document.createElement("div");
+        scoreLabel.className = "score-label";
+        scoreLabel.textContent = "АШ";
+
+        const scoreValue = document.createElement("div");
+        scoreValue.className = "score-value";
+        scoreValue.textContent = leader.points ?? 0;
+
+        scoreBlock.appendChild(scoreLabel);
+        scoreBlock.appendChild(scoreValue);
+
+        const updatedText = document.createElement("div");
+        updatedText.textContent = leader.updated_at
+          ? "Обновлено: " + new Date(leader.updated_at).toLocaleString()
+          : "Обновлено: —";
+
+        metaRow.appendChild(updatedText);
+      } else {
+        avatar.textContent = "?";
+
+        const emptyTitle = document.createElement("div");
+        emptyTitle.className = "leader-empty-title";
+        emptyTitle.textContent = "Лидер не назначен";
+
+        const deptTag = document.createElement("div");
+        deptTag.className = "leader-dept-tag";
+        deptTag.textContent = "Департамент не указан";
+
+        infoBlock.appendChild(emptyTitle);
+        infoBlock.appendChild(deptTag);
+
+        const scoreLabel = document.createElement("div");
+        scoreLabel.className = "score-label";
+        scoreLabel.textContent = "АШ";
+
+        const scoreValue = document.createElement("div");
+        scoreValue.className = "score-value";
+        scoreValue.textContent = "0";
+
+        scoreBlock.appendChild(scoreLabel);
+        scoreBlock.appendChild(scoreValue);
+
+        const updatedText = document.createElement("div");
+        updatedText.textContent = "Обновлено: —";
+        metaRow.appendChild(updatedText);
+      }
+
+      mainRow.appendChild(avatar);
+      mainRow.appendChild(infoBlock);
+      mainRow.appendChild(scoreBlock);
+
+      card.appendChild(badge);
+      card.appendChild(mainRow);
+      card.appendChild(metaRow);
+
+      if (canEdit) {
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn-outline btn-sm";
+        editBtn.textContent = leader ? "Редактировать" : "Назначить лидера";
+        editBtn.onclick = () => {
+          openLeaderEditModal(leader, index);
+        };
+        actionsRow.appendChild(editBtn);
+        card.appendChild(actionsRow);
+
+        attachAvatarHandlers(avatar, leader, index);
+      }
+
+      leadersWrapper.appendChild(card);
+    });
+  }
+
+  /* ======= СТАТИСТИКА (leader_stats) ======= */
+
+  const statsListEl = document.getElementById("stats-list");
+  const statsTabDay = document.getElementById("stats-tab-day");
+  const statsTabWeek = document.getElementById("stats-tab-week");
+  let currentStatsPeriod = "day";
+
+  async function loadStats(period) {
+    currentStatsPeriod = period;
+    statsListEl.textContent = "Загрузка статистики...";
+
+    const { data, error } = await supabaseClient
+      .from("leader_stats")
+      .select("*")
+      .eq("period", period)
+      .order("points", { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error(error);
+      statsListEl.textContent = "Ошибка загрузки статистики.";
+      return;
+    }
+
+    const rows = data || [];
+
+    if (!rows.length) {
       statsListEl.innerHTML = "";
       const empty = document.createElement("div");
       empty.className = "stats-empty";
-      empty.textContent = "Статистика пока отсутствует.";
+      empty.textContent = "Пока нет данных для этого периода.";
       statsListEl.appendChild(empty);
       return;
     }
 
     statsListEl.innerHTML = "";
 
-    data.forEach((row, index) => {
+    rows.forEach((row, idx) => {
       const item = document.createElement("div");
-      item.className = "stats-row";
+      item.className = "stats-item";
 
-      const medal = document.createElement("div");
-      medal.className = "stats-row-medal";
-      const place = index + 1;
-      if (place === 1) medal.classList.add("gold");
-      else if (place === 2) medal.classList.add("silver");
-      else if (place === 3) medal.classList.add("bronze");
-      medal.textContent = place === 1 ? "🏆" : place === 2 ? "🥈" : place === 3 ? "🥉" : place;
-
-      const userBlock = document.createElement("div");
-      userBlock.className = "stats-row-user";
+      const placeEl = document.createElement("div");
+      placeEl.className = "stats-place";
+      placeEl.textContent = idx + 1;
 
       const avatar = document.createElement("div");
       avatar.className = "stats-avatar";
@@ -1551,82 +1256,76 @@
         img.src = row.avatar_url;
         avatar.appendChild(img);
       } else {
-        const fallback = document.createElement("div");
-        fallback.style.width = "100%";
-        fallback.style.height = "100%";
-        fallback.style.display = "flex";
-        fallback.style.alignItems = "center";
-        fallback.style.justifyContent = "center";
-        fallback.style.fontWeight = "600";
-        fallback.textContent = (row.nick || "U")[0];
-        avatar.appendChild(fallback);
+        avatar.textContent = row.nick ? row.nick[0] : "?";
       }
 
-      const nameBlock = document.createElement("div");
-      nameBlock.className = "stats-name-block";
+      const main = document.createElement("div");
+      main.className = "stats-main";
+      const nickEl = document.createElement("div");
+      nickEl.className = "stats-nick";
+      nickEl.textContent = row.nick || "Без имени";
+      const accEl = document.createElement("div");
+      accEl.className = "stats-account";
+      accEl.textContent = row.account_id ? `[${row.account_id}]` : "[—]";
+      main.appendChild(nickEl);
+      main.appendChild(accEl);
 
-      const nick = document.createElement("div");
-      nick.className = "stats-nick";
-      nick.textContent = row.nick || "Без имени";
+      const pointsEl = document.createElement("div");
+      pointsEl.className = "stats-points";
+      pointsEl.textContent = `${row.points ?? 0} АШ`;
 
-      const acc = document.createElement("div");
-      acc.className = "stats-account";
-      acc.textContent = row.account_id ? `[${row.account_id}]` : "";
-
-      nameBlock.appendChild(nick);
-      nameBlock.appendChild(acc);
-
-      userBlock.appendChild(avatar);
-      userBlock.appendChild(nameBlock);
-
-      const scoreBlock = document.createElement("div");
-      scoreBlock.className = "stats-score-block";
-
-      const pts = document.createElement("div");
-      pts.className = "stats-points";
-      pts.textContent =
-        typeof row.points === "number" && !Number.isNaN(row.points)
-          ? row.points
-          : 0;
-
-      const suffix = document.createElement("div");
-      suffix.className = "stats-points-suffix";
-      suffix.textContent = "АШ";
-
-      scoreBlock.appendChild(pts);
-      scoreBlock.appendChild(suffix);
-
-      item.appendChild(medal);
-      item.appendChild(userBlock);
-      item.appendChild(scoreBlock);
+      item.appendChild(placeEl);
+      item.appendChild(avatar);
+      item.appendChild(main);
+      item.appendChild(pointsEl);
 
       statsListEl.appendChild(item);
     });
   }
 
-  /* =============== ИНИЦИАЛИЗАЦИЯ =============== */
+  if (statsTabDay && statsTabWeek) {
+    const tabs = [statsTabDay, statsTabWeek];
+    tabs.forEach((btn) => {
+      btn.onclick = () => {
+        tabs.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const period = btn.dataset.period;
+        loadStats(period);
+      };
+    });
+  }
 
-  window.addEventListener("load", async () => {
-    // Тема
+  /* ======= ПРОЧЕЕ ======= */
+
+  const backToPanelBtn = document.getElementById("back-to-panel");
+  if (backToPanelBtn) {
+    backToPanelBtn.onclick = () => {
+      window.location.href = "index.html";
+    };
+  }
+
+  const userTagEl = document.getElementById("user-tag");
+
+  async function initPage() {
     await loadThemeFromDB();
     applyThemeBackground();
     applyThemeToBlocks();
     applySiteBranding();
 
-    // Сессия пользователя
-    const session = loadSession();
-    if (session) {
-      currentUser = session;
+    currentUser = loadSession();
+    if (userTagEl) {
+      if (!currentUser) {
+        userTagEl.textContent = "Режим гостя — только просмотр.";
+      } else {
+        userTagEl.textContent = `Вы вошли как ${currentUser.nick} (${roleLabel(currentUser.role)})`;
+      }
     }
-    refreshTopBar();
 
-    // Лидеры
     await loadLeaders();
+    await loadStats("day");
+  }
 
-    // Статистика
-    updateStatsDateLabel();
-    await loadStats();
-  });
+  window.addEventListener("load", initPage);
 </script>
 </body>
 </html>
