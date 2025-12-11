@@ -26,6 +26,24 @@
       padding: 0;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
+
+    .nav-btn-leaders {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ec4899, #6366f1);
+      color: #f9fafb;
+      border-radius: 999px;
+      padding: 8px 14px;
+      text-decoration: none;
+      text-align: left;
+      border: 1px solid rgba(248,250,252,0.3);
+      box-shadow: 0 0 18px rgba(236,72,153,0.7);
+    }
+    
+    .nav-btn-leaders:hover {
+      filter: brightness(1.08);
+    }
     .admin-navbar {
       justify-content: flex-start;
     }
@@ -1447,6 +1465,10 @@
           <span class="side-nav-icon">💬</span>
           <span>Раздел PD на форуме</span>
         </button>
+
+        <a href="leader.html" class="nav-btn nav-btn-leaders">
+          ⭐ Рейтинг лидеров
+        </a>
   
         <button class="side-nav-btn" id="side-binders">
           <span class="side-nav-icon">📂</span>
@@ -1492,7 +1514,7 @@
             <button class="back-home-btn" id="back-home-btn" style="display:none;">⟵ На главную панель</button>
           
             <div class="top-user" id="top-user">
-              <div class="top-avatar" id="top-avatar">PP</div>
+              <div class="top-avatar" id="top-avatar">PD</div>
               <div>
                 <div class="top-name" id="top-nick">Офицер</div>
                 <div class="top-role" id="top-role">Роль</div>
@@ -4960,3 +4982,4 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
