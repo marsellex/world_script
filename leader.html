@@ -90,7 +90,7 @@
       margin-top: 4px;
     }
 
-    /* Карточки лидеров сверху вниз */
+    /* Стек карточек */
 
     .leaders-stack {
       display: flex;
@@ -169,7 +169,6 @@
       object-fit: cover;
     }
 
-    /* Ховер / драг только для админов — класс навешивается из JS */
     .leader-avatar.editable {
       cursor: pointer;
     }
@@ -200,7 +199,7 @@
       justify-content: space-between;
       gap: 8px;
       margin-bottom: 6px;
-      padding-left: 72px; /* чтобы ранг отступал от края */
+      padding-left: 72px;
     }
 
     .leader-name-block {
@@ -267,7 +266,7 @@
 
     .leader-row-bottom {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) auto;
+      grid-template-columns: minmax(0, 1.1fr) auto;
       align-items: center;
       gap: 10px;
       margin-top: 4px;
@@ -462,15 +461,14 @@
 
 <div id="leader-app">
   <header class="page-header">
-    <div class="page-title">Рейтинг лидеров PD</div>
+    <div class="page-title">РЕЙТИНГ ЛИДЕРОВ PD</div>
     <div class="page-subtitle">
       Топ-3 лидера подразделений по активности АШ. Данные редактируются администрацией.
     </div>
   </header>
 
-  <!-- Стек из трёх карточек -->
   <div class="leaders-stack" id="leaders-stack">
-    <!-- Карточки будут отрисованы из JS -->
+    <!-- сюда рендерятся 3 плашки -->
   </div>
 
   <div class="note-guest" id="guest-note" style="display:none;">
@@ -535,16 +533,17 @@
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { createClient } = window.supabase;
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const defaultDepts = ["LSPD", "SFPD", "LVPD"];
 
   let currentUser = null;
-  let leadersCache = [];   // все лидеры из БД
+  let leadersCache = [];
   let bgRotationTimer = null;
   let bgCurrentIndex = 0;
-  const bgRotatorEl = document.getElementById("bg-rotator");
 
+  const bgRotatorEl = document.getElementById("bg-rotator");
   const leadersStack = document.getElementById("leaders-stack");
   const guestNote = document.getElementById("guest-note");
 
@@ -558,24 +557,11 @@
   const editCancelBtn = document.getElementById("edit-cancel-btn");
   const editSaveBtn = document.getElementById("edit-save-btn");
   const editSubtitle = document.getElementById("edit-modal-subtitle");
-
   const avatarHiddenInput = document.getElementById("avatar-hidden-input");
 
-  let editingPosition = null;   // 0,1,2
-  let editingLeaderId = null;   // id записи в БД для модалки
-  let pendingAvatarLeaderId = null; // для смены аватарки кликом по плашке
-
-  /* ===== Загрузка пользователя из localStorage ===== */
-
-  function loadCurrentUserFromStorage() {
-    try {
-      const raw = localStorage.getItem("pp_user");
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  }
+  let editingPosition = null;
+  let editingLeaderId = null;
+  let pendingAvatarLeaderId = null;
 
   function isAdminLike(user) {
     if (!user) return false;
@@ -586,11 +572,11 @@
     );
   }
 
-  /* ===== Тема (только фон из theme_settings) ===== */
+  /* ===== Тема ===== */
 
   async function loadThemeFromDB() {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("theme_settings")
         .select("images, blur")
         .eq("id", 1)
@@ -640,11 +626,43 @@
         const next = imgs[bgCurrentIndex];
         if (prev) prev.classList.remove("active");
         if (next) next.classList.add("active");
-      }, 60 * 1000);
+      }, 60000);
     }
   }
 
-  /* ===== Загрузка / рендер лидеров ===== */
+  /* ===== Пользователь из Supabase auth ===== */
+
+  async function loadCurrentUser() {
+    try {
+      const { data, error } = await supabaseClient.auth.getUser();
+      if (error || !data || !data.user) {
+        console.warn("auth.getUser => гость", error);
+        currentUser = null;
+        return;
+      }
+
+      const userId = data.user.id;
+      const { data: row, error: rowErr } = await supabaseClient
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (rowErr || !row) {
+        console.warn("Не найден пользователь в таблице users:", rowErr);
+        currentUser = null;
+        return;
+      }
+
+      currentUser = row;
+      console.log("Текущий пользователь:", currentUser);
+    } catch (e) {
+      console.error("Ошибка загрузки пользователя:", e);
+      currentUser = null;
+    }
+  }
+
+  /* ===== Лидеры ===== */
 
   function getSortedLeaders() {
     const arr = [...leadersCache];
@@ -677,16 +695,12 @@
   }
 
   function renderLeaders() {
+    if (!leadersStack) return;
     leadersStack.innerHTML = "";
 
     const sorted = getSortedLeaders();
     const canEdit = isAdminLike(currentUser);
-
-    if (!currentUser || !canEdit) {
-      guestNote.style.display = "block";
-    } else {
-      guestNote.style.display = "none";
-    }
+    guestNote.style.display = canEdit ? "none" : "block";
 
     for (let i = 0; i < 3; i++) {
       const rank = i + 1;
@@ -696,7 +710,8 @@
 
       const rankBadge = document.createElement("div");
       rankBadge.className = "leader-rank-badge";
-      rankBadge.innerHTML = `<span>${rankEmblem(rank)}</span><span class="rank-num">${rank} место</span>`;
+      rankBadge.innerHTML =
+        `<span>${rankEmblem(rank)}</span><span class="rank-num">${rank} место</span>`;
       card.appendChild(rankBadge);
 
       const avatar = document.createElement("div");
@@ -773,7 +788,6 @@
         ? leader.ash
         : null;
 
-      // Активность дня
       const statDay = document.createElement("div");
       statDay.className = "leader-stat-card";
       const labelDay = document.createElement("div");
@@ -787,7 +801,6 @@
       statDay.appendChild(labelDay);
       statDay.appendChild(valueDay);
 
-      // Активность недели
       const statWeek = document.createElement("div");
       statWeek.className = "leader-stat-card";
       const labelWeek = document.createElement("div");
@@ -820,7 +833,6 @@
       }
 
       rowBottom.appendChild(actions);
-
       main.appendChild(rowBottom);
       card.appendChild(main);
 
@@ -829,9 +841,8 @@
   }
 
   async function loadLeadersFromDB() {
-    leadersStack.innerHTML = "<div style='text-align:center; font-size:13px; color:var(--muted);'>Загрузка лидеров...</div>";
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("leaders")
         .select("*")
         .order("ash", { ascending: false })
@@ -839,7 +850,6 @@
 
       if (error) {
         console.error("Ошибка загрузки leaders:", error);
-        leadersStack.innerHTML = "<div style='text-align:center; font-size:13px; color:var(--danger);'>Ошибка загрузки списка лидеров.</div>";
         return;
       }
 
@@ -847,15 +857,13 @@
       renderLeaders();
     } catch (e) {
       console.error("leaders load error:", e);
-      leadersStack.innerHTML = "<div style='text-align:center; font-size:13px; color:var(--danger);'>Ошибка загрузки списка лидеров.</div>";
     }
   }
 
-  /* ===== Модалка редактирования ===== */
+  /* ===== Модалка ===== */
 
   function openEditModal(position) {
-    const canEdit = isAdminLike(currentUser);
-    if (!canEdit) return;
+    if (!isAdminLike(currentUser)) return;
 
     editingPosition = position;
     const leader = getLeaderForPosition(position);
@@ -888,6 +896,15 @@
     editError.textContent = "";
   }
 
+  function fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("File read error"));
+      reader.readAsDataURL(file);
+    });
+  }
+
   if (editCancelBtn) {
     editCancelBtn.onclick = () => closeEditModal();
   }
@@ -915,7 +932,6 @@
         return;
       }
 
-      // читаем аватарку, если выбрана
       let avatarData = null;
       if (editAvatarFile.files && editAvatarFile.files[0]) {
         try {
@@ -942,7 +958,7 @@
         }
 
         if (editingLeaderId) {
-          const { error } = await supabase
+          const { error } = await supabaseClient
             .from("leaders")
             .update(payload)
             .eq("id", editingLeaderId);
@@ -954,7 +970,7 @@
             return;
           }
         } else {
-          const { data, error } = await supabase
+          const { data, error } = await supabaseClient
             .from("leaders")
             .insert(payload)
             .select("*")
@@ -981,16 +997,7 @@
     };
   }
 
-  function fileToDataURL(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error("File read error"));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  /* ===== Смена аватарки по клику на плашке ===== */
+  /* ===== Аватарка по клику ===== */
 
   document.addEventListener("click", (e) => {
     const avatarEl = e.target.closest(".leader-avatar");
@@ -1002,7 +1009,6 @@
 
     const leader = getLeaderForPosition(pos);
     if (!leader) {
-      // если лидера ещё нет – открываем модалку создания
       openEditModal(pos);
       return;
     }
@@ -1020,7 +1026,7 @@
 
       try {
         const dataUrl = await fileToDataURL(file);
-        await supabase
+        await supabaseClient
           .from("leaders")
           .update({ avatar_url: dataUrl })
           .eq("id", pendingAvatarLeaderId);
@@ -1034,7 +1040,7 @@
     });
   }
 
-  /* (Опционально) Drag&Drop на аватарку – только визуальное поведение + загрузка одного файла */
+  /* ===== Drag&Drop по аватарке (опционально) ===== */
 
   document.addEventListener("dragover", (e) => {
     const avatarEl = e.target.closest(".leader-avatar");
@@ -1060,7 +1066,6 @@
 
     const leader = getLeaderForPosition(pos);
     if (!leader) {
-      // нет лидера — пусть сначала создадут через модалку
       openEditModal(pos);
       return;
     }
@@ -1070,7 +1075,7 @@
 
     try {
       const dataUrl = await fileToDataURL(files[0]);
-      await supabase
+      await supabaseClient
         .from("leaders")
         .update({ avatar_url: dataUrl })
         .eq("id", leader.id);
@@ -1081,11 +1086,16 @@
     }
   });
 
-  /* ===== Инициализация страницы ===== */
+  /* ===== Инициализация ===== */
 
   window.addEventListener("load", async () => {
-    currentUser = loadCurrentUserFromStorage();
+    // 1) сразу показываем 3 плашки "Лидер не назначен"
+    renderLeaders();
+
+    // 2) подгружаем тему и пользователя + данные лидеров
     await loadThemeFromDB();
+    await loadCurrentUser();
+    renderLeaders();       // перерендер с учётом роли
     await loadLeadersFromDB();
   });
 </script>
