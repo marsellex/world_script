@@ -352,7 +352,12 @@
       font-size: 12px;
       padding: 4px 10px;
       border-radius: 999px;
+    
       display: inline-flex;
+      width: fit-content;      /* ✅ по ширине текста */
+      max-width: 100%;
+      align-self: flex-start;  /* ✅ не растягиваться внутри flex-колонки */
+    
       align-items: center;
       background: rgba(15, 23, 42, 0.9);
       border: 1px solid rgba(55, 65, 81, 0.9);
@@ -360,6 +365,7 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
+
     .leader-dept-lspd {
       background: rgba(22, 163, 74, 0.25);
       border-color: rgba(34, 197, 94, 0.9);
@@ -939,7 +945,6 @@
       editError.style.display = "none";
 
       const payload = {
-        period: currentPeriod,
         department: dept,
         nick: nick,
         account_id: account,
@@ -1037,8 +1042,8 @@
     const { data, error } = await supabaseClient
       .from("leader_stats")
       .select("*")
-      .eq("period", period)
       .order("points", { ascending: false });
+
 
     if (error) {
       console.error(error);
@@ -1048,11 +1053,17 @@
     }
 
     leadersCache = data || [];
-    const slots = [
-      leadersCache[0] || null,
-      leadersCache[1] || null,
-      leadersCache[2] || null,
-    ];
+
+    const byDept = { LSPD: null, SFPD: null, LVPD: null };
+    leadersCache.forEach((r) => {
+      const d = (r.department || "").toUpperCase();
+      if (d === "LSPD" || d === "SFPD" || d === "LVPD") {
+        // если вдруг в таблице будет дубль по департаменту — берём с большими очками
+        if (!byDept[d] || (r.points ?? 0) > (byDept[d].points ?? 0)) byDept[d] = r;
+      }
+    });
+    
+    const slots = [byDept.LSPD, byDept.SFPD, byDept.LVPD];
 
     leadersWrapper.innerHTML = "";
 
