@@ -366,6 +366,13 @@
       letter-spacing: 0.06em;
     }
 
+    .leader-dept-badge {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+
     .leader-dept-lspd {
       background: rgba(22, 163, 74, 0.25);
       border-color: rgba(34, 197, 94, 0.9);
@@ -542,26 +549,58 @@
     }
 
     @media (max-width: 720px) {
-      body {
-        padding: 12px;
-      }
+      body { padding: 12px; }
+    
       .page-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 10px;
       }
+    
+      /* карточка: сетка, чтобы всё аккуратно переносилось */
       .leader-card {
-        flex-direction: row;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: 52px 68px 1fr;
+        grid-template-rows: auto auto;
+        column-gap: 12px;
+        row-gap: 10px;
+        align-items: start;
+        padding: 14px 14px;
       }
+    
+      .leader-icon { grid-column: 1; grid-row: 1; }
+      .leader-avatar { grid-column: 2; grid-row: 1; }
+    
+      /* основной текст занимает всю ширину справа */
+      .leader-main {
+        grid-column: 3;
+        grid-row: 1;
+        min-width: 0;
+      }
+    
+      /* очки + “место” уходят во 2 строку и тянутся на всю ширину */
       .leader-score-block {
-        align-items: flex-start;
+        grid-column: 1 / -1;
+        grid-row: 2;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-width: 0;
       }
+    
+      /* кнопка редактирования: тоже во 2 строку, под правой частью */
       .leader-actions {
         position: static;
-        margin-top: 10px;
-        align-self: flex-end;
+        grid-column: 1 / -1;
+        grid-row: 3;
+        margin-top: 2px;
+        justify-self: end;
       }
+    
+      .leader-score .value { font-size: 22px; }
     }
+
   </style>
 </head>
 <body>
