@@ -151,7 +151,7 @@
       color: var(--muted);
     }
 
-    /* Основная панель (как на скрине) */
+    /* Основная панель */
     .leader-panel {
       border-radius: 32px;
       border: 1px solid var(--panel-border);
@@ -347,7 +347,7 @@
       text-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
     }
 
-    /* департамент — теперь цветная плашка */
+    /* департамент — цветная плашка */
     .leader-dept {
       font-size: 12px;
       padding: 4px 10px;
@@ -377,11 +377,6 @@
       border-color: rgba(239, 68, 68, 0.95);
       color: #fecaca;
       text-shadow: 0 0 8px rgba(220, 38, 38, 0.85);
-    }
-
-    .leader-meta {
-      font-size: 11px;
-      color: var(--muted);
     }
 
     .leader-score-block {
@@ -573,7 +568,7 @@
       <div class="page-subtitle">Кто сегодня набрал больше всех АШ.</div>
       <div class="user-tag" id="user-tag"></div>
     </div>
-    <!-- Кнопку "К панели офицера" убрали по запросу -->
+    <!-- Кнопку "К панели офицера" убрали -->
   </div>
 
   <div class="leader-panel">
@@ -715,7 +710,7 @@
     images.forEach((src, index) => {
       const img = document.createElement("img");
       img.src = src;
-      img.style.filter = \`blur(\${blurPx}px)\`;
+      img.style.filter = "blur(" + blurPx + "px)";
       if (index === 0) img.classList.add("active");
       bgRotatorEl.appendChild(img);
     });
@@ -761,7 +756,7 @@
     }
   }
 
-  /* ===== СЕССИЯ ПОЛЬЗОВАТЕЛЯ (как на index.html) ===== */
+  /* ===== СЕССИЯ ПОЛЬЗОВАТЕЛЯ ===== */
   let currentUser = null;
 
   function loadSession() {
@@ -847,17 +842,17 @@
 
     editingRowId = row ? row.id : null;
 
-    const nick = row?.nick || "";
-    const acc = row?.account_id || "";
-    const dept = row?.department || "LSPD";
-    const pts = row?.points ?? 0;
+    const nick = row && row.nick ? row.nick : "";
+    const acc = row && row.account_id ? row.account_id : "";
+    const dept = row && row.department ? row.department : "LSPD";
+    const pts = row && typeof row.points === "number" ? row.points : 0;
 
     editDept.value = dept;
     editNick.value = nick;
     editAccount.value = acc;
     editPoints.value = pts;
 
-    const initialAvatar = editingAvatarData || row?.avatar_url || null;
+    const initialAvatar = editingAvatarData || (row && row.avatar_url ? row.avatar_url : null);
     setEditAvatarPreview(initialAvatar, nick ? nick[0] : "?");
 
     editError.style.display = "none";
@@ -946,7 +941,7 @@
       const payload = {
         period: currentPeriod,
         department: dept,
-        nick,
+        nick: nick,
         account_id: account,
         points: pts,
       };
@@ -1033,7 +1028,7 @@
       const dd = String(now.getDate()).padStart(2, "0");
       const mm = String(now.getMonth() + 1).padStart(2, "0");
       const yyyy = now.getFullYear();
-      dateEl.textContent = \`\${dd}.\${mm}.\${yyyy}\`;
+      dateEl.textContent = dd + "." + mm + "." + yyyy;
     }
 
     if (!leadersWrapper) return;
@@ -1098,7 +1093,7 @@
 
         const accEl = document.createElement("div");
         accEl.className = "leader-account";
-        accEl.textContent = row.account_id ? \`[\${row.account_id}]\` : "[—]";
+        accEl.textContent = row.account_id ? "[" + row.account_id + "]" : "[—]";
 
         nameRow.appendChild(nickEl);
         nameRow.appendChild(accEl);
@@ -1120,7 +1115,7 @@
 
         const valueEl = document.createElement("span");
         valueEl.className = "value";
-        valueEl.textContent = row.points ?? 0;
+        valueEl.textContent = row.points != null ? row.points : 0;
 
         const unitEl = document.createElement("span");
         unitEl.className = "unit";
@@ -1195,7 +1190,9 @@
         btn.type = "button";
         btn.className = "btn-outline btn-sm";
         btn.textContent = row ? "Редактировать" : "Назначить лидера";
-        btn.onclick = () => openEditModal(row || null);
+        btn.onclick = function () {
+          openEditModal(row || null);
+        };
         actions.appendChild(btn);
         card.appendChild(actions);
       }
@@ -1211,7 +1208,7 @@
   if (tabDay && tabWeek) {
     const tabs = [tabDay, tabWeek];
     tabs.forEach((btn) => {
-      btn.onclick = () => {
+      btn.onclick = function () {
         tabs.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         const period = btn.dataset.period;
@@ -1235,11 +1232,7 @@
         userTagEl.textContent = "Режим гостя — доступен только просмотр рейтинга.";
       } else {
         userTagEl.textContent =
-          "Вы вошли как " +
-          currentUser.nick +
-          " (" +
-          roleLabel(currentUser.role) +
-          ")";
+          "Вы вошли как " + currentUser.nick + " (" + roleLabel(currentUser.role) + ")";
       }
     }
 
