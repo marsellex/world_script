@@ -366,6 +366,36 @@
       letter-spacing: 0.06em;
     }
 
+    .dept-badge {
+      display:inline-flex;
+      align-items:center;
+      width: fit-content;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+      border: 1px solid rgba(148,163,184,.25);
+      background: rgba(15,23,42,.65);
+    }
+    
+    /* цвета */
+    .dept-badge.lspd{
+      color:#22c55e;
+      box-shadow: 0 0 18px rgba(34,197,94,.25);
+    }
+    .dept-badge.sfpd{
+      color:#38bdf8;
+      box-shadow: 0 0 18px rgba(56,189,248,.25);
+    }
+    .dept-badge.lvpd{
+      color:#ef4444;
+      box-shadow: 0 0 18px rgba(239,68,68,.25);
+    }
+
+
     .leader-dept-badge {
       display: inline-flex;
       align-items: center;
@@ -1195,9 +1225,14 @@
       nameRow.appendChild(nickEl);
       nameRow.appendChild(accEl);
 
+      const dept = (row.department || "").trim().toUpperCase();
+
       const deptEl = document.createElement("div");
-      deptEl.className = "leader-dept";
-      deptEl.textContent = row.department || "Департамент не указан";
+      deptEl.className = "dept-badge " +
+        (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
+      
+      deptEl.textContent = dept || "—";
+
 
       main.appendChild(nameRow);
       main.appendChild(deptEl);
@@ -1235,8 +1270,9 @@
       emptyTitle.textContent = "Лидер не назначен";
 
       const deptEl = document.createElement("div");
-      deptEl.className = "leader-dept";
+      deptEl.className = "dept-badge";
       deptEl.textContent = "—";
+
 
       main.appendChild(emptyTitle);
       main.appendChild(deptEl);
