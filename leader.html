@@ -2,25 +2,21 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Рейтинг лидеров PD</title>
+  <title>Police Platinum — Рейтинг лидеров</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     :root {
-      --bg: #050816;
-      --panel-bg: #070818;
-      --panel-border: #1f2937;
-      --text: #f9fafb;
+      --bg: #020617;
+      --bg-light: #020617;
+      --bg-lighter: #020617;
+      --text: #e5e7eb;
       --muted: #9ca3af;
-      --accent-pink: #ec4899;
-      --accent-pink-soft: #f472b6;
-      --accent-pink-dark: #db2777;
-      --tab-bg: #111827;
-      --tab-border: #1f2937;
-      --score-color: #f472b6;
-      --gold: #facc15;
-      --silver: #e5e7eb;
-      --bronze: #fb923c;
+      --border: #374151;
+      --accent: #2563eb;
+      --accent-hover: #3b82f6;
+      --danger: #ef4444;
+      --success: #22c55e;
     }
 
     * {
@@ -31,13 +27,13 @@
     }
 
     body {
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #020617 100%);
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
       color: var(--text);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 20px;
+      padding: 24px 12px;
     }
 
     #bg-rotator {
@@ -47,6 +43,7 @@
       background: #020617;
       overflow: hidden;
     }
+
     #bg-rotator img {
       position: absolute;
       inset: 0;
@@ -57,236 +54,113 @@
       transition: opacity 1s ease-in-out;
       pointer-events: none;
     }
+
     #bg-rotator img.active {
       opacity: 1;
     }
 
-    #app {
+    #leader-app {
       width: 100%;
-      max-width: 1100px;
-      position: relative;
-      z-index: 1;
+      max-width: 780px;
     }
 
     a {
-      color: var(--accent-pink-soft);
+      color: var(--accent-hover);
       text-decoration: none;
     }
     a:hover {
       text-decoration: underline;
     }
 
-    .btn {
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.8);
-      color: var(--text);
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.75);
-    }
-    .btn:hover {
-      background: rgba(31, 41, 55, 0.95);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
-    }
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-
-    .btn-outline {
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.65);
-      background: transparent;
-      color: var(--text);
-      font-size: 13px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-    }
-    .btn-outline:hover {
-      background: rgba(15, 23, 42, 0.85);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.85);
-    }
-
-    /* Верхняя строка */
     .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      gap: 12px;
-    }
-
-    .page-title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      margin-bottom: 18px;
+      text-align: center;
     }
 
     .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      text-shadow: 0 0 18px rgba(168, 85, 247, 0.55);
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .page-subtitle {
       font-size: 13px;
       color: var(--muted);
+      margin-top: 4px;
     }
 
-    .user-tag {
-      font-size: 12px;
-      color: var(--muted);
-    }
+    /* Карточки лидеров сверху вниз */
 
-    /* Основная панель (как на скрине) */
-    .leader-panel {
-      border-radius: 32px;
-      border: 1px solid var(--panel-border);
-      padding: 26px 26px 20px;
-      background:
-        radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), transparent 55%),
-        radial-gradient(circle at top right, rgba(236, 72, 153, 0.35), transparent 55%),
-        linear-gradient(145deg, #020617 0%, #020617 40%, #020617 100%);
-      box-shadow:
-        0 40px 80px rgba(15, 23, 42, 0.95),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
-    }
-
-    .leader-panel-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .leader-tabs {
-      display: inline-flex;
-      background: var(--tab-bg);
-      border-radius: 999px;
-      border: 1px solid var(--tab-border);
-      padding: 4px;
-      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.6);
-    }
-
-    .leader-tab {
-      min-width: 160px;
-      padding: 10px 20px;
-      border-radius: 999px;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      position: relative;
-      transition: color 0.12s;
-    }
-
-    .leader-tab span.icon {
-      font-size: 14px;
-    }
-
-    .leader-tab.active {
-      color: #f9fafb;
-    }
-
-    .leader-tab.active::before {
-      content: "";
-      position: absolute;
-      inset: -3px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top, rgba(251, 113, 133, 0.85), rgba(236, 72, 153, 0.95));
-      box-shadow:
-        0 0 22px rgba(236, 72, 153, 0.8),
-        0 18px 40px rgba(15, 23, 42, 0.9);
-      z-index: -1;
-    }
-
-    .leader-tab.active span.label {
-      font-weight: 700;
-    }
-
-    .leader-date {
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    /* Лидеры (3 карточки) */
-    .leaders-wrapper {
-      margin-top: 8px;
+    .leaders-stack {
       display: flex;
       flex-direction: column;
       gap: 14px;
+      margin-top: 10px;
     }
 
     .leader-card {
       position: relative;
+      border-radius: 22px;
+      padding: 14px 16px 14px 16px;
+      background: radial-gradient(circle at top left, rgba(148,163,184,0.22), rgba(15,23,42,0.96));
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow:
+        0 18px 40px rgba(15,23,42,0.95),
+        0 0 0 1px rgba(15,23,42,0.7);
       display: flex;
       align-items: center;
-      gap: 18px;
-      padding: 18px 22px;
-      border-radius: 20px;
-      background: radial-gradient(circle at right, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      box-shadow: 0 22px 40px rgba(15, 23, 42, 0.9);
+      gap: 14px;
     }
 
-    .leader-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.35), rgba(15, 23, 42, 0.95));
-      display: flex;
+    .leader-rank-badge {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(148,163,184,0.8);
+      color: #e5e7eb;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      flex-shrink: 0;
+      gap: 5px;
     }
 
-    .leader-card.rank-1 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9));
+    .leader-rank-badge span.rank-num {
+      font-weight: 700;
     }
-    .leader-card.rank-2 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.55), rgba(15, 23, 42, 0.9));
+
+    .leader-rank-1 .leader-rank-badge {
+      border-color: #facc15;
+      box-shadow: 0 0 16px rgba(250,204,21,0.6);
     }
-    .leader-card.rank-3 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.55), rgba(15, 23, 42, 0.9));
+    .leader-rank-2 .leader-rank-badge {
+      border-color: #e5e7eb;
+      box-shadow: 0 0 14px rgba(148,163,184,0.5);
+    }
+    .leader-rank-3 .leader-rank-badge {
+      border-color: #a855f7;
+      box-shadow: 0 0 14px rgba(168,85,247,0.55);
     }
 
     .leader-avatar {
-      width: 68px;
-      height: 68px;
-      border-radius: 18px;
-      border: 2px solid rgba(236, 72, 153, 0.7);
-      background: #020617;
-      overflow: hidden;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 2px solid rgba(148,163,184,0.7);
+      background: radial-gradient(circle at top, #1f2937, #020617);
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
-      flex-shrink: 0;
+      overflow: hidden;
+      cursor: default;
       position: relative;
-      color: #e5e7eb;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
     }
 
     .leader-avatar img {
@@ -295,145 +169,243 @@
       object-fit: cover;
     }
 
+    /* Ховер / драг только для админов — класс навешивается из JS */
     .leader-avatar.editable {
       cursor: pointer;
-      border-style: solid;
+    }
+    .leader-avatar.editable:hover {
+      transform: translateY(-2px) scale(1.03);
+      border-color: var(--accent-hover);
+      box-shadow: 0 10px 22px rgba(15,23,42,0.95);
+    }
+    .leader-avatar.avatar-drop-hover {
+      border-style: dashed;
+      border-color: #facc15;
+      box-shadow: 0 0 0 1px rgba(250,204,21,0.8), 0 12px 26px rgba(15,23,42,1);
     }
 
-    .leader-avatar.editable::after {
-      content: "✎";
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .leader-avatar.drag-over {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8);
+    .leader-avatar-placeholder {
+      font-size: 36px;
+      color: #4b5563;
     }
 
     .leader-main {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
       min-width: 0;
     }
 
-    .leader-name-row {
+    .leader-row-top {
       display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
+      margin-bottom: 6px;
+      padding-left: 72px; /* чтобы ранг отступал от края */
+    }
+
+    .leader-name-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .leader-nick {
-      font-size: 18px;
-      font-weight: 700;
-      text-shadow: 0 0 14px rgba(15, 23, 42, 0.8);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .leader-nick-main {
+      white-space: nowrap;
     }
 
     .leader-account {
       font-size: 13px;
-      color: var(--accent-pink-soft);
-      text-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
-    }
-
-    .leader-dept {
-      font-size: 12px;
       color: var(--muted);
     }
 
-    .leader-meta {
+    .leader-empty-text {
+      font-size: 15px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .leader-dept-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.96);
+      white-space: nowrap;
+    }
+
+    .leader-dept-lspd {
+      border-color: rgba(34,197,94,0.8);
+      background: radial-gradient(circle at top left, rgba(34,197,94,0.22), rgba(15,23,42,0.96));
+      color: #bbf7d0;
+      text-shadow: 0 0 10px rgba(22,163,74,0.7);
+    }
+
+    .leader-dept-sfpd {
+      border-color: rgba(59,130,246,0.8);
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.22), rgba(15,23,42,0.96));
+      color: #bfdbfe;
+      text-shadow: 0 0 10px rgba(37,99,235,0.75);
+    }
+
+    .leader-dept-lvpd {
+      border-color: rgba(239,68,68,0.85);
+      background: radial-gradient(circle at top left, rgba(239,68,68,0.22), rgba(15,23,42,0.96));
+      color: #fecaca;
+      text-shadow: 0 0 10px rgba(220,38,38,0.75);
+    }
+
+    .leader-row-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) auto;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .leader-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .leader-stat-card {
+      border-radius: 14px;
+      padding: 8px 10px;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(55,65,81,0.9);
+      box-shadow: 0 12px 24px rgba(15,23,42,0.9);
+    }
+
+    .leader-stat-label {
       font-size: 11px;
       color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin-bottom: 2px;
     }
 
-    .leader-score-block {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-      min-width: 110px;
+    .leader-stat-value {
+      font-size: 16px;
+      font-weight: 600;
     }
 
-    .leader-score {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      font-weight: 800;
-      text-shadow: 0 0 16px rgba(236, 72, 153, 0.85);
-    }
-
-    .leader-score .value {
-      font-size: 26px;
-      color: var(--score-color);
-    }
-
-    .leader-score .unit {
-      font-size: 13px;
-      color: #e5e7eb;
-    }
-
-    .leader-crown {
-      font-size: 18px;
-    }
-
-    .leader-place-label {
-      font-size: 12px;
+    .leader-stat-value span.suffix {
+      font-size: 11px;
+      font-weight: 400;
+      margin-left: 4px;
       color: var(--muted);
     }
 
     .leader-actions {
-      position: absolute;
-      right: 20px;
-      bottom: 10px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
     }
 
-    .leader-empty {
-      font-size: 15px;
+    .btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.95);
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(15,23,42,0.9);
+      transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 10px 22px rgba(15,23,42,0.95);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .note-guest {
+      margin-top: 12px;
+      font-size: 12px;
       color: var(--muted);
+      text-align: center;
     }
 
-    /* Модалка ошибки */
+    /* Модалка */
+
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0,0,0,0.6);
       display: none;
-      align-items: center;
       justify-content: center;
-      z-index: 50;
+      align-items: center;
+      z-index: 40;
     }
     .modal-backdrop.active {
       display: flex;
     }
+
     .modal {
       width: 100%;
       max-width: 420px;
+      background: rgba(15,23,42,0.98);
       border-radius: 18px;
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      background: radial-gradient(circle at top, rgba(30, 64, 175, 0.3), rgba(15, 23, 42, 0.96));
-      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.95);
-      padding: 18px 18px 14px;
+      border: 1px solid rgba(148,163,184,0.9);
+      padding: 16px 16px 14px;
+      box-shadow: 0 18px 40px rgba(15,23,42,1);
     }
+
     .modal h3 {
       font-size: 18px;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
+
     .modal p {
       font-size: 13px;
       color: var(--muted);
       margin-bottom: 10px;
     }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid rgba(55,65,81,0.9);
+      background: #020617;
+      color: var(--text);
+      font-size: 14px;
+    }
+
     .modal-footer {
       margin-top: 12px;
       display: flex;
@@ -441,97 +413,46 @@
       gap: 8px;
     }
 
-    .field {
-      margin-bottom: 8px;
-    }
-    .field label {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 3px;
-    }
-    .field input,
-    .field select {
-      width: 100%;
-      padding: 7px 9px;
-      border-radius: 9px;
-      border: 1px solid rgba(55, 65, 81, 0.95);
-      background: #020617;
-      color: var(--text);
-      font-size: 14px;
-    }
-    .field input:focus,
-    .field select:focus {
-      outline: none;
-      border-color: rgba(129, 140, 248, 0.9);
-      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.8);
-    }
-    .hint {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .edit-avatar-preview {
-      width: 80px;
-      height: 80px;
-      border-radius: 22px;
-      border: 2px dashed rgba(148, 163, 184, 0.85);
-      background: #020617;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      margin-bottom: 6px;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      color: #e5e7eb;
-    }
-    .edit-avatar-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .edit-avatar-preview::after {
-      content: "✎";
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 20px;
-      height: 20px;
+    .btn-outline {
+      padding: 6px 14px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .error-text {
+      border: 1px solid rgba(148,163,184,0.7);
+      background: transparent;
+      color: var(--text);
       font-size: 12px;
-      color: #f97373;
-      margin-top: 4px;
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.12s ease;
+    }
+    .btn-outline:hover {
+      background: rgba(15,23,42,0.9);
+      transform: translateY(-1px);
     }
 
-    @media (max-width: 720px) {
+    .modal-error {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 4px;
+      min-height: 16px;
+    }
+
+    @media (max-width: 640px) {
       body {
-        padding: 12px;
-      }
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
+        padding: 16px 8px;
       }
       .leader-card {
         flex-direction: row;
         align-items: flex-start;
       }
-      .leader-score-block {
+      .leader-row-top {
+        flex-direction: column;
         align-items: flex-start;
+        padding-left: 64px;
+      }
+      .leader-row-bottom {
+        grid-template-columns: 1fr;
       }
       .leader-actions {
-        position: static;
-        margin-top: 10px;
-        align-self: flex-end;
+        justify-content: flex-start;
       }
     }
   </style>
@@ -539,59 +460,29 @@
 <body>
 <div id="bg-rotator"></div>
 
-<div id="app">
-  <div class="page-header">
-    <div class="page-title-block">
-      <div class="page-title">Топ лидеров PD</div>
-      <div class="page-subtitle">Кто сегодня набрал больше всех АШ.</div>
-      <div class="user-tag" id="user-tag"></div>
+<div id="leader-app">
+  <header class="page-header">
+    <div class="page-title">Рейтинг лидеров PD</div>
+    <div class="page-subtitle">
+      Топ-3 лидера подразделений по активности АШ. Данные редактируются администрацией.
     </div>
-    <button class="btn btn-sm" id="back-to-panel">⟵ К панели офицера</button>
+  </header>
+
+  <!-- Стек из трёх карточек -->
+  <div class="leaders-stack" id="leaders-stack">
+    <!-- Карточки будут отрисованы из JS -->
   </div>
 
-  <div class="leader-panel">
-    <div class="leader-panel-header">
-      <div class="leader-tabs">
-        <button class="leader-tab active" id="tab-day" data-period="day">
-          <span class="icon">♥</span>
-          <span class="label">Статистика дня</span>
-        </button>
-        <button class="leader-tab" id="tab-week" data-period="week">
-          <span class="icon">♥</span>
-          <span class="label">Статистика недели</span>
-        </button>
-      </div>
-      <div class="leader-date" id="leader-date"></div>
-    </div>
-
-    <div class="leaders-wrapper" id="leaders-wrapper">
-      Загрузка…
-    </div>
-  </div>
-</div>
-
-<!-- Модалка ошибки -->
-<div id="error-modal" class="modal-backdrop">
-  <div class="modal">
-    <h3>Ошибка</h3>
-    <p id="error-modal-text"></p>
-    <div class="modal-footer">
-      <button class="btn btn-sm" id="error-modal-close">Закрыть</button>
-    </div>
+  <div class="note-guest" id="guest-note" style="display:none;">
+    Для редактирования лидеров войдите в панель офицера под аккаунтом администратора, модератора или создателя.
   </div>
 </div>
 
 <!-- Модалка редактирования лидера -->
-<div id="leader-edit-modal" class="modal-backdrop">
+<div id="edit-modal-backdrop" class="modal-backdrop">
   <div class="modal">
     <h3>Редактирование лидера</h3>
-    <p>Доступно администраторам, модераторам и редакторам (creator).</p>
-
-    <div class="edit-avatar-preview" id="edit-avatar-preview">
-      <span>?</span>
-    </div>
-    <div class="hint">Кликните или перетащите картинку, чтобы изменить аватар.</div>
-    <input type="file" id="edit-avatar-file" accept="image/*" style="display:none;" />
+    <p id="edit-modal-subtitle">Измените данные лидера и нажмите «Сохранить».</p>
 
     <div class="field">
       <label for="edit-dept">Департамент</label>
@@ -604,27 +495,38 @@
 
     <div class="field">
       <label for="edit-nick">Ник</label>
-      <input id="edit-nick" type="text" placeholder="Имя_Фамилия" />
+      <input id="edit-nick" type="text" placeholder="Marsello_Nelson" />
     </div>
 
     <div class="field">
-      <label for="edit-account">Номер аккаунта</label>
-      <input id="edit-account" type="text" placeholder="3960680" />
+      <label for="edit-account">Номер аккаунта (в скобках)</label>
+      <input id="edit-account" type="text" placeholder="123456" />
     </div>
 
     <div class="field">
-      <label for="edit-points">Текущее количество АШ</label>
-      <input id="edit-points" type="number" min="0" step="1" value="0" />
+      <label for="edit-ash">Текущее количество АШ</label>
+      <input id="edit-ash" type="number" min="0" step="1" placeholder="0" />
     </div>
 
-    <div class="error-text" id="edit-error" style="display:none;"></div>
+    <div class="field">
+      <label for="edit-avatar-file">Аватарка (по желанию)</label>
+      <input id="edit-avatar-file" type="file" accept="image/*" />
+      <div style="font-size:11px; color:var(--muted); margin-top:3px;">
+        Можно также кликнуть по аватарке на плашке, чтобы выбрать файл.
+      </div>
+    </div>
+
+    <div class="modal-error" id="edit-error"></div>
 
     <div class="modal-footer">
-      <button class="btn-outline btn-sm" id="leader-edit-cancel">Отмена</button>
-      <button class="btn btn-sm" id="leader-edit-save">Сохранить</button>
+      <button class="btn-outline" id="edit-cancel-btn">Отмена</button>
+      <button class="btn" id="edit-save-btn">💾 Сохранить</button>
     </div>
   </div>
 </div>
+
+<!-- Скрытый input для смены аватарки кликом по плашке -->
+<input id="avatar-hidden-input" type="file" accept="image/*" style="display:none;" />
 
 <!-- Supabase -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -633,54 +535,85 @@
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
 
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* ===== ТЕМА: только фон + бренд ===== */
-  let themeConfig = {
-    images: [],
-    opacity: 80,
-    blur: 0,
-    borderColor: "#1f2937",
-    favicon: null,
-    siteTitle: null,
-  };
+  const defaultDepts = ["LSPD", "SFPD", "LVPD"];
+
+  let currentUser = null;
+  let leadersCache = [];   // все лидеры из БД
   let bgRotationTimer = null;
   let bgCurrentIndex = 0;
   const bgRotatorEl = document.getElementById("bg-rotator");
 
-  async function loadThemeFromDB() {
-    const { data, error } = await supabaseClient
-      .from("theme_settings")
-      .select("*")
-      .eq("id", 1)
-      .single();
+  const leadersStack = document.getElementById("leaders-stack");
+  const guestNote = document.getElementById("guest-note");
 
-    if (error || !data) {
-      console.warn("Ошибка загрузки темы:", error);
-      return;
+  const editModalBackdrop = document.getElementById("edit-modal-backdrop");
+  const editDept = document.getElementById("edit-dept");
+  const editNick = document.getElementById("edit-nick");
+  const editAccount = document.getElementById("edit-account");
+  const editAsh = document.getElementById("edit-ash");
+  const editAvatarFile = document.getElementById("edit-avatar-file");
+  const editError = document.getElementById("edit-error");
+  const editCancelBtn = document.getElementById("edit-cancel-btn");
+  const editSaveBtn = document.getElementById("edit-save-btn");
+  const editSubtitle = document.getElementById("edit-modal-subtitle");
+
+  const avatarHiddenInput = document.getElementById("avatar-hidden-input");
+
+  let editingPosition = null;   // 0,1,2
+  let editingLeaderId = null;   // id записи в БД для модалки
+  let pendingAvatarLeaderId = null; // для смены аватарки кликом по плашке
+
+  /* ===== Загрузка пользователя из localStorage ===== */
+
+  function loadCurrentUserFromStorage() {
+    try {
+      const raw = localStorage.getItem("pp_user");
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
     }
-
-    themeConfig = {
-      images: data.images || [],
-      opacity: data.opacity ?? 80,
-      blur: data.blur ?? 0,
-      borderColor: data.border_color || "#1f2937",
-      favicon: data.favicon || null,
-      siteTitle: data.site_title || null,
-    };
   }
 
-  function applyThemeBackground() {
+  function isAdminLike(user) {
+    if (!user) return false;
+    return (
+      user.role === "admin" ||
+      user.role === "moderator" ||
+      user.role === "creator"
+    );
+  }
+
+  /* ===== Тема (только фон из theme_settings) ===== */
+
+  async function loadThemeFromDB() {
+    try {
+      const { data, error } = await supabase
+        .from("theme_settings")
+        .select("images, blur")
+        .eq("id", 1)
+        .single();
+
+      if (error || !data) {
+        console.warn("Ошибка загрузки theme_settings:", error);
+        return;
+      }
+
+      const images = data.images || [];
+      const blur = data.blur || 0;
+      applyThemeBackground(images, blur);
+    } catch (e) {
+      console.error("Theme load error:", e);
+    }
+  }
+
+  function applyThemeBackground(images, blurPx) {
     if (!bgRotatorEl) return;
     bgRotatorEl.innerHTML = "";
 
-    const images = themeConfig.images || [];
-    const blurPx = themeConfig.blur || 0;
-
-    if (!images.length) {
+    if (!images || !images.length) {
       bgRotatorEl.style.background = "#020617";
       return;
     }
@@ -688,7 +621,7 @@
     images.forEach((src, index) => {
       const img = document.createElement("img");
       img.src = src;
-      img.style.filter = `blur(${blurPx}px)`;
+      img.style.filter = `blur(${blurPx || 0}px)`;
       if (index === 0) img.classList.add("active");
       bgRotatorEl.appendChild(img);
     });
@@ -711,545 +644,450 @@
     }
   }
 
-  function applyThemeToBlocks() {
-    const borderColor = themeConfig.borderColor || "#1f2937";
-    document.documentElement.style.setProperty("--panel-border", borderColor);
+  /* ===== Загрузка / рендер лидеров ===== */
+
+  function getSortedLeaders() {
+    const arr = [...leadersCache];
+    arr.sort((a, b) => {
+      const aAsh = a.ash || 0;
+      const bAsh = b.ash || 0;
+      if (bAsh !== aAsh) return bAsh - aAsh;
+      return (a.id || 0) - (b.id || 0);
+    });
+    return arr;
   }
 
-  function applySiteBranding() {
-    if (themeConfig.siteTitle) {
-      document.title = themeConfig.siteTitle;
+  function getLeaderForPosition(pos) {
+    const sorted = getSortedLeaders();
+    return sorted[pos] || null;
+  }
+
+  function deptBadgeClass(dept) {
+    if (dept === "LSPD") return "leader-dept-badge leader-dept-lspd";
+    if (dept === "SFPD") return "leader-dept-badge leader-dept-sfpd";
+    if (dept === "LVPD") return "leader-dept-badge leader-dept-lvpd";
+    return "leader-dept-badge";
+  }
+
+  function rankEmblem(rank) {
+    if (rank === 1) return "🥇";
+    if (rank === 2) return "🥈";
+    if (rank === 3) return "🥉";
+    return "⭐";
+  }
+
+  function renderLeaders() {
+    leadersStack.innerHTML = "";
+
+    const sorted = getSortedLeaders();
+    const canEdit = isAdminLike(currentUser);
+
+    if (!currentUser || !canEdit) {
+      guestNote.style.display = "block";
     } else {
-      document.title = "Рейтинг лидеров PD";
+      guestNote.style.display = "none";
     }
 
-    if (themeConfig.favicon) {
-      let link = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "icon";
-        document.head.appendChild(link);
-      }
-      link.href = themeConfig.favicon;
-    }
-  }
-
-  /* ===== СЕССИЯ ПОЛЬЗОВАТЕЛЯ (как на index.html) ===== */
-  let currentUser = null;
-
-  function loadSession() {
-    try {
-      return JSON.parse(localStorage.getItem("pp_user"));
-    } catch {
-      return null;
-    }
-  }
-
-  function roleLabel(role) {
-    if (role === "admin") return "Администратор";
-    if (role === "moderator") return "Модератор";
-    if (role === "creator") return "Редактор";
-    return "Офицер";
-  }
-
-  function isAdminLike(user) {
-    if (!user) return false;
-    return (
-      user.role === "admin" ||
-      user.role === "moderator" ||
-      user.role === "creator"
-    );
-  }
-
-  /* ===== ОШИБКИ ===== */
-  const errorModal = document.getElementById("error-modal");
-  const errorModalText = document.getElementById("error-modal-text");
-  const errorModalClose = document.getElementById("error-modal-close");
-
-  function showErrorModal(message) {
-    errorModalText.textContent = message || "Неизвестная ошибка.";
-    errorModal.classList.add("active");
-  }
-
-  if (errorModalClose) {
-    errorModalClose.onclick = () => {
-      errorModal.classList.remove("active");
-    };
-  }
-
-  /* ===== ЛИДЕРЫ из leader_stats ===== */
-  const leadersWrapper = document.getElementById("leaders-wrapper");
-  const dateEl = document.getElementById("leader-date");
-
-  let currentPeriod = "day";
-  let leadersCache = [];
-  let editingRowId = null;
-  let editingAvatarData = null;
-
-  const editModal = document.getElementById("leader-edit-modal");
-  const editAvatarPreview = document.getElementById("edit-avatar-preview");
-  const editAvatarFile = document.getElementById("edit-avatar-file");
-  const editDept = document.getElementById("edit-dept");
-  const editNick = document.getElementById("edit-nick");
-  const editAccount = document.getElementById("edit-account");
-  const editPoints = document.getElementById("edit-points");
-  const editError = document.getElementById("edit-error");
-  const editCancelBtn = document.getElementById("leader-edit-cancel");
-  const editSaveBtn = document.getElementById("leader-edit-save");
-
-  function setEditAvatarPreview(src, nickInitial) {
-    editAvatarPreview.innerHTML = "";
-    if (src) {
-      const img = document.createElement("img");
-      img.src = src;
-      editAvatarPreview.appendChild(img);
-    } else {
-      const span = document.createElement("span");
-      span.textContent = nickInitial || "?";
-      editAvatarPreview.appendChild(span);
-    }
-  }
-
-  function openEditModal(row) {
-    if (!isAdminLike(currentUser)) {
-      showErrorModal(
-        "Редактирование доступно только администраторам, модераторам и редакторам."
-      );
-      return;
-    }
-
-    editingRowId = row ? row.id : null;
-
-    const nick = row?.nick || "";
-    const acc = row?.account_id || "";
-    const dept = row?.department || "LSPD";
-    const pts = row?.points ?? 0;
-
-    editDept.value = dept;
-    editNick.value = nick;
-    editAccount.value = acc;
-    editPoints.value = pts;
-
-    const initialAvatar = editingAvatarData || row?.avatar_url || null;
-    setEditAvatarPreview(initialAvatar, nick ? nick[0] : "?");
-
-    editError.style.display = "none";
-    editModal.classList.add("active");
-  }
-
-  function closeEditModal() {
-    editModal.classList.remove("active");
-    editingRowId = null;
-    editingAvatarData = null;
-    setEditAvatarPreview(null, "?");
-  }
-
-  // аватар в модалке
-  if (editAvatarPreview) {
-    editAvatarPreview.addEventListener("click", () => {
-      if (!isAdminLike(currentUser)) return;
-      editAvatarFile.click();
-    });
-
-    editAvatarPreview.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      editAvatarPreview.classList.add("drag-over");
-    });
-    editAvatarPreview.addEventListener("dragleave", () => {
-      editAvatarPreview.classList.remove("drag-over");
-    });
-    editAvatarPreview.addEventListener("drop", (e) => {
-      e.preventDefault();
-      editAvatarPreview.classList.remove("drag-over");
-      if (!isAdminLike(currentUser)) return;
-      const file = e.dataTransfer.files[0];
-      if (file) handleEditAvatarFile(file);
-    });
-  }
-
-  if (editAvatarFile) {
-    editAvatarFile.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) handleEditAvatarFile(file);
-      editAvatarFile.value = "";
-    };
-  }
-
-  function handleEditAvatarFile(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      editingAvatarData = reader.result;
-      const nickInitial = editNick.value ? editNick.value[0] : "?";
-      setEditAvatarPreview(editingAvatarData, nickInitial);
-    };
-    reader.onerror = () => {
-      showErrorModal("Не удалось прочитать файл аватара.");
-    };
-    reader.readAsDataURL(file);
-  }
-
-  if (editCancelBtn) {
-    editCancelBtn.onclick = () => {
-      closeEditModal();
-    };
-  }
-
-if (editSaveBtn) {
-  editSaveBtn.onclick = async () => {
-    // 1. Проверяем права
-    if (!isAdminLike(currentUser)) {
-      showErrorModal(
-        "Редактирование доступно только администраторам, модераторам и создателям (creator)."
-      );
-      return;
-    }
-
-    // 2. Собираем данные из формы
-    const dept = editDept.value || "LSPD";
-    const nick = editNick.value.trim();
-    const account = editAccount.value.trim();
-    let pts = parseInt(editPoints.value, 10);
-    if (isNaN(pts) || pts < 0) pts = 0;
-
-    if (!nick || !account) {
-      editError.style.display = "block";
-      editError.textContent = "Ник и номер аккаунта обязательны.";
-      return;
-    }
-    editError.style.display = "none";
-
-    const payload = {
-      period: currentPeriod,      // "day" или "week"
-      department: dept,          // LSPD / SFPD / LVPD
-      nick,
-      account_id: account,
-      points: pts,
-    };
-
-    if (editingAvatarData) {
-      payload.avatar_url = editingAvatarData;
-    }
-
-    try {
-      let resp;
-
-      if (editingRowId) {
-        // Обновляем существующего лидера
-        resp = await supabaseClient
-          .from("leader_stats")
-          .update(payload)
-          .eq("id", editingRowId)
-          .select("*")
-          .single();
-      } else {
-        // Создаём нового лидера
-        resp = await supabaseClient
-          .from("leader_stats")
-          .insert(payload)
-          .select("*")
-          .single();
-      }
-
-      if (resp.error) {
-        console.error("Supabase error on save leader:", resp.error);
-        showErrorModal(
-          "Ошибка сохранения лидера: " + (resp.error.message || "см. консоль браузера")
-        );
-        return;
-      }
-
-      // всё ок
-      closeEditModal();
-      await loadLeaders(currentPeriod);
-    } catch (e) {
-      console.error("Unexpected error on save leader:", e);
-      showErrorModal("Неожиданная ошибка при сохранении лидера (см. консоль браузера).");
-    }
-  };
-}
-
-  function attachAvatarHandlers(avatarEl, row) {
-    if (!isAdminLike(currentUser)) return;
-
-    avatarEl.classList.add("editable");
-
-    const startWithFile = (file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        editingAvatarData = reader.result;
-        openEditModal(row);
-      };
-      reader.onerror = () => {
-        showErrorModal("Не удалось прочитать файл аватара.");
-      };
-      reader.readAsDataURL(file);
-    };
-
-    avatarEl.addEventListener("click", () => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.style.display = "none";
-      document.body.appendChild(input);
-      input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) startWithFile(file);
-        document.body.removeChild(input);
-      };
-      input.click();
-    });
-
-    avatarEl.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      avatarEl.classList.add("drag-over");
-    });
-    avatarEl.addEventListener("dragleave", () => {
-      avatarEl.classList.remove("drag-over");
-    });
-    avatarEl.addEventListener("drop", (e) => {
-      e.preventDefault();
-      avatarEl.classList.remove("drag-over");
-      const file = e.dataTransfer.files[0];
-      if (file) startWithFile(file);
-    });
-  }
-
-  async function loadLeaders(period) {
-    currentPeriod = period;
-    if (dateEl) {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      dateEl.textContent = `${dd}.${mm}.${yyyy}`;
-    }
-
-    if (!leadersWrapper) return;
-    leadersWrapper.textContent = "Загрузка…";
-
-    const { data, error } = await supabaseClient
-      .from("leader_stats")
-      .select("*")
-      .eq("period", period)
-      .order("points", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
-      showErrorModal("Ошибка загрузки таблицы leader_stats.");
-      return;
-    }
-
-    leadersCache = data || [];
-    const slots = [
-      leadersCache[0] || null,
-      leadersCache[1] || null,
-      leadersCache[2] || null,
-    ];
-
-    leadersWrapper.innerHTML = "";
-
-    slots.forEach((row, index) => {
-      const place = index + 1;
+    for (let i = 0; i < 3; i++) {
+      const rank = i + 1;
+      const leader = sorted[i] || null;
       const card = document.createElement("div");
-      card.className = "leader-card rank-" + place;
+      card.className = `leader-card leader-rank-${rank}`;
 
-      const icon = document.createElement("div");
-      icon.className = "leader-icon";
-      icon.textContent =
-        place === 1 ? "🏆" : place === 2 ? "🥈" : "🥉";
+      const rankBadge = document.createElement("div");
+      rankBadge.className = "leader-rank-badge";
+      rankBadge.innerHTML = `<span>${rankEmblem(rank)}</span><span class="rank-num">${rank} место</span>`;
+      card.appendChild(rankBadge);
 
       const avatar = document.createElement("div");
       avatar.className = "leader-avatar";
+      avatar.dataset.position = String(i);
+
+      if (leader && leader.avatar_url) {
+        const img = document.createElement("img");
+        img.src = leader.avatar_url;
+        avatar.appendChild(img);
+      } else {
+        const span = document.createElement("div");
+        span.className = "leader-avatar-placeholder";
+        span.textContent = "☆";
+        avatar.appendChild(span);
+      }
+
+      if (canEdit) {
+        avatar.classList.add("editable");
+      }
+
+      card.appendChild(avatar);
 
       const main = document.createElement("div");
       main.className = "leader-main";
 
-      const scoreBlock = document.createElement("div");
-      scoreBlock.className = "leader-score-block";
+      const rowTop = document.createElement("div");
+      rowTop.className = "leader-row-top";
 
-      if (row) {
-        if (row.avatar_url) {
-          const img = document.createElement("img");
-          img.src = row.avatar_url;
-          avatar.appendChild(img);
-        } else {
-          avatar.textContent = row.nick ? row.nick[0] : "?";
+      const nameBlock = document.createElement("div");
+      nameBlock.className = "leader-name-block";
+
+      if (leader && leader.nick) {
+        const nickRow = document.createElement("div");
+        nickRow.className = "leader-nick";
+
+        const nickSpan = document.createElement("span");
+        nickSpan.className = "leader-nick-main";
+        nickSpan.textContent = leader.nick;
+
+        const accSpan = document.createElement("span");
+        accSpan.className = "leader-account";
+        accSpan.textContent = leader.account_number
+          ? `[${leader.account_number}]`
+          : "[номер не указан]";
+
+        nickRow.appendChild(nickSpan);
+        nickRow.appendChild(accSpan);
+        nameBlock.appendChild(nickRow);
+      } else {
+        const empty = document.createElement("div");
+        empty.className = "leader-empty-text";
+        empty.textContent = "Лидер не назначен";
+        nameBlock.appendChild(empty);
+      }
+
+      rowTop.appendChild(nameBlock);
+
+      const deptText = leader && leader.dept ? leader.dept : defaultDepts[i];
+      const deptBadge = document.createElement("div");
+      deptBadge.className = deptBadgeClass(deptText);
+      deptBadge.textContent = deptText;
+      rowTop.appendChild(deptBadge);
+
+      main.appendChild(rowTop);
+
+      const rowBottom = document.createElement("div");
+      rowBottom.className = "leader-row-bottom";
+
+      const statsGrid = document.createElement("div");
+      statsGrid.className = "leader-stats-grid";
+
+      const ashValue = leader && typeof leader.ash === "number"
+        ? leader.ash
+        : null;
+
+      // Активность дня
+      const statDay = document.createElement("div");
+      statDay.className = "leader-stat-card";
+      const labelDay = document.createElement("div");
+      labelDay.className = "leader-stat-label";
+      labelDay.textContent = "Активность дня";
+      const valueDay = document.createElement("div");
+      valueDay.className = "leader-stat-value";
+      valueDay.innerHTML = ashValue !== null
+        ? `${ashValue}<span class="suffix">АШ</span>`
+        : `—<span class="suffix">АШ</span>`;
+      statDay.appendChild(labelDay);
+      statDay.appendChild(valueDay);
+
+      // Активность недели
+      const statWeek = document.createElement("div");
+      statWeek.className = "leader-stat-card";
+      const labelWeek = document.createElement("div");
+      labelWeek.className = "leader-stat-label";
+      labelWeek.textContent = "Активность недели";
+      const valueWeek = document.createElement("div");
+      valueWeek.className = "leader-stat-value";
+      valueWeek.innerHTML = ashValue !== null
+        ? `${ashValue}<span class="suffix">АШ</span>`
+        : `—<span class="suffix">АШ</span>`;
+      statWeek.appendChild(labelWeek);
+      statWeek.appendChild(valueWeek);
+
+      statsGrid.appendChild(statDay);
+      statsGrid.appendChild(statWeek);
+
+      rowBottom.appendChild(statsGrid);
+
+      const actions = document.createElement("div");
+      actions.className = "leader-actions";
+
+      if (canEdit) {
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn";
+        editBtn.type = "button";
+        editBtn.textContent = "✏️ Редактировать";
+        editBtn.dataset.position = String(i);
+        editBtn.onclick = () => openEditModal(i);
+        actions.appendChild(editBtn);
+      }
+
+      rowBottom.appendChild(actions);
+
+      main.appendChild(rowBottom);
+      card.appendChild(main);
+
+      leadersStack.appendChild(card);
+    }
+  }
+
+  async function loadLeadersFromDB() {
+    leadersStack.innerHTML = "<div style='text-align:center; font-size:13px; color:var(--muted);'>Загрузка лидеров...</div>";
+    try {
+      const { data, error } = await supabase
+        .from("leaders")
+        .select("*")
+        .order("ash", { ascending: false })
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.error("Ошибка загрузки leaders:", error);
+        leadersStack.innerHTML = "<div style='text-align:center; font-size:13px; color:var(--danger);'>Ошибка загрузки списка лидеров.</div>";
+        return;
+      }
+
+      leadersCache = data || [];
+      renderLeaders();
+    } catch (e) {
+      console.error("leaders load error:", e);
+      leadersStack.innerHTML = "<div style='text-align:center; font-size:13px; color:var(--danger);'>Ошибка загрузки списка лидеров.</div>";
+    }
+  }
+
+  /* ===== Модалка редактирования ===== */
+
+  function openEditModal(position) {
+    const canEdit = isAdminLike(currentUser);
+    if (!canEdit) return;
+
+    editingPosition = position;
+    const leader = getLeaderForPosition(position);
+
+    if (leader) {
+      editingLeaderId = leader.id;
+      editDept.value = leader.dept || defaultDepts[position];
+      editNick.value = leader.nick || "";
+      editAccount.value = leader.account_number || "";
+      editAsh.value = typeof leader.ash === "number" ? leader.ash : "";
+      editSubtitle.textContent = `Редактирование лидера #${position + 1}`;
+    } else {
+      editingLeaderId = null;
+      editDept.value = defaultDepts[position];
+      editNick.value = "";
+      editAccount.value = "";
+      editAsh.value = "";
+      editSubtitle.textContent = `Создание лидера #${position + 1}`;
+    }
+
+    editAvatarFile.value = "";
+    editError.textContent = "";
+    editModalBackdrop.classList.add("active");
+  }
+
+  function closeEditModal() {
+    editModalBackdrop.classList.remove("active");
+    editingPosition = null;
+    editingLeaderId = null;
+    editError.textContent = "";
+  }
+
+  if (editCancelBtn) {
+    editCancelBtn.onclick = () => closeEditModal();
+  }
+
+  if (editModalBackdrop) {
+    editModalBackdrop.addEventListener("click", (e) => {
+      if (e.target === editModalBackdrop) {
+        closeEditModal();
+      }
+    });
+  }
+
+  if (editSaveBtn) {
+    editSaveBtn.onclick = async () => {
+      editError.textContent = "";
+
+      const dept = (editDept.value || "").trim();
+      const nick = (editNick.value || "").trim();
+      const acc = (editAccount.value || "").trim();
+      let ashVal = parseInt(editAsh.value, 10);
+      if (isNaN(ashVal) || ashVal < 0) ashVal = 0;
+
+      if (!dept || !nick || !acc) {
+        editError.textContent = "Заполните департамент, ник и номер аккаунта.";
+        return;
+      }
+
+      // читаем аватарку, если выбрана
+      let avatarData = null;
+      if (editAvatarFile.files && editAvatarFile.files[0]) {
+        try {
+          avatarData = await fileToDataURL(editAvatarFile.files[0]);
+        } catch (e) {
+          console.error(e);
+          editError.textContent = "Не удалось прочитать файл аватарки.";
+          return;
+        }
+      }
+
+      editSaveBtn.disabled = true;
+
+      try {
+        let payload = {
+          dept,
+          nick,
+          account_number: acc,
+          ash: ashVal
+        };
+
+        if (avatarData) {
+          payload.avatar_url = avatarData;
         }
 
-        const nameRow = document.createElement("div");
-        nameRow.className = "leader-name-row";
+        if (editingLeaderId) {
+          const { error } = await supabase
+            .from("leaders")
+            .update(payload)
+            .eq("id", editingLeaderId);
 
-        const nickEl = document.createElement("div");
-        nickEl.className = "leader-nick";
-        nickEl.textContent = row.nick || "Без имени";
+          if (error) {
+            console.error("Ошибка обновления лидера:", error);
+            editError.textContent = "Ошибка сохранения лидера.";
+            editSaveBtn.disabled = false;
+            return;
+          }
+        } else {
+          const { data, error } = await supabase
+            .from("leaders")
+            .insert(payload)
+            .select("*")
+            .single();
 
-        const accEl = document.createElement("div");
-        accEl.className = "leader-account";
-        accEl.textContent = row.account_id ? `[${row.account_id}]` : "[—]";
+          if (error) {
+            console.error("Ошибка создания лидера:", error);
+            editError.textContent = "Ошибка сохранения лидера.";
+            editSaveBtn.disabled = false;
+            return;
+          }
 
-        nameRow.appendChild(nickEl);
-        nameRow.appendChild(accEl);
+          leadersCache.push(data);
+        }
 
-        const deptEl = document.createElement("div");
-        deptEl.className = "leader-dept";
-        deptEl.textContent = row.department || "Департамент не указан";
-
-        const metaEl = document.createElement("div");
-        metaEl.className = "leader-meta";
-        metaEl.textContent = row.updated_at
-          ? "Обновлено: " + new Date(row.updated_at).toLocaleString()
-          : "Обновлено: —";
-
-        main.appendChild(nameRow);
-        main.appendChild(deptEl);
-        main.appendChild(metaEl);
-
-        const scoreRow = document.createElement("div");
-        scoreRow.className = "leader-score";
-
-        const valueEl = document.createElement("span");
-        valueEl.className = "value";
-        valueEl.textContent = row.points ?? 0;
-
-        const unitEl = document.createElement("span");
-        unitEl.className = "unit";
-        unitEl.textContent = "АШ";
-
-        scoreRow.appendChild(valueEl);
-        scoreRow.appendChild(unitEl);
-
-        const crown = document.createElement("div");
-        crown.className = "leader-crown";
-        crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
-
-        const placeLabel = document.createElement("div");
-        placeLabel.className = "leader-place-label";
-        placeLabel.textContent = place + " место";
-
-        scoreBlock.appendChild(scoreRow);
-        scoreBlock.appendChild(crown);
-        scoreBlock.appendChild(placeLabel);
-      } else {
-        avatar.textContent = "?";
-
-        const emptyTitle = document.createElement("div");
-        emptyTitle.className = "leader-empty";
-        emptyTitle.textContent = "Лидер не назначен";
-
-        const deptEl = document.createElement("div");
-        deptEl.className = "leader-dept";
-        deptEl.textContent = "Департамент не указан";
-
-        const metaEl = document.createElement("div");
-        metaEl.className = "leader-meta";
-        metaEl.textContent = "Обновлено: —";
-
-        main.appendChild(emptyTitle);
-        main.appendChild(deptEl);
-        main.appendChild(metaEl);
-
-        const scoreRow = document.createElement("div");
-        scoreRow.className = "leader-score";
-
-        const valueEl = document.createElement("span");
-        valueEl.className = "value";
-        valueEl.textContent = "0";
-
-        const unitEl = document.createElement("span");
-        unitEl.className = "unit";
-        unitEl.textContent = "АШ";
-
-        scoreRow.appendChild(valueEl);
-        scoreRow.appendChild(unitEl);
-
-        const crown = document.createElement("div");
-        crown.className = "leader-crown";
-        crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
-
-        const placeLabel = document.createElement("div");
-        placeLabel.className = "leader-place-label";
-        placeLabel.textContent = place + " место";
-
-        scoreBlock.appendChild(scoreRow);
-        scoreBlock.appendChild(crown);
-        scoreBlock.appendChild(placeLabel);
+        closeEditModal();
+        await loadLeadersFromDB();
+      } catch (e) {
+        console.error("leader save error:", e);
+        editError.textContent = "Ошибка сохранения лидера.";
+      } finally {
+        editSaveBtn.disabled = false;
       }
-
-      card.appendChild(icon);
-      card.appendChild(avatar);
-      card.appendChild(main);
-      card.appendChild(scoreBlock);
-
-      if (isAdminLike(currentUser)) {
-        attachAvatarHandlers(avatar, row);
-
-        const actions = document.createElement("div");
-        actions.className = "leader-actions";
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "btn-outline btn-sm";
-        btn.textContent = row ? "Редактировать" : "Назначить лидера";
-        btn.onclick = () => openEditModal(row || null);
-        actions.appendChild(btn);
-        card.appendChild(actions);
-      }
-
-      leadersWrapper.appendChild(card);
-    });
-  }
-
-  /* ===== Навигация табов ===== */
-  const tabDay = document.getElementById("tab-day");
-  const tabWeek = document.getElementById("tab-week");
-
-  if (tabDay && tabWeek) {
-    const tabs = [tabDay, tabWeek];
-    tabs.forEach((btn) => {
-      btn.onclick = () => {
-        tabs.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        const period = btn.dataset.period;
-        loadLeaders(period);
-      };
-    });
-  }
-
-  /* ===== Кнопка "назад" ===== */
-  const backToPanelBtn = document.getElementById("back-to-panel");
-  if (backToPanelBtn) {
-    backToPanelBtn.onclick = () => {
-      window.location.href = "index.html";
     };
   }
 
-  /* ===== ИНИЦИАЛИЗАЦИЯ ===== */
-  const userTagEl = document.getElementById("user-tag");
-
-  async function initPage() {
-    await loadThemeFromDB();
-    applyThemeBackground();
-    applyThemeToBlocks();
-    applySiteBranding();
-
-    currentUser = loadSession();
-    if (userTagEl) {
-      if (!currentUser) {
-        userTagEl.textContent = "Режим гостя — доступен только просмотр рейтинга.";
-      } else {
-        userTagEl.textContent =
-          "Вы вошли как " +
-          currentUser.nick +
-          " (" +
-          roleLabel(currentUser.role) +
-          ")";
-      }
-    }
-
-    await loadLeaders("day");
+  function fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("File read error"));
+      reader.readAsDataURL(file);
+    });
   }
 
-  window.addEventListener("load", initPage);
+  /* ===== Смена аватарки по клику на плашке ===== */
+
+  document.addEventListener("click", (e) => {
+    const avatarEl = e.target.closest(".leader-avatar");
+    if (!avatarEl) return;
+    if (!isAdminLike(currentUser)) return;
+
+    const pos = parseInt(avatarEl.dataset.position, 10);
+    if (isNaN(pos)) return;
+
+    const leader = getLeaderForPosition(pos);
+    if (!leader) {
+      // если лидера ещё нет – открываем модалку создания
+      openEditModal(pos);
+      return;
+    }
+
+    pendingAvatarLeaderId = leader.id;
+    avatarHiddenInput.value = "";
+    avatarHiddenInput.click();
+  });
+
+  if (avatarHiddenInput) {
+    avatarHiddenInput.addEventListener("change", async () => {
+      if (!pendingAvatarLeaderId) return;
+      const file = avatarHiddenInput.files && avatarHiddenInput.files[0];
+      if (!file) return;
+
+      try {
+        const dataUrl = await fileToDataURL(file);
+        await supabase
+          .from("leaders")
+          .update({ avatar_url: dataUrl })
+          .eq("id", pendingAvatarLeaderId);
+
+        pendingAvatarLeaderId = null;
+        await loadLeadersFromDB();
+      } catch (e) {
+        console.error("avatar update error:", e);
+        pendingAvatarLeaderId = null;
+      }
+    });
+  }
+
+  /* (Опционально) Drag&Drop на аватарку – только визуальное поведение + загрузка одного файла */
+
+  document.addEventListener("dragover", (e) => {
+    const avatarEl = e.target.closest(".leader-avatar");
+    if (!avatarEl || !isAdminLike(currentUser)) return;
+    e.preventDefault();
+    avatarEl.classList.add("avatar-drop-hover");
+  });
+
+  document.addEventListener("dragleave", (e) => {
+    const avatarEl = e.target.closest(".leader-avatar");
+    if (!avatarEl) return;
+    avatarEl.classList.remove("avatar-drop-hover");
+  });
+
+  document.addEventListener("drop", async (e) => {
+    const avatarEl = e.target.closest(".leader-avatar");
+    if (!avatarEl || !isAdminLike(currentUser)) return;
+    e.preventDefault();
+    avatarEl.classList.remove("avatar-drop-hover");
+
+    const pos = parseInt(avatarEl.dataset.position, 10);
+    if (isNaN(pos)) return;
+
+    const leader = getLeaderForPosition(pos);
+    if (!leader) {
+      // нет лидера — пусть сначала создадут через модалку
+      openEditModal(pos);
+      return;
+    }
+
+    const files = e.dataTransfer && e.dataTransfer.files;
+    if (!files || !files.length) return;
+
+    try {
+      const dataUrl = await fileToDataURL(files[0]);
+      await supabase
+        .from("leaders")
+        .update({ avatar_url: dataUrl })
+        .eq("id", leader.id);
+
+      await loadLeadersFromDB();
+    } catch (err) {
+      console.error("avatar drop update error:", err);
+    }
+  });
+
+  /* ===== Инициализация страницы ===== */
+
+  window.addEventListener("load", async () => {
+    currentUser = loadCurrentUserFromStorage();
+    await loadThemeFromDB();
+    await loadLeadersFromDB();
+  });
 </script>
 </body>
 </html>
