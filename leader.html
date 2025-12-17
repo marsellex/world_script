@@ -1063,7 +1063,16 @@
       }
     });
     
-    const slots = [byDept.LSPD, byDept.SFPD, byDept.LVPD];
+    let slots = [byDept.LSPD, byDept.SFPD, byDept.LVPD];
+
+    // ✅ сортируем по АШ (points) убыванию, пустые — в конец
+    slots.sort((a, b) => {
+      if (!a && !b) return 0;
+      if (!a) return 1;
+      if (!b) return -1;
+      return (b.points ?? 0) - (a.points ?? 0);
+    });
+    
 
     leadersWrapper.innerHTML = "";
 
