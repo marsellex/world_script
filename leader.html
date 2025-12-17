@@ -896,6 +896,8 @@
     editNick.value = nick;
     editAccount.value = acc;
     editPoints.value = pts;
+    editPoints.disabled = true;
+
 
     const initialAvatar = editingAvatarData || (row && row.avatar_url ? row.avatar_url : null);
     setEditAvatarPreview(initialAvatar, nick ? nick[0] : "?");
@@ -985,12 +987,12 @@
       const DB_PERIOD = "global";
   
       const payload = {
-        period: DB_PERIOD,
+        period: currentPeriod,
         department: dept,
         nick,
-        account_id: account,
-        points: pts,
+        account_id: account
       };
+
   
       if (editingAvatarData) payload.avatar_url = editingAvatarData;
   
@@ -1087,7 +1089,7 @@
 
   async function loadLeaders(period) {
   currentPeriod = period;
-
+    
   if (dateEl) {
     const now = new Date();
     const dd = String(now.getDate()).padStart(2, "0");
@@ -1099,40 +1101,57 @@
   if (!leadersWrapper) return;
   leadersWrapper.textContent = "Загрузка…";
 
-  const { data: vkTop, error: vkErr } = await supabaseClient
+  const { data: vkRows, error: vkError } = await supabaseClient
     .from("vk_leaderboard")
-    .select("nick, ash")
-    .order("ash", { ascending: false })
+    .select("nick, points")
+    .order("points", { ascending: false })
     .limit(3);
 
-  if (vkErr) {
-    console.error(vkErr);
+  if (vkError) {
+    console.error(vkError);
     leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
     showErrorModal("Ошибка загрузки таблицы vk_leaderboard.");
     return;
   }
 
-  const topRows = (vkTop || []).map((r) => ({
+  const top = (vkRows || []).map((r) => ({
     nick: (r.nick || "").trim(),
-    points: Number(r.ash || 0),
+    points: Number(r.points || 0),
   }));
 
-  const nicks = topRows.map((x) => x.nick).filter(Boolean);
-  let profilesMap = {};
+  const nicks = top.map((x) => x.nick).filter(Boolean);
 
+  let statsMap = {};
   if (nicks.length) {
-    const { data: profiles, error: profErr } = await supabaseClient
+    const { data: statRows, error: statError } = await supabaseClient
       .from("leader_stats")
-      .select("nick, avatar_url, account_id, department")
+      .select("*")
+      .eq("period", period)
       .in("nick", nicks);
 
-    if (!profErr && profiles) {
-      profilesMap = Object.fromEntries(profiles.map((p) => [p.nick, p]));
+    if (statError) {
+      console.error(statError);
+    } else {
+      statsMap = Object.fromEntries((statRows || []).map((r) => [r.nick, r]));
     }
   }
 
-  // 3) Рисуем ровно 3 карточки всегда
-  const slots = [topRows[0] || null, topRows[1] || null, topRows[2] || null];
+  const slots = [0, 1, 2].map((i) => {
+    const vk = top[i] || null;
+    if (!vk || !vk.nick) return null;
+
+    const st = statsMap[vk.nick] || null;
+    return {
+      id: st?.id ?? null,              
+      nick: vk.nick,
+      points: vk.points,               
+      avatar_url: st?.avatar_url ?? null,
+      account_id: st?.account_id ?? null,
+      department: st?.department ?? null,
+      period: period,
+    };
+  });
+
   leadersWrapper.innerHTML = "";
 
   slots.forEach((row, index) => {
@@ -1153,48 +1172,42 @@
     const scoreBlock = document.createElement("div");
     scoreBlock.className = "leader-score-block";
 
-    if (row && row.nick) {
-      const prof = profilesMap[row.nick] || {};
-
-      // avatar
-      if (prof.avatar_url) {
+    if (row) {
+      if (row.avatar_url) {
         const img = document.createElement("img");
-        img.src = prof.avatar_url;
+        img.src = row.avatar_url;
         avatar.appendChild(img);
       } else {
         avatar.textContent = row.nick ? row.nick[0] : "?";
       }
 
-      // name + account
       const nameRow = document.createElement("div");
       nameRow.className = "leader-name-row";
 
       const nickEl = document.createElement("div");
       nickEl.className = "leader-nick";
-      nickEl.textContent = row.nick;
+      nickEl.textContent = row.nick || "Без имени";
 
       const accEl = document.createElement("div");
       accEl.className = "leader-account";
-      accEl.textContent = prof.account_id ? `[${prof.account_id}]` : "[—]";
+      accEl.textContent = row.account_id ? `[${row.account_id}]` : "[—]";
 
       nameRow.appendChild(nickEl);
       nameRow.appendChild(accEl);
 
-      // dept (если есть)
       const deptEl = document.createElement("div");
       deptEl.className = "leader-dept";
-      deptEl.textContent = prof.department || "Департамент не указан";
+      deptEl.textContent = row.department || "Департамент не указан";
 
       main.appendChild(nameRow);
       main.appendChild(deptEl);
 
-      // score (АШ берём ТОЛЬКО из vk_leaderboard)
       const scoreRow = document.createElement("div");
       scoreRow.className = "leader-score";
 
       const valueEl = document.createElement("span");
       valueEl.className = "value";
-      valueEl.textContent = row.points;
+      valueEl.textContent = row.points ?? 0;
 
       const unitEl = document.createElement("span");
       unitEl.className = "unit";
@@ -1215,7 +1228,6 @@
       scoreBlock.appendChild(crown);
       scoreBlock.appendChild(placeLabel);
     } else {
-      // пустое место
       avatar.textContent = "?";
 
       const emptyTitle = document.createElement("div");
@@ -1261,9 +1273,24 @@
     card.appendChild(main);
     card.appendChild(scoreBlock);
 
+    if (isAdminLike(currentUser) && row) {
+      attachAvatarHandlers(avatar, row);
+
+      const actions = document.createElement("div");
+      actions.className = "leader-actions";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn-outline btn-sm";
+      btn.textContent = "Редактировать";
+      btn.onclick = () => openEditModal(row);
+      actions.appendChild(btn);
+      card.appendChild(actions);
+    }
+
     leadersWrapper.appendChild(card);
   });
 }
+
 
 
   /* ===== Навигация табов ===== */
