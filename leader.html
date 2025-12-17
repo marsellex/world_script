@@ -1086,199 +1086,185 @@
   }
 
   async function loadLeaders(period) {
-    currentPeriod = period;
-    if (dateEl) {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      dateEl.textContent = dd + "." + mm + "." + yyyy;
-    }
+  currentPeriod = period;
 
-    if (!leadersWrapper) return;
-    leadersWrapper.textContent = "Загрузка…";
-
-    const { data, error } = await supabaseClient
-      .from("leader_stats")
-      .select("*")
-      .order("points", { ascending: false });
-
-
-    if (error) {
-      console.error(error);
-      leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
-      showErrorModal("Ошибка загрузки таблицы leader_stats.");
-      return;
-    }
-
-    leadersCache = data || [];
-
-    const byDept = { LSPD: null, SFPD: null, LVPD: null };
-    leadersCache.forEach((r) => {
-      const d = (r.department || "").toUpperCase();
-      if (d === "LSPD" || d === "SFPD" || d === "LVPD") {
-        // если вдруг в таблице будет дубль по департаменту — берём с большими очками
-        if (!byDept[d] || (r.points ?? 0) > (byDept[d].points ?? 0)) byDept[d] = r;
-      }
-    });
-    
-    let slots = [byDept.LSPD, byDept.SFPD, byDept.LVPD];
-
-    // ✅ сортируем по АШ (points) убыванию, пустые — в конец
-    slots.sort((a, b) => {
-      if (!a && !b) return 0;
-      if (!a) return 1;
-      if (!b) return -1;
-      return (b.points ?? 0) - (a.points ?? 0);
-    });
-    
-
-    leadersWrapper.innerHTML = "";
-
-    slots.forEach((row, index) => {
-      const place = index + 1;
-      const card = document.createElement("div");
-      card.className = "leader-card rank-" + place;
-
-      const icon = document.createElement("div");
-      icon.className = "leader-icon";
-      icon.textContent =
-        place === 1 ? "🏆" : place === 2 ? "🥈" : "🥉";
-
-      const avatar = document.createElement("div");
-      avatar.className = "leader-avatar";
-
-      const main = document.createElement("div");
-      main.className = "leader-main";
-
-      const scoreBlock = document.createElement("div");
-      scoreBlock.className = "leader-score-block";
-
-      if (row) {
-        if (row.avatar_url) {
-          const img = document.createElement("img");
-          img.src = row.avatar_url;
-          avatar.appendChild(img);
-        } else {
-          avatar.textContent = row.nick ? row.nick[0] : "?";
-        }
-
-        const nameRow = document.createElement("div");
-        nameRow.className = "leader-name-row";
-
-        const nickEl = document.createElement("div");
-        nickEl.className = "leader-nick";
-        nickEl.textContent = row.nick || "Без имени";
-
-        const accEl = document.createElement("div");
-        accEl.className = "leader-account";
-        accEl.textContent = row.account_id ? "[" + row.account_id + "]" : "[—]";
-
-        nameRow.appendChild(nickEl);
-        nameRow.appendChild(accEl);
-
-        const deptEl = document.createElement("div");
-        const dept = row.department || "Департамент не указан";
-        let deptClass = "leader-dept";
-        if (dept === "LSPD") deptClass += " leader-dept-lspd";
-        else if (dept === "SFPD") deptClass += " leader-dept-sfpd";
-        else if (dept === "LVPD") deptClass += " leader-dept-lvpd";
-        deptEl.className = deptClass;
-        deptEl.textContent = dept;
-
-        main.appendChild(nameRow);
-        main.appendChild(deptEl);
-
-        const scoreRow = document.createElement("div");
-        scoreRow.className = "leader-score";
-
-        const valueEl = document.createElement("span");
-        valueEl.className = "value";
-        valueEl.textContent = row.points != null ? row.points : 0;
-
-        const unitEl = document.createElement("span");
-        unitEl.className = "unit";
-        unitEl.textContent = "АШ";
-
-        scoreRow.appendChild(valueEl);
-        scoreRow.appendChild(unitEl);
-
-        const crown = document.createElement("div");
-        crown.className = "leader-crown";
-        crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
-
-        const placeLabel = document.createElement("div");
-        placeLabel.className = "leader-place-label";
-        placeLabel.textContent = place + " место";
-
-        scoreBlock.appendChild(scoreRow);
-        scoreBlock.appendChild(crown);
-        scoreBlock.appendChild(placeLabel);
-      } else {
-        avatar.textContent = "?";
-
-        const emptyTitle = document.createElement("div");
-        emptyTitle.className = "leader-empty";
-        emptyTitle.textContent = "Лидер не назначен";
-
-        const deptEl = document.createElement("div");
-        deptEl.className = "leader-dept";
-        deptEl.textContent = "Департамент не указан";
-
-        main.appendChild(emptyTitle);
-        main.appendChild(deptEl);
-
-        const scoreRow = document.createElement("div");
-        scoreRow.className = "leader-score";
-
-        const valueEl = document.createElement("span");
-        valueEl.className = "value";
-        valueEl.textContent = "0";
-
-        const unitEl = document.createElement("span");
-        unitEl.className = "unit";
-        unitEl.textContent = "АШ";
-
-        scoreRow.appendChild(valueEl);
-        scoreRow.appendChild(unitEl);
-
-        const crown = document.createElement("div");
-        crown.className = "leader-crown";
-        crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
-
-        const placeLabel = document.createElement("div");
-        placeLabel.className = "leader-place-label";
-        placeLabel.textContent = place + " место";
-
-        scoreBlock.appendChild(scoreRow);
-        scoreBlock.appendChild(crown);
-        scoreBlock.appendChild(placeLabel);
-      }
-
-      card.appendChild(icon);
-      card.appendChild(avatar);
-      card.appendChild(main);
-      card.appendChild(scoreBlock);
-
-      if (isAdminLike(currentUser)) {
-        attachAvatarHandlers(avatar, row);
-
-        const actions = document.createElement("div");
-        actions.className = "leader-actions";
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "btn-outline btn-sm";
-        btn.textContent = row ? "Редактировать" : "Назначить лидера";
-        btn.onclick = function () {
-          openEditModal(row || null);
-        };
-        actions.appendChild(btn);
-        card.appendChild(actions);
-      }
-
-      leadersWrapper.appendChild(card);
-    });
+  if (dateEl) {
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const yyyy = now.getFullYear();
+    dateEl.textContent = `${dd}.${mm}.${yyyy}`;
   }
+
+  if (!leadersWrapper) return;
+  leadersWrapper.textContent = "Загрузка…";
+
+  const { data: vkTop, error: vkErr } = await supabaseClient
+    .from("vk_leaderboard")
+    .select("nick, ash")
+    .order("ash", { ascending: false })
+    .limit(3);
+
+  if (vkErr) {
+    console.error(vkErr);
+    leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
+    showErrorModal("Ошибка загрузки таблицы vk_leaderboard.");
+    return;
+  }
+
+  const topRows = (vkTop || []).map((r) => ({
+    nick: (r.nick || "").trim(),
+    points: Number(r.ash || 0),
+  }));
+
+  const nicks = topRows.map((x) => x.nick).filter(Boolean);
+  let profilesMap = {};
+
+  if (nicks.length) {
+    const { data: profiles, error: profErr } = await supabaseClient
+      .from("leader_stats")
+      .select("nick, avatar_url, account_id, department")
+      .in("nick", nicks);
+
+    if (!profErr && profiles) {
+      profilesMap = Object.fromEntries(profiles.map((p) => [p.nick, p]));
+    }
+  }
+
+  // 3) Рисуем ровно 3 карточки всегда
+  const slots = [topRows[0] || null, topRows[1] || null, topRows[2] || null];
+  leadersWrapper.innerHTML = "";
+
+  slots.forEach((row, index) => {
+    const place = index + 1;
+    const card = document.createElement("div");
+    card.className = "leader-card rank-" + place;
+
+    const icon = document.createElement("div");
+    icon.className = "leader-icon";
+    icon.textContent = place === 1 ? "🏆" : place === 2 ? "🥈" : "🥉";
+
+    const avatar = document.createElement("div");
+    avatar.className = "leader-avatar";
+
+    const main = document.createElement("div");
+    main.className = "leader-main";
+
+    const scoreBlock = document.createElement("div");
+    scoreBlock.className = "leader-score-block";
+
+    if (row && row.nick) {
+      const prof = profilesMap[row.nick] || {};
+
+      // avatar
+      if (prof.avatar_url) {
+        const img = document.createElement("img");
+        img.src = prof.avatar_url;
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = row.nick ? row.nick[0] : "?";
+      }
+
+      // name + account
+      const nameRow = document.createElement("div");
+      nameRow.className = "leader-name-row";
+
+      const nickEl = document.createElement("div");
+      nickEl.className = "leader-nick";
+      nickEl.textContent = row.nick;
+
+      const accEl = document.createElement("div");
+      accEl.className = "leader-account";
+      accEl.textContent = prof.account_id ? `[${prof.account_id}]` : "[—]";
+
+      nameRow.appendChild(nickEl);
+      nameRow.appendChild(accEl);
+
+      // dept (если есть)
+      const deptEl = document.createElement("div");
+      deptEl.className = "leader-dept";
+      deptEl.textContent = prof.department || "Департамент не указан";
+
+      main.appendChild(nameRow);
+      main.appendChild(deptEl);
+
+      // score (АШ берём ТОЛЬКО из vk_leaderboard)
+      const scoreRow = document.createElement("div");
+      scoreRow.className = "leader-score";
+
+      const valueEl = document.createElement("span");
+      valueEl.className = "value";
+      valueEl.textContent = row.points;
+
+      const unitEl = document.createElement("span");
+      unitEl.className = "unit";
+      unitEl.textContent = "АШ";
+
+      scoreRow.appendChild(valueEl);
+      scoreRow.appendChild(unitEl);
+
+      const crown = document.createElement("div");
+      crown.className = "leader-crown";
+      crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
+
+      const placeLabel = document.createElement("div");
+      placeLabel.className = "leader-place-label";
+      placeLabel.textContent = place + " место";
+
+      scoreBlock.appendChild(scoreRow);
+      scoreBlock.appendChild(crown);
+      scoreBlock.appendChild(placeLabel);
+    } else {
+      // пустое место
+      avatar.textContent = "?";
+
+      const emptyTitle = document.createElement("div");
+      emptyTitle.className = "leader-empty";
+      emptyTitle.textContent = "Лидер не назначен";
+
+      const deptEl = document.createElement("div");
+      deptEl.className = "leader-dept";
+      deptEl.textContent = "—";
+
+      main.appendChild(emptyTitle);
+      main.appendChild(deptEl);
+
+      const scoreRow = document.createElement("div");
+      scoreRow.className = "leader-score";
+
+      const valueEl = document.createElement("span");
+      valueEl.className = "value";
+      valueEl.textContent = "0";
+
+      const unitEl = document.createElement("span");
+      unitEl.className = "unit";
+      unitEl.textContent = "АШ";
+
+      scoreRow.appendChild(valueEl);
+      scoreRow.appendChild(unitEl);
+
+      const crown = document.createElement("div");
+      crown.className = "leader-crown";
+      crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
+
+      const placeLabel = document.createElement("div");
+      placeLabel.className = "leader-place-label";
+      placeLabel.textContent = place + " место";
+
+      scoreBlock.appendChild(scoreRow);
+      scoreBlock.appendChild(crown);
+      scoreBlock.appendChild(placeLabel);
+    }
+
+    card.appendChild(icon);
+    card.appendChild(avatar);
+    card.appendChild(main);
+    card.appendChild(scoreBlock);
+
+    leadersWrapper.appendChild(card);
+  });
+}
+
 
   /* ===== Навигация табов ===== */
   const tabDay = document.getElementById("tab-day");
