@@ -380,6 +380,42 @@
       border: 1px solid rgba(148,163,184,.25);
       background: rgba(15,23,42,.65);
     }
+
+    .week-block {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    
+    .week-period-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(148,163,184,.28);
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(239,68,68,.18), transparent 55%),
+        rgba(15,23,42,.55);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .75);
+    }
+    
+    .week-period-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      margin-right: 10px;
+      background: rgba(236,72,153,.9);
+      box-shadow: 0 0 14px rgba(236,72,153,.55);
+    }
+
     
     /* цвета */
     .dept-badge.lspd{
@@ -807,6 +843,256 @@
       }, 60 * 1000);
     }
   }
+
+
+  function monthRuUpper(monthIndex) {
+  const m = [
+    "ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ",
+    "ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"
+  ];
+  return m[monthIndex] || "";
+}
+
+  function formatPeriodRu(startISO, endISO) {
+    const s = new Date(startISO);
+    const e = new Date(endISO);
+  
+    const sDay = s.getDate();
+    const sMon = monthRuUpper(s.getMonth());
+    const sYear = s.getFullYear();
+  
+    const eDay = e.getDate();
+    const eMon = monthRuUpper(e.getMonth());
+    const eYear = e.getFullYear();
+  
+    return `С ${sDay} ${sMon} ${sYear} по ${eDay} ${eMon} ${eYear}`;
+  }
+
+  async function loadWeeklyBlocks() {
+    if (!leadersWrapper) return;
+    leadersWrapper.textContent = "Загрузка…";
+  
+    // грузим несколько недель (например последние 10)
+    const { data: weeks, error } = await supabaseClient
+      .from("vk_weekly_activity")
+      .select("*")
+      .order("period_start", { ascending: false })
+      .limit(10);
+  
+    if (error) {
+      console.error(error);
+      leadersWrapper.textContent = "Ошибка загрузки активности недели.";
+      showErrorModal("Ошибка загрузки таблицы vk_weekly_activity.");
+      return;
+    }
+  
+    const weeklyRows = weeks || [];
+    if (!weeklyRows.length) {
+      leadersWrapper.textContent = "Пока нет данных по неделям.";
+      return;
+    }
+  
+    // соберём все ники, чтобы одним запросом подтянуть детали из leader_stats
+    const allNicks = Array.from(
+      new Set(
+        weeklyRows.flatMap(w => [w.place1_nick, w.place2_nick, w.place3_nick].filter(Boolean))
+      )
+    );
+  
+    let detailsMap = {};
+    if (allNicks.length) {
+      const { data: details, error: dErr } = await supabaseClient
+        .from("leader_stats")
+        .select("nick, account_id, avatar_url, department")
+        .in("nick", allNicks);
+  
+      if (!dErr && details) {
+        detailsMap = Object.fromEntries(details.map(r => [r.nick, r]));
+      }
+    }
+  
+    leadersWrapper.innerHTML = "";
+  
+    weeklyRows.forEach((w) => {
+      const block = document.createElement("div");
+      block.className = "week-block";
+  
+      // плашка периода
+      const badge = document.createElement("div");
+      badge.className = "week-period-badge";
+      badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(w.period_start, w.period_end)}`;
+      block.appendChild(badge);
+  
+      // дальше — три карточки, как обычно
+      const slots = [
+        { nick: w.place1_nick, points: w.ash1 ?? 0 },
+        { nick: w.place2_nick, points: w.ash2 ?? 0 },
+        { nick: w.place3_nick, points: w.ash3 ?? 0 },
+      ];
+  
+      slots.forEach((s, index) => {
+        const place = index + 1;
+        const info = s.nick ? (detailsMap[s.nick] || {}) : {};
+  
+        // row-like объект под текущий рендер (как у тебя)
+        const row = s.nick ? {
+          nick: s.nick,
+          points: s.points,
+          account_id: info.account_id || null,
+          avatar_url: info.avatar_url || null,
+          department: info.department || null,
+        } : null;
+  
+        const card = renderLeaderCard(place, row); // см. ниже
+        block.appendChild(card);
+      });
+  
+      leadersWrapper.appendChild(block);
+    });
+  }
+
+  function renderLeaderCard(place, row) {
+    const card = document.createElement("div");
+    card.className = "leader-card rank-" + place;
+  
+    const icon = document.createElement("div");
+    icon.className = "leader-icon";
+    icon.textContent = place === 1 ? "🏆" : place === 2 ? "🥈" : "🥉";
+  
+    const avatar = document.createElement("div");
+    avatar.className = "leader-avatar";
+  
+    const main = document.createElement("div");
+    main.className = "leader-main";
+  
+    const scoreBlock = document.createElement("div");
+    scoreBlock.className = "leader-score-block";
+  
+    if (row) {
+      if (row.avatar_url) {
+        const img = document.createElement("img");
+        img.src = row.avatar_url;
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = row.nick ? row.nick[0] : "?";
+      }
+  
+      const nameRow = document.createElement("div");
+      nameRow.className = "leader-name-row";
+  
+      const nickEl = document.createElement("div");
+      nickEl.className = "leader-nick";
+      nickEl.textContent = row.nick || "Без имени";
+  
+      const accEl = document.createElement("div");
+      accEl.className = "leader-account";
+      accEl.textContent = row.account_id ? `[${row.account_id}]` : "[—]";
+  
+      nameRow.appendChild(nickEl);
+      nameRow.appendChild(accEl);
+  
+      // dept badge (твой цветной)
+      const dept = (row.department || "").trim().toUpperCase();
+      const deptEl = document.createElement("div");
+      deptEl.className =
+        "dept-badge " +
+        (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
+      deptEl.textContent = dept || "—";
+  
+      main.appendChild(nameRow);
+      main.appendChild(deptEl);
+  
+      const scoreRow = document.createElement("div");
+      scoreRow.className = "leader-score";
+  
+      const valueEl = document.createElement("span");
+      valueEl.className = "value";
+      valueEl.textContent = row.points ?? 0;
+  
+      const unitEl = document.createElement("span");
+      unitEl.className = "unit";
+      unitEl.textContent = "АШ";
+  
+      scoreRow.appendChild(valueEl);
+      scoreRow.appendChild(unitEl);
+  
+      const crown = document.createElement("div");
+      crown.className = "leader-crown";
+      crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
+  
+      const placeLabel = document.createElement("div");
+      placeLabel.className = "leader-place-label";
+      placeLabel.textContent = place + " место";
+  
+      scoreBlock.appendChild(scoreRow);
+      scoreBlock.appendChild(crown);
+      scoreBlock.appendChild(placeLabel);
+    } else {
+      avatar.textContent = "?";
+  
+      const emptyTitle = document.createElement("div");
+      emptyTitle.className = "leader-empty";
+      emptyTitle.textContent = "Лидер не назначен";
+  
+      const deptEl = document.createElement("div");
+      deptEl.className = "dept-badge";
+      deptEl.textContent = "—";
+  
+      main.appendChild(emptyTitle);
+      main.appendChild(deptEl);
+  
+      const scoreRow = document.createElement("div");
+      scoreRow.className = "leader-score";
+  
+      const valueEl = document.createElement("span");
+      valueEl.className = "value";
+      valueEl.textContent = "0";
+  
+      const unitEl = document.createElement("span");
+      unitEl.className = "unit";
+      unitEl.textContent = "АШ";
+  
+      scoreRow.appendChild(valueEl);
+      scoreRow.appendChild(unitEl);
+  
+      const crown = document.createElement("div");
+      crown.className = "leader-crown";
+      crown.textContent = place === 1 ? "👑" : place === 2 ? "♕" : "♖";
+  
+      const placeLabel = document.createElement("div");
+      placeLabel.className = "leader-place-label";
+      placeLabel.textContent = place + " место";
+  
+      scoreBlock.appendChild(scoreRow);
+      scoreBlock.appendChild(crown);
+      scoreBlock.appendChild(placeLabel);
+    }
+  
+    card.appendChild(icon);
+    card.appendChild(avatar);
+    card.appendChild(main);
+    card.appendChild(scoreBlock);
+  
+    // редактирование оставляем только для режима "день" (если хочешь и для недели — скажи)
+    if (isAdminLike(currentUser) && currentPeriod === "day") {
+      attachAvatarHandlers(avatar, row);
+  
+      const actions = document.createElement("div");
+      actions.className = "leader-actions";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn-outline btn-sm";
+      btn.textContent = row ? "Редактировать" : "Назначить лидера";
+      btn.onclick = () => openEditModal(row || null);
+      actions.appendChild(btn);
+      card.appendChild(actions);
+    }
+  
+    return card;
+  }
+
+
+
 
   function applyThemeToBlocks() {
     const borderColor = themeConfig.borderColor || "#1f2937";
@@ -1336,14 +1622,22 @@
   if (tabDay && tabWeek) {
     const tabs = [tabDay, tabWeek];
     tabs.forEach((btn) => {
-      btn.onclick = function () {
+      btn.onclick = () => {
         tabs.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        const period = btn.dataset.period;
-        loadLeaders(period);
+  
+        const period = btn.dataset.period; 
+        currentPeriod = period;
+  
+        if (period === "week") {
+          loadWeeklyBlocks(); 
+        } else {
+          loadLeaders("day"); 
+        }
       };
     });
   }
+
 
   /* ===== ИНИЦИАЛИЗАЦИЯ ===== */
   const userTagEl = document.getElementById("user-tag");
