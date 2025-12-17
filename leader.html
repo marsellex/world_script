@@ -962,79 +962,81 @@
   }
 
   if (editSaveBtn) {
-      editSaveBtn.onclick = async () => {
-        if (!isAdminLike(currentUser)) {
-          showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
-          return;
-        }
-    
-        const dept = editDept.value || "LSPD";
-        const nick = editNick.value.trim();
-        const account = editAccount.value.trim();
-    
-        let pts = parseInt(editPoints.value, 10);
-        if (isNaN(pts) || pts < 0) pts = 0;
-    
-        if (!nick || !account) {
-          editError.style.display = "block";
-          editError.textContent = "Ник и номер аккаунта обязательны.";
-          return;
-        }
-        editError.style.display = "none";
-    
-        // IMPORTANT: если ты хочешь ОДИН состав лидеров на день/неделю (общий),
-        // то храним всё под одним фиксированным period:
-        const DB_PERIOD = "global";
-    
-        const payload = {
-          period: DB_PERIOD,
-          department: dept,
-          nick,
-          account_id: account,
-          points: pts,
-          ...(editingAvatarData ? { avatar_url: editingAvatarData } : {})
-        };
-    
-        try {
-          // ====== СБРОС ДРУГИХ КАРТОЧЕК (как ты просишь) ======
-          // при любом сохранении удаляем ВСЕ лидеры, и оставляем только текущего
-          const { error: delError } = await supabaseClient
-            .from("leader_stats")
-            .delete()
-            .eq("period", DB_PERIOD);
-    
-          if (delError) {
-            console.error("DELETE error:", delError);
-            showErrorModal("Не удалось сбросить старые карточки: " + (delError.message || "unknown"));
-            return;
-          }
-    
-          // ====== ВСТАВКА НОВОГО ЛИДЕРА ======
-          const { error: insError } = await supabaseClient
-            .from("leader_stats")
-            .insert(payload);
-    
-          if (insError) {
-            console.error("INSERT error:", insError);
-            showErrorModal(
-              "Ошибка сохранения лидера: " +
-                (insError.message || "unknown") +
-                (insError.details ? "\n" + insError.details : "")
-            );
-            return;
-          }
-    
-          closeEditModal();
-    
-          // показываем после сохранения (лидеры общие, период в UI остаётся day/week)
-          await loadLeaders(currentPeriod);
-    
-        } catch (e) {
-          console.error(e);
-          showErrorModal("Ошибка сохранения лидера: " + (e?.message || e));
-        }
+    editSaveBtn.onclick = async () => {
+      if (!isAdminLike(currentUser)) {
+        showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
+        return;
+      }
+  
+      const dept = editDept.value || "LSPD";
+      const nick = editNick.value.trim();
+      const account = editAccount.value.trim();
+  
+      let pts = parseInt(editPoints.value, 10);
+      if (isNaN(pts) || pts < 0) pts = 0;
+  
+      if (!nick || !account) {
+        editError.style.display = "block";
+        editError.textContent = "Ник и номер аккаунта обязательны.";
+        return;
+      }
+      editError.style.display = "none";
+  
+      const DB_PERIOD = "global";
+  
+      const payload = {
+        period: DB_PERIOD,
+        department: dept,
+        nick,
+        account_id: account,
+        points: pts,
       };
-    }
+  
+      if (editingAvatarData) payload.avatar_url = editingAvatarData;
+  
+      try {
+        let resp;
+  
+        // если редактируем существующую карточку — UPDATE
+        if (editingRowId) {
+          resp = await supabaseClient
+            .from("leader_stats")
+            .update(payload)
+            .eq("id", editingRowId)
+            .select("*")
+            .single();
+        } else {
+          // если карточка пустая (Лидер не назначен) — INSERT
+          resp = await supabaseClient
+            .from("leader_stats")
+            .insert(payload)
+            .select("*")
+            .single();
+        }
+  
+        const { data, error } = resp || {};
+        if (error) {
+          console.error("SAVE error:", error);
+          showErrorModal(
+            "Ошибка сохранения лидера: " +
+              (error.message || "unknown") +
+              (error.details ? "\n" + error.details : "")
+          );
+          return;
+        }
+  
+        // на всякий: если вставили новую, запомним id
+        if (data?.id) editingRowId = data.id;
+  
+        closeEditModal();
+        await loadLeaders(currentPeriod);
+      } catch (e) {
+        console.error(e);
+        showErrorModal("Ошибка сохранения лидера: " + (e?.message || e));
+      }
+    };
+  }
+
 
 
   function attachAvatarHandlers(avatarEl, row) {
