@@ -1354,9 +1354,9 @@
     applySiteBranding();
 
     currentUser = loadSession();
-    if (userTagEl) {
-      if (!currentUser) userTagEl.textContent = "Режим гостя — доступен только просмотр рейтинга.";
-      else userTagEl.textContent = "Вы вошли как " + currentUser.nick + " (" + roleLabel(currentUser.role) + ")";
+    if (userTagEl) 
+    {
+      userTagEl.textContent = "Активность лидера каждой фракции за текущий день...";
     }
 
     await loadLeaders("day");
