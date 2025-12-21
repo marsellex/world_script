@@ -1,1368 +1,1276 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Рейтинг лидеров PD</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HUD</title>
   <style>
-    :root {
-      --bg: #050816;
-      --panel-bg: #070818;
-      --panel-border: #1f2937;
-      --text: #f9fafb;
-      --muted: #9ca3af;
-      --accent-pink: #ec4899;
-      --accent-pink-soft: #f472b6;
-      --accent-pink-dark: #db2777;
-      --tab-bg: #111827;
-      --tab-border: #1f2937;
-      --score-color: #f472b6;
-      --gold: #facc15;
-      --silver: #e5e7eb;
-      --bronze: #fb923c;
+    :root{
+      --bg0:#070a10;
+      --bg1:#0b1020;
+
+      --panel: rgba(14,18,28,.78);
+      --panel2: rgba(10,12,18,.55);
+
+      --line: rgba(255,255,255,.10);
+      --line2: rgba(255,255,255,.07);
+
+      --text: rgba(232,238,250,.92);
+      --muted: rgba(232,238,250,.55);
+
+      --accent: 120 180 255;
+      --accent2: 255 140 120;
+
+      --r1: 26px;
+      --r2: 20px;
+
+      --shadow2: 0 0 0 1px rgba(255,255,255,.08), 0 14px 50px rgba(0,0,0,.55);
+      --shadow: 0 16px 60px rgba(0,0,0,.55);
+      --glow: 0 0 28px rgba(120,180,255,.18);
+
+      --ui: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    }
-
-    body {
-      min-height: 100vh;
-      background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #020617 100%);
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--ui);
       color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 20px;
-    }
-
-    #bg-rotator {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background: #020617;
-      overflow: hidden;
-    }
-    #bg-rotator img {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
-      pointer-events: none;
-    }
-    #bg-rotator img.active {
-      opacity: 1;
-    }
-
-    #app {
-      width: 100%;
-      max-width: 1100px;
-      position: relative;
-      z-index: 1;
-    }
-
-    a {
-      color: var(--accent-pink-soft);
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: rgba(15, 23, 42, 0.8);
-      color: var(--text);
-      font-size: 14px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.75);
-    }
-    .btn:hover {
-      background: rgba(31, 41, 55, 0.95);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
-    }
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-
-    .btn-outline {
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.65);
-      background: transparent;
-      color: var(--text);
-      font-size: 13px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
-    }
-    .btn-outline:hover {
-      background: rgba(15, 23, 42, 0.85);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.85);
-    }
-
-    /* Верхняя строка */
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      gap: 12px;
-    }
-
-    .page-title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .page-title {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      text-shadow: 0 0 18px rgba(168, 85, 247, 0.55);
-    }
-
-    .page-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .user-tag {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* Основная панель */
-    .leader-panel {
-      border-radius: 32px;
-      border: 1px solid var(--panel-border);
-      padding: 26px 26px 20px;
       background:
-        radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), transparent 55%),
-        radial-gradient(circle at top right, rgba(236, 72, 153, 0.35), transparent 55%),
-        linear-gradient(145deg, #020617 0%, #020617 40%, #020617 100%);
-      box-shadow:
-        0 40px 80px rgba(15, 23, 42, 0.95),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
+        radial-gradient(1100px 740px at 28% 18%, rgba(70, 120, 190, .22), transparent 60%),
+        radial-gradient(880px 660px at 78% 75%, rgba(160, 70, 120, .18), transparent 58%),
+        radial-gradient(640px 500px at 60% 20%, rgba(80, 200, 170, .10), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg0));
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position: fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.08;
+      mix-blend-mode: overlay;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+    }
+    .sweep{
+      position: fixed;
+      inset: -40% -40% -40% -40%;
+      pointer-events:none;
+      background: linear-gradient(90deg, transparent, rgba(120,180,255,.10), transparent);
+      background-size: 200% 200%;
+      filter: blur(40px);
+      opacity:.55;
+      animation: sweep 12s linear infinite;
+    }
+    @keyframes sweep{
+      0%{ transform: translateX(-10%); background-position: 0% 50%; }
+      100%{ transform: translateX(10%); background-position: 100% 50%; }
     }
 
-    .leader-panel-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 14px;
     }
 
-    .leader-tabs {
-      display: inline-flex;
-      background: var(--tab-bg);
-      border-radius: 999px;
-      border: 1px solid var(--tab-border);
-      padding: 4px;
-      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.6);
-    }
-
-    .leader-tab {
-      min-width: 160px;
-      padding: 10px 20px;
-      border-radius: 999px;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+    .hud{
+      width: min(1150px, 100%);
+      border-radius: var(--r1);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(14px);
       position: relative;
-      transition: color 0.12s;
+      overflow:hidden;
     }
-
-    .leader-tab span.icon {
-      font-size: 14px;
+    .hud::after{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius: calc(var(--r1) - 8px);
+      border: 1px solid var(--line2);
+      pointer-events:none;
     }
+    .pad{ padding: 14px; }
 
-    .leader-tab.active {
-      color: #f9fafb;
-    }
-
-    .leader-tab.active::before {
-      content: "";
-      position: absolute;
-      inset: -3px;
-      border-radius: 999px;
-      background: radial-gradient(circle at top, rgba(251, 113, 133, 0.85), rgba(236, 72, 153, 0.95));
-      box-shadow:
-        0 0 22px rgba(236, 72, 153, 0.8),
-        0 18px 40px rgba(15, 23, 42, 0.9);
-      z-index: -1;
-    }
-
-    .leader-tab.active span.label {
-      font-weight: 700;
-    }
-
-    .leader-date {
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    /* Лидеры (3 карточки) */
-    .leaders-wrapper {
-      margin-top: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .leader-card {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      padding: 18px 22px;
-      border-radius: 20px;
-      background: radial-gradient(circle at right, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      box-shadow: 0 22px 40px rgba(15, 23, 42, 0.9);
-    }
-
-    .leader-icon {
-      width: 52px;
-      height: 52px;
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px 12px;
       border-radius: 16px;
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.35), rgba(15, 23, 42, 0.95));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      flex-shrink: 0;
-    }
-
-    .leader-card.rank-1 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9));
-    }
-    .leader-card.rank-2 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.55), rgba(15, 23, 42, 0.9));
-    }
-    .leader-card.rank-3 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.55), rgba(15, 23, 42, 0.9));
-    }
-
-    .leader-avatar {
-      width: 68px;
-      height: 68px;
-      border-radius: 18px;
-      border: 2px solid rgba(236, 72, 153, 0.7);
-      background: #020617;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      flex-shrink: 0;
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--glow);
       position: relative;
-      color: #e5e7eb;
+      overflow:hidden;
     }
-
-    .leader-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .topbar::before{
+      content:"";
+      position:absolute;
+      left: 10%;
+      right: 10%;
+      bottom: -7px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(var(--accent), .55), transparent);
+      opacity:.6;
+      animation: topLine 3.2s ease-in-out infinite;
     }
+    @keyframes topLine{ 0%,100%{opacity:.2} 50%{opacity:.85} }
 
-    .leader-avatar.editable {
-      cursor: pointer;
-      border-style: solid;
-    }
-
-    .leader-avatar.editable::after {
-      content: "✎";
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .leader-avatar.drag-over {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8);
-    }
-
-    .leader-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .leader-name-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    .leader-nick {
-      font-size: 18px;
-      font-weight: 700;
-      text-shadow: 0 0 14px rgba(15, 23, 42, 0.8);
-    }
-
-    .leader-account {
-      font-size: 13px;
-      color: var(--accent-pink-soft);
-      text-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
-    }
-
-    /* плашка департамента (по ширине текста) */
-    .dept-badge {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      max-width: 100%;
-      align-self: flex-start;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      margin-top: 2px;
-      border: 1px solid rgba(148,163,184,.25);
-      background: rgba(15,23,42,.65);
-      white-space: nowrap;
-    }
-
-    .dept-badge.lspd { color:#22c55e; box-shadow: 0 0 18px rgba(34,197,94,.25); }
-    .dept-badge.sfpd { color:#38bdf8; box-shadow: 0 0 18px rgba(56,189,248,.25); }
-    .dept-badge.lvpd { color:#ef4444; box-shadow: 0 0 18px rgba(239,68,68,.25); }
-
-    .week-block {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .week-period-badge {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      border: 1px solid rgba(148,163,184,.28);
-      background:
-        radial-gradient(circle at top left, rgba(34,197,94,.18), transparent 55%),
-        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(239,68,68,.18), transparent 55%),
-        rgba(15,23,42,.55);
-      box-shadow: 0 14px 30px rgba(15, 23, 42, .75);
-    }
-
-    .week-period-badge .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      margin-right: 10px;
-      background: rgba(236,72,153,.9);
-      box-shadow: 0 0 14px rgba(236,72,153,.55);
-    }
-
-    .leader-score-block {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+    .statusLeft{
+      display:flex;
+      flex-direction:column;
       gap: 4px;
-      min-width: 110px;
+      min-width: 180px;
     }
-
-    .leader-score {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      font-weight: 800;
-      text-shadow: 0 0 16px rgba(236, 72, 153, 0.85);
-    }
-
-    .leader-score .value {
-      font-size: 26px;
-      color: var(--score-color);
-    }
-
-    .leader-score .unit {
-      font-size: 13px;
-      color: #e5e7eb;
-    }
-
-    .leader-crown { font-size: 18px; }
-    .leader-place-label { font-size: 12px; color: var(--muted); }
-
-    .leader-actions {
-      position: absolute;
-      right: 20px;
-      bottom: 10px;
-    }
-
-    .leader-empty {
-      font-size: 15px;
+    .kicker{
+      font-size: 10px;
+      letter-spacing: .22em;
       color: var(--muted);
+      text-transform: uppercase;
     }
-
-    /* Модалка ошибки */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.65);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-    .modal-backdrop.active { display: flex; }
-    .modal {
-      width: 100%;
-      max-width: 420px;
-      border-radius: 18px;
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      background: radial-gradient(circle at top, rgba(30, 64, 175, 0.3), rgba(15, 23, 42, 0.96));
-      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.95);
-      padding: 18px 18px 14px;
-    }
-    .modal h3 { font-size: 18px; margin-bottom: 4px; }
-    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
-    .modal-footer { margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px; }
-
-    .field { margin-bottom: 8px; }
-    .field label { display: block; font-size: 13px; margin-bottom: 3px; }
-    .field input, .field select {
-      width: 100%;
-      padding: 7px 9px;
-      border-radius: 9px;
-      border: 1px solid rgba(55, 65, 81, 0.95);
-      background: #020617;
-      color: var(--text);
-      font-size: 14px;
-    }
-    .field input:focus, .field select:focus {
-      outline: none;
-      border-color: rgba(129, 140, 248, 0.9);
-      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.8);
-    }
-    .hint { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-
-    .edit-avatar-preview {
-      width: 80px;
-      height: 80px;
-      border-radius: 22px;
-      border: 2px dashed rgba(148, 163, 184, 0.85);
-      background: #020617;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      margin-bottom: 6px;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      color: #e5e7eb;
-    }
-    .edit-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .edit-avatar-preview::after {
-      content: "✎";
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.8);
+    .sub{
       font-size: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
     }
 
-    .error-text { font-size: 12px; color: #f97373; margin-top: 4px; }
+    .rightTop{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      font-size: 12px;
+      white-space: nowrap;
+      user-select:none;
+      cursor: default;
+    }
+    .pill span{ color: var(--muted); }
+    .pill b{ font-weight: 750; color: rgba(255,255,255,.90); }
 
-    @media (max-width: 720px) {
-      body { padding: 12px; }
+    .topBtn{
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.85);
+      font-size: 12px;
+      cursor:pointer;
+      transition: transform .14s ease, background .14s ease;
+      user-select:none;
+    }
+    .topBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.08); }
+    .topBtn:active{ transform: translateY(0px) scale(.99); }
 
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
+    .grid{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: 330px 1fr;
+      gap: 12px;
+      align-items:start;
+    }
 
-      .leader-card {
-        display: grid;
-        grid-template-columns: 52px 68px 1fr;
-        grid-template-rows: auto auto auto;
-        column-gap: 12px;
-        row-gap: 10px;
-        align-items: start;
-        padding: 14px 14px;
-      }
+    .leftcol{
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      min-height: 560px;
+    }
 
-      .leader-icon { grid-column: 1; grid-row: 1; }
-      .leader-avatar { grid-column: 2; grid-row: 1; }
+    .panel{
+      border-radius: var(--r2);
+      border: 1px solid var(--line);
+      background: rgba(10,12,18,.38);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      position: relative;
+      overflow:hidden;
+    }
+    .panel::after{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius: calc(var(--r2) - 8px);
+      border: 1px solid rgba(255,255,255,.06);
+      pointer-events:none;
+    }
+    .panelHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
 
-      .leader-main {
-        grid-column: 3;
-        grid-row: 1;
-        min-width: 0;
-      }
+    .profileBtn{
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      cursor:pointer;
+      position: relative;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+      user-select:none;
+      transform: translateZ(0);
+      outline:none;
+    }
+    .profileBtn:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(var(--accent), .35);
+      box-shadow: 0 0 22px rgba(var(--accent), .12);
+    }
+    .profileBtn:active{ transform: translateY(0px) scale(.995); }
 
-      .leader-score-block {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        min-width: 0;
-      }
+    .avatar{
+      width: 62px;
+      height: 62px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(var(--accent), .22), transparent 55%),
+        rgba(255,255,255,.06);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      position: relative;
+      flex:none;
+    }
+    .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .avatar::after{
+      content:"";
+      position:absolute;
+      inset:-10px;
+      border-radius:999px;
+      box-shadow: 0 0 26px rgba(var(--accent), .18);
+      opacity:.35;
+      animation: glowPulse 3.1s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes glowPulse{ 0%,100%{opacity:.25} 50%{opacity:.75} }
 
-      .leader-actions {
-        position: static;
-        grid-column: 1 / -1;
-        grid-row: 3;
-        margin-top: 2px;
-        justify-self: end;
-      }
+    .pmeta{ min-width:0; position: relative; z-index: 2; }
+    .plogin{
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .pnick{
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
 
-      .leader-score .value { font-size: 22px; }
+    .cmdGrid{
+      margin-top: 10px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    .cmd{
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      border-radius: 16px;
+      padding: 12px 12px;
+      cursor:pointer;
+      color: rgba(255,255,255,.90);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      position: relative;
+      overflow:hidden;
+      transform: translateZ(0);
+      transition: transform .14s ease, background .14s ease, border-color .14s ease, opacity .14s ease;
+      user-select:none;
+      outline:none;
+    }
+    .cmd:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,.07);
+      border-color: rgba(var(--accent), .35);
+      box-shadow: 0 0 22px rgba(var(--accent), .10);
+    }
+    .cmd:active{ transform: translateY(0px) scale(.995); }
+    .cmd[disabled]{
+      opacity: .42;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    .cmd .label{ font-weight: 800; letter-spacing: .2px; font-size: 13px; }
+    .cmd .ico{
+      width: 34px; height: 34px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      display:grid; place-items:center; opacity:.9; flex:none;
+    }
+    .cmd::before{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: linear-gradient(90deg, transparent, rgba(var(--accent), .18), transparent);
+      transform: translateX(-30%) rotate(10deg);
+      opacity: 0;
+      transition: opacity .18s ease;
+      pointer-events:none;
+    }
+    .cmd:hover::before{ opacity: 1; animation: shine 0.8s ease-out 1; }
+    @keyframes shine{
+      from{ transform: translateX(-45%) rotate(10deg); }
+      to{ transform: translateX(45%) rotate(10deg); }
+    }
+    .ripple{
+      position:absolute;
+      border-radius:999px;
+      transform: translate(-50%,-50%);
+      pointer-events:none;
+      background: rgba(var(--accent), .25);
+      animation: ripple .55s ease-out forwards;
+    }
+    @keyframes ripple{
+      from{ width: 0px; height: 0px; opacity: .65; }
+      to{ width: 260px; height: 260px; opacity: 0; }
+    }
+
+    .rightcol{
+      border-radius: var(--r2);
+      border: 1px solid var(--line);
+      background: rgba(10,12,18,.35);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow:hidden;
+      padding: 12px;
+      min-height: 560px;
+    }
+    .rightcol::after{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius: calc(var(--r2) - 8px);
+      border: 1px solid rgba(255,255,255,.06);
+      pointer-events:none;
+    }
+    .scan{
+      position:absolute;
+      left:0; right:0;
+      height: 2px;
+      background: rgba(var(--accent), .45);
+      opacity: .14;
+      animation: scan 5.4s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes scan{
+      0%{ top: 14%; opacity:.12; }
+      50%{ top: 86%; opacity:.50; }
+      100%{ top: 14%; opacity:.12; }
+    }
+
+    .hlist{
+      margin-top: 10px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+      height: calc(560px - 32px);
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .hlist::-webkit-scrollbar{ width: 8px; }
+    .hlist::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.10); border-radius: 999px; }
+
+    .hitem{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 10px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+      overflow:hidden;
+      position: relative;
+    }
+    .hleft{ display:flex; gap: 10px; min-width:0; }
+    .hbadge{
+      width: 34px; height: 34px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      display:grid; place-items:center; opacity:.9; flex:none;
+      overflow:hidden;
+    }
+    .hbadge img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .hmain{ min-width:0; }
+    .hline1{
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .hline2{
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .htime{
+      font-size: 11px;
+      color: rgba(255,255,255,.45);
+      white-space: nowrap;
+      flex:none;
+      padding-top: 2px;
+    }
+    .pop{ animation: pop .22s ease-out both; }
+    @keyframes pop{ from{ opacity:0; transform: translateY(10px);} to{opacity:1; transform: translateY(0px);} }
+
+    .bottom{
+      margin-top: 12px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .core{
+      width: min(320px, 82vw);
+      aspect-ratio: 1/1;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(10, 12, 18, .55);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow2);
+      position: relative;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      animation: floaty 6.5s ease-in-out infinite;
+      user-select:none;
+    }
+    @keyframes floaty{ 0%,100%{transform: translateY(0px);} 50%{transform: translateY(-6px);} }
+    .core::before{
+      content:"";
+      position:absolute;
+      inset: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      pointer-events:none;
+    }
+    .core::after{
+      content:"";
+      position:absolute;
+      inset:-20%;
+      background: radial-gradient(circle at 30% 30%, rgba(var(--accent), .18), transparent 55%);
+      opacity:.75;
+      animation: glowPulse2 3.2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes glowPulse2{ 0%,100%{opacity:.28} 50%{opacity:.85} }
+    .coreScan{
+      position:absolute;
+      left:0; right:0;
+      height: 2px;
+      background: rgba(var(--accent), .45);
+      animation: coreScan 4.8s ease-in-out infinite;
+      opacity:.55;
+      pointer-events:none;
+    }
+    @keyframes coreScan{ 0%{top: 18%;opacity:.22} 50%{top: 82%;opacity:.85} 100%{top: 18%;opacity:.22} }
+    .coreText{ position: relative; text-align:center; padding: 0 22px; z-index:2; }
+    .coreK{ font-size: 10px; letter-spacing: .22em; color: var(--muted); text-transform: uppercase; }
+    .coreT{ margin-top: 8px; font-size: 18px; font-weight: 860; line-height: 1.2; }
+    .coreS{ margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+    .foot{
+      margin-top: 10px;
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      color: rgba(255,255,255,.48);
+      font-size: 12px;
+      letter-spacing: .08em;
+      padding: 0 6px;
+    }
+
+    /* Modal */
+    .modalBack{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(8px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 999;
+    }
+    .modalBack.open{ display:flex; }
+    .modal{
+      width: min(560px, 100%);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(12,14,20,.72);
+      box-shadow: 0 22px 80px rgba(0,0,0,.65);
+      overflow:hidden;
+      position: relative;
+    }
+    .modal::after{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.07);
+      pointer-events:none;
+    }
+    .modalPad{ padding: 14px; position: relative; z-index:2; }
+    .modalTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .mTitle{ font-weight: 880; font-size: 14px; letter-spacing: .16em; color: rgba(255,255,255,.80); }
+
+    .close{
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.86);
+      cursor:pointer;
+    }
+    .close:hover{ background: rgba(255,255,255,.08); }
+
+    .tabs{ display:flex; gap: 8px; margin-top: 10px; }
+    .tab{
+      flex:1;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 10px;
+      cursor:pointer;
+      color: rgba(255,255,255,.86);
+      font-weight: 800;
+      font-size: 12px;
+      user-select:none;
+      transition: transform .14s ease, background .14s ease, border-color .14s ease;
+    }
+    .tab:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+    .tab.active{ border-color: rgba(var(--accent), .35); background: rgba(255,255,255,.07); }
+
+    .form{
+      margin-top: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .row{ display:flex; gap: 10px; }
+    .row > *{ flex:1; }
+    .field{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 10px 12px;
+      color: rgba(255,255,255,.90);
+      outline:none;
+      font-size: 13px;
+    }
+    .field::placeholder{ color: rgba(255,255,255,.35); }
+
+    .fileWrap{ display:flex; gap: 10px; align-items:center; }
+    .fileBtn{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 10px 12px;
+      cursor:pointer;
+      user-select:none;
+      font-weight: 800;
+      font-size: 12px;
+      color: rgba(255,255,255,.86);
+      transition: transform .14s ease, background .14s ease;
+    }
+    .fileBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+    .fileName{
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .primary{
+      border-radius: 14px;
+      border: 1px solid rgba(var(--accent), .35);
+      background: rgba(var(--accent), .10);
+      padding: 10px 12px;
+      cursor:pointer;
+      user-select:none;
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(255,255,255,.92);
+      transition: transform .14s ease, background .14s ease;
+    }
+    .primary:hover{ transform: translateY(-1px); background: rgba(var(--accent), .14); }
+    .primary:active{ transform: translateY(0px) scale(.99); }
+
+    .danger{
+      border-radius: 14px;
+      border: 1px solid rgba(var(--accent2), .35);
+      background: rgba(var(--accent2), .10);
+      padding: 10px 12px;
+      cursor:pointer;
+      user-select:none;
+      font-weight: 900;
+      font-size: 12px;
+      color: rgba(255,255,255,.92);
+    }
+
+    .hintLine{
+      font-size: 12px;
+      color: rgba(255,255,255,.65);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      min-height: 16px;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .leftcol{ min-height: auto; }
+      .rightcol{ min-height: 520px; }
+      .hlist{ height: calc(520px - 32px); }
+    }
+    @media (max-width: 520px){
+      .cmdGrid{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-<div id="bg-rotator"></div>
+  <div class="sweep" aria-hidden="true"></div>
 
-<div id="app">
-  <div class="page-header">
-    <div class="page-title-block">
-      <div class="page-title">Топ лидеров PD</div>
-      <div class="page-subtitle">Кто сегодня набрал больше всех АШ.</div>
-      <div class="user-tag" id="user-tag"></div>
-    </div>
-  </div>
+  <div class="wrap">
+    <div class="hud">
+      <div class="pad">
 
-  <div class="leader-panel">
-    <div class="leader-panel-header">
-      <div class="leader-tabs">
-        <button class="leader-tab active" id="tab-day" data-period="day">
-          <span class="icon">♥</span>
-          <span class="label">Активность дня</span>
-        </button>
-        <button class="leader-tab" id="tab-week" data-period="week">
-          <span class="icon">♥</span>
-          <span class="label">Активность недели</span>
-        </button>
+        <div class="topbar">
+          <div class="statusLeft">
+            <div class="kicker">HUD</div>
+            <div class="sub" id="statusLine">ONLINE</div>
+          </div>
+
+          <div class="rightTop">
+            <div class="pill"><span>CR</span> <b id="cr">1,240</b></div>
+            <div class="pill" id="pingPill"><span>PING</span> <b id="ping">24</b>ms</div>
+            <button class="topBtn" id="authBtn">Войти</button>
+            <button class="topBtn" id="logoutBtn" style="display:none;">Выйти</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="leftcol">
+            <div class="panel">
+              <div class="panelHead">
+                <div class="kicker">PROFILE</div>
+              </div>
+
+              <div class="profileBtn" id="profileBtn" role="button" tabindex="0">
+                <div class="avatar" aria-hidden="true">
+                  <img id="avatarImg" alt="avatar"
+                       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cdefs%3E%3CradialGradient id='g' cx='30%25' cy='30%25'%3E%3Cstop offset='0%25' stop-color='%2378b4ff' stop-opacity='.55'/%3E%3Cstop offset='100%25' stop-color='%2310111a' stop-opacity='1'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='160' height='160' fill='url(%23g)'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-size='56' fill='white' fill-opacity='.85' font-family='Arial'%3E%3F%3C/text%3E%3C/svg%3E">
+                </div>
+                <div class="pmeta">
+                  <div class="plogin" id="userLogin">Guest</div>
+                  <div class="pnick" id="userNick">guest_0000</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panelHead">
+                <div class="kicker">COMMANDS</div>
+              </div>
+
+              <div class="cmdGrid">
+                <button class="cmd" data-cmd="Бонус" data-ico="✦" disabled>
+                  <span class="label">Бонус</span><span class="ico">✦</span>
+                </button>
+                <button class="cmd" data-cmd="Рулетка" data-ico="⟡" disabled>
+                  <span class="label">Рулетка</span><span class="ico">⟡</span>
+                </button>
+                <button class="cmd" data-cmd="Шанс" data-ico="⚑" disabled>
+                  <span class="label">Шанс</span><span class="ico">⚑</span>
+                </button>
+                <button class="cmd" data-cmd="Команда_4" data-ico="⛭" disabled>
+                  <span class="label">Команда_4</span><span class="ico">⛭</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="rightcol">
+            <div class="scan" aria-hidden="true"></div>
+            <div class="panelHead" style="position:relative; z-index:2;">
+              <div class="kicker">ACTIVITY</div>
+              <div class="sub" id="activitySub">LIVE</div>
+            </div>
+            <div class="hlist" id="historyList" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="bottom">
+          <div class="core" id="core">
+            <div class="coreScan" aria-hidden="true"></div>
+            <div class="coreText">
+              <div class="coreK">CORE</div>
+              <div class="coreT" id="coreTitle">Приморская биржа</div>
+              <div class="coreS" id="coreSub">ONLINE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="foot">
+          <div>SYS • build 0.1</div>
+          <div id="footRight">READY</div>
+        </div>
+
       </div>
-      <div class="leader-date" id="leader-date"></div>
-    </div>
-
-    <div class="leaders-wrapper" id="leaders-wrapper">Загрузка…</div>
-  </div>
-</div>
-
-<!-- Модалка ошибки -->
-<div id="error-modal" class="modal-backdrop">
-  <div class="modal">
-    <h3>Ошибка</h3>
-    <p id="error-modal-text"></p>
-    <div class="modal-footer">
-      <button class="btn btn-sm" id="error-modal-close">Закрыть</button>
     </div>
   </div>
-</div>
 
-<!-- Модалка редактирования лидера -->
-<div id="leader-edit-modal" class="modal-backdrop">
-  <div class="modal">
-    <h3>Редактирование лидера</h3>
-    <p>Доступно администраторам, модераторам и редакторам (creator).</p>
+  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modalPad">
+        <div class="modalTop">
+          <div class="mTitle" id="modalTitle">AUTH</div>
+          <button class="close" id="closeModal">Закрыть</button>
+        </div>
 
-    <div class="edit-avatar-preview" id="edit-avatar-preview"><span>?</span></div>
-    <div class="hint">Кликните или перетащите картинку, чтобы изменить аватар.</div>
-    <input type="file" id="edit-avatar-file" accept="image/*" style="display:none;" />
+        <div class="tabs" id="tabs">
+          <button class="tab active" id="tabLogin">Вход</button>
+          <button class="tab" id="tabRegister">Регистрация</button>
+        </div>
 
-    <div class="field">
-      <label for="edit-dept">Департамент</label>
-      <select id="edit-dept">
-        <option value="LSPD">LSPD</option>
-        <option value="SFPD">SFPD</option>
-        <option value="LVPD">LVPD</option>
-      </select>
-    </div>
+        <div class="form" id="loginForm">
+          <input class="field" id="emailLogin" placeholder="Email" autocomplete="email" />
+          <input class="field" id="passLogin" placeholder="Пароль" type="password" autocomplete="current-password" />
+          <button class="primary" id="doLogin">Войти</button>
+          <div class="hintLine" id="loginHint"></div>
+        </div>
 
-    <div class="field">
-      <label for="edit-nick">Ник</label>
-      <input id="edit-nick" type="text" placeholder="Имя_Фамилия" />
-    </div>
+        <div class="form" id="registerForm" style="display:none;">
+          <div class="row">
+            <input class="field" id="emailReg" placeholder="Email" autocomplete="email" />
+            <input class="field" id="passReg" placeholder="Пароль" type="password" autocomplete="new-password" />
+          </div>
 
-    <div class="field">
-      <label for="edit-account">Номер аккаунта</label>
-      <input id="edit-account" type="text" placeholder="3960680" />
-    </div>
+          <div class="row">
+            <input class="field" id="loginReg" placeholder="Логин" />
+            <input class="field" id="nickReg" placeholder="Ник" />
+          </div>
 
-    <div class="field">
-      <label for="edit-points">Текущее количество АШ</label>
-      <input id="edit-points" type="number" min="0" step="1" value="0" />
-    </div>
+          <div class="fileWrap">
+            <input id="avatarFile" type="file" accept="image/*" style="display:none;" />
+            <button class="fileBtn" id="pickAvatar">Аватар</button>
+            <div class="fileName" id="avatarName">—</div>
+          </div>
 
-    <div class="error-text" id="edit-error" style="display:none;"></div>
+          <button class="primary" id="doRegister">Создать</button>
+          <div class="hintLine" id="regHint"></div>
+        </div>
 
-    <div class="modal-footer">
-      <button class="btn-outline btn-sm" id="leader-edit-cancel">Отмена</button>
-      <button class="btn btn-sm" id="leader-edit-save">Сохранить</button>
+        <div class="form" id="profileForm" style="display:none;">
+          <button class="danger" id="signOut2">Выйти</button>
+          <div class="hintLine" id="profileHintLine"></div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Supabase -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
-  const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // ===== CONFIG =====
+    const SUPABASE_URL = "PASTE_YOUR_SUPABASE_URL";
+    const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // ===== refs =====
+    const el = (id) => document.getElementById(id);
 
-  /* ===== ТЕМА: только фон + бренд ===== */
-  let themeConfig = {
-    images: [],
-    opacity: 80,
-    blur: 0,
-    borderColor: "#1f2937",
-    favicon: null,
-    siteTitle: null,
-  };
+    const statusLine = el("statusLine");
+    const crEl = el("cr");
+    const pingEl = el("ping");
+    const pingPill = el("pingPill");
+    const authBtn = el("authBtn");
+    const logoutBtn = el("logoutBtn");
 
-  let bgRotationTimer = null;
-  let bgCurrentIndex = 0;
-  const bgRotatorEl = document.getElementById("bg-rotator");
+    const userLoginEl = el("userLogin");
+    const userNickEl = el("userNick");
+    const avatarImg = el("avatarImg");
+    const profileBtn = el("profileBtn");
 
-  async function loadThemeFromDB() {
-    const { data, error } = await supabaseClient
-      .from("theme_settings")
-      .select("*")
-      .eq("id", 1)
-      .single();
+    const historyList = el("historyList");
+    const activitySub = el("activitySub");
 
-    if (error || !data) {
-      console.warn("Ошибка загрузки темы:", error);
-      return;
+    const coreSub = el("coreSub");
+    const footRight = el("footRight");
+
+    const modalBack = el("modalBack");
+    const closeModal = el("closeModal");
+    const modalTitle = el("modalTitle");
+
+    const tabs = el("tabs");
+    const tabLogin = el("tabLogin");
+    const tabRegister = el("tabRegister");
+
+    const loginForm = el("loginForm");
+    const registerForm = el("registerForm");
+    const profileForm = el("profileForm");
+
+    const emailLogin = el("emailLogin");
+    const passLogin = el("passLogin");
+    const doLogin = el("doLogin");
+    const loginHint = el("loginHint");
+
+    const emailReg = el("emailReg");
+    const passReg = el("passReg");
+    const loginReg = el("loginReg");
+    const nickReg = el("nickReg");
+    const avatarFile = el("avatarFile");
+    const pickAvatar = el("pickAvatar");
+    const avatarName = el("avatarName");
+    const doRegister = el("doRegister");
+    const regHint = el("regHint");
+
+    const signOut2 = el("signOut2");
+    const profileHintLine = el("profileHintLine");
+
+    const cmdButtons = [...document.querySelectorAll(".cmd")];
+
+    // ===== state =====
+    const MAX_HISTORY = 15;
+    let currentUser = null;       // auth user
+    let hudProfile = null;        // hud_profiles row
+    let activityChannel = null;
+
+    // ===== utils =====
+    function nowTime(d = new Date()){
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      return `${hh}:${mm}`;
     }
 
-    themeConfig = {
-      images: data.images || [],
-      opacity: data.opacity ?? 80,
-      blur: data.blur ?? 0,
-      borderColor: data.border_color || "#1f2937",
-      favicon: data.favicon || null,
-      siteTitle: data.site_title || null,
-    };
-  }
-
-  function applyThemeBackground() {
-    if (!bgRotatorEl) return;
-    bgRotatorEl.innerHTML = "";
-
-    const images = themeConfig.images || [];
-    const blurPx = themeConfig.blur || 0;
-
-    if (!images.length) {
-      bgRotatorEl.style.background = "#020617";
-      return;
+    function setAuthUI(isAuthedForHud){
+      cmdButtons.forEach(b => b.disabled = !isAuthedForHud);
+      authBtn.style.display = isAuthedForHud ? "none" : "inline-flex";
+      logoutBtn.style.display = currentUser ? "inline-flex" : "none";
     }
 
-    images.forEach((src, index) => {
-      const img = document.createElement("img");
-      img.src = src;
-      img.style.filter = "blur(" + blurPx + "px)";
-      if (index === 0) img.classList.add("active");
-      bgRotatorEl.appendChild(img);
-    });
-
-    if (bgRotationTimer) {
-      clearInterval(bgRotationTimer);
-      bgRotationTimer = null;
+    function setGuestUI(){
+      userLoginEl.textContent = "Guest";
+      userNickEl.textContent = "guest_0000";
+      setAuthUI(false);
     }
 
-    if (images.length > 1) {
-      const imgs = Array.from(bgRotatorEl.querySelectorAll("img"));
-      bgCurrentIndex = 0;
-      bgRotationTimer = setInterval(() => {
-        const prev = imgs[bgCurrentIndex];
-        bgCurrentIndex = (bgCurrentIndex + 1) % imgs.length;
-        const next = imgs[bgCurrentIndex];
-        if (prev) prev.classList.remove("active");
-        if (next) next.classList.add("active");
-      }, 60 * 1000);
-    }
-  }
-
-  function applyThemeToBlocks() {
-    const borderColor = themeConfig.borderColor || "#1f2937";
-    document.documentElement.style.setProperty("--panel-border", borderColor);
-  }
-
-  function applySiteBranding() {
-    document.title = themeConfig.siteTitle ? themeConfig.siteTitle : "Рейтинг лидеров PD";
-
-    if (themeConfig.favicon) {
-      let link = document.querySelector("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "icon";
-        document.head.appendChild(link);
-      }
-      link.href = themeConfig.favicon;
-    }
-  }
-
-  /* ===== СЕССИЯ ПОЛЬЗОВАТЕЛЯ ===== */
-  let currentUser = null;
-
-  function loadSession() {
-    try { return JSON.parse(localStorage.getItem("pp_user")); }
-    catch { return null; }
-  }
-
-  function roleLabel(role) {
-    if (role === "admin") return "Администратор";
-    if (role === "moderator") return "Модератор";
-    if (role === "creator") return "Редактор";
-    return "Офицер";
-  }
-
-  function isAdminLike(user) {
-    if (!user) return false;
-    return user.role === "admin" || user.role === "moderator" || user.role === "creator";
-  }
-
-  /* ===== ОШИБКИ ===== */
-  const errorModal = document.getElementById("error-modal");
-  const errorModalText = document.getElementById("error-modal-text");
-  const errorModalClose = document.getElementById("error-modal-close");
-
-  function showErrorModal(message) {
-    errorModalText.textContent = message || "Неизвестная ошибка.";
-    errorModal.classList.add("active");
-  }
-
-  if (errorModalClose) {
-    errorModalClose.onclick = () => errorModal.classList.remove("active");
-  }
-
-  /* ===== ЛИДЕРЫ ===== */
-  const leadersWrapper = document.getElementById("leaders-wrapper");
-  const dateEl = document.getElementById("leader-date");
-
-  let currentPeriod = "day";
-  let editingRowId = null;
-  let editingAvatarData = null;
-
-  const editModal = document.getElementById("leader-edit-modal");
-  const editAvatarPreview = document.getElementById("edit-avatar-preview");
-  const editAvatarFile = document.getElementById("edit-avatar-file");
-  const editDept = document.getElementById("edit-dept");
-  const editNick = document.getElementById("edit-nick");
-  const editAccount = document.getElementById("edit-account");
-  const editPoints = document.getElementById("edit-points");
-  const editError = document.getElementById("edit-error");
-  const editCancelBtn = document.getElementById("leader-edit-cancel");
-  const editSaveBtn = document.getElementById("leader-edit-save");
-
-  function setEditAvatarPreview(src, nickInitial) {
-    editAvatarPreview.innerHTML = "";
-    if (src) {
-      const img = document.createElement("img");
-      img.src = src;
-      editAvatarPreview.appendChild(img);
-    } else {
-      const span = document.createElement("span");
-      span.textContent = nickInitial || "?";
-      editAvatarPreview.appendChild(span);
-    }
-  }
-
-  function openEditModal(row) {
-    if (!isAdminLike(currentUser)) {
-      showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
-      return;
-    }
-
-    editingRowId = row && row.id ? row.id : null;
-
-    const nick = row && row.nick ? row.nick : "";
-    const acc = row && row.account_id ? row.account_id : "";
-    const dept = row && row.department ? row.department : "LSPD";
-    const pts = row && typeof row.points === "number" ? row.points : 0;
-
-    editDept.value = dept;
-    editNick.value = nick;
-    editAccount.value = acc;
-    editPoints.value = pts;
-
-    // очки берём из vk_leaderboard → редактирование отключено, но в БД всё равно пишем, чтобы INSERT не падал
-    editPoints.disabled = true;
-
-    const initialAvatar = editingAvatarData || (row && row.avatar_url ? row.avatar_url : null);
-    setEditAvatarPreview(initialAvatar, nick ? nick[0] : "?");
-
-    editError.style.display = "none";
-    editModal.classList.add("active");
-  }
-
-  function closeEditModal() {
-    editModal.classList.remove("active");
-    editingRowId = null;
-    editingAvatarData = null;
-    setEditAvatarPreview(null, "?");
-  }
-
-  if (editAvatarPreview) {
-    editAvatarPreview.addEventListener("click", () => {
-      if (!isAdminLike(currentUser)) return;
-      editAvatarFile.click();
-    });
-
-    editAvatarPreview.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      editAvatarPreview.classList.add("drag-over");
-    });
-    editAvatarPreview.addEventListener("dragleave", () => {
-      editAvatarPreview.classList.remove("drag-over");
-    });
-    editAvatarPreview.addEventListener("drop", (e) => {
-      e.preventDefault();
-      editAvatarPreview.classList.remove("drag-over");
-      if (!isAdminLike(currentUser)) return;
-      const file = e.dataTransfer.files[0];
-      if (file) handleEditAvatarFile(file);
-    });
-  }
-
-  if (editAvatarFile) {
-    editAvatarFile.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) handleEditAvatarFile(file);
-      editAvatarFile.value = "";
-    };
-  }
-
-  function handleEditAvatarFile(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      editingAvatarData = reader.result;
-      const nickInitial = editNick.value ? editNick.value[0] : "?";
-      setEditAvatarPreview(editingAvatarData, nickInitial);
-    };
-    reader.onerror = () => showErrorModal("Не удалось прочитать файл аватара.");
-    reader.readAsDataURL(file);
-  }
-
-  if (editCancelBtn) editCancelBtn.onclick = () => closeEditModal();
-
-  // ✅ FIX: сохраняем корректно (обязательно points + корректный period для leader_stats)
-  if (editSaveBtn) {
-    editSaveBtn.onclick = async () => {
-      if (!isAdminLike(currentUser)) {
-        showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
-        return;
-      }
-
-      const dept = editDept.value || "LSPD";
-      const nick = editNick.value.trim();
-      const account = editAccount.value.trim();
-
-      let pts = parseInt(editPoints.value, 10);
-      if (isNaN(pts) || pts < 0) pts = 0;
-
-      if (!nick || !account) {
-        editError.style.display = "block";
-        editError.textContent = "Ник и номер аккаунта обязательны.";
-        return;
-      }
-      editError.style.display = "none";
-
-      // leader_stats — это "профиль" (аватар/департамент/акк).
-      // очки берём из vk_leaderboard, но points обязателен для INSERT, поэтому записываем pts тоже.
-      const payload = {
-        period: "day",
-        department: dept,
-        nick,
-        account_id: account,
-        points: pts
-      };
-      if (editingAvatarData) payload.avatar_url = editingAvatarData;
-
-      try {
-        // Если id нет (строки может не существовать) — попробуем найти строку по (period=day, nick)
-        let targetId = editingRowId;
-
-        if (!targetId) {
-          const { data: existing, error: exErr } = await supabaseClient
-            .from("leader_stats")
-            .select("id")
-            .eq("period", "day")
-            .eq("nick", nick)
-            .maybeSingle();
-
-          if (exErr) console.warn("find existing leader_stats error:", exErr);
-          if (existing?.id) targetId = existing.id;
-        }
-
-        let resp;
-        if (targetId) {
-          resp = await supabaseClient
-            .from("leader_stats")
-            .update(payload)
-            .eq("id", targetId)
-            .select("*")
-            .single();
+    function setHudProfileUI(p){
+      hudProfile = p;
+      if (!p){
+        // есть auth, но нет hud_profiles => для HUD это гость
+        if (currentUser){
+          userLoginEl.textContent = "Guest";
+          userNickEl.textContent = "create_profile";
+          setAuthUI(false);
         } else {
-          resp = await supabaseClient
-            .from("leader_stats")
-            .insert(payload)
-            .select("*")
-            .single();
+          setGuestUI();
         }
-
-        const { data, error } = resp || {};
-        if (error) {
-          console.error("SAVE error:", error);
-          showErrorModal(
-            "Ошибка сохранения лидера: " +
-              (error.message || "unknown") +
-              (error.details ? "\n" + error.details : "")
-          );
-          return;
-        }
-
-        if (data?.id) editingRowId = data.id;
-
-        closeEditModal();
-        await loadLeaders("day");
-      } catch (e) {
-        console.error(e);
-        showErrorModal("Ошибка сохранения лидера: " + (e?.message || e));
+        return;
       }
-    };
-  }
+      userLoginEl.textContent = p.login || "User";
+      userNickEl.textContent = p.nick || "user";
+      if (p.avatar_url) avatarImg.src = p.avatar_url;
+      setAuthUI(true);
+    }
 
-  function attachAvatarHandlers(avatarEl, row) {
-    if (!isAdminLike(currentUser)) return;
-    avatarEl.classList.add("editable");
-
-    const startWithFile = (file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        editingAvatarData = reader.result;
-        openEditModal(row);
-      };
-      reader.onerror = () => showErrorModal("Не удалось прочитать файл аватара.");
-      reader.readAsDataURL(file);
-    };
-
-    avatarEl.addEventListener("click", () => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.style.display = "none";
-      document.body.appendChild(input);
-      input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) startWithFile(file);
-        document.body.removeChild(input);
-      };
-      input.click();
-    });
-
-    avatarEl.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      avatarEl.classList.add("drag-over");
-    });
-    avatarEl.addEventListener("dragleave", () => avatarEl.classList.remove("drag-over"));
-    avatarEl.addEventListener("drop", (e) => {
-      e.preventDefault();
-      avatarEl.classList.remove("drag-over");
-      const file = e.dataTransfer.files[0];
-      if (file) startWithFile(file);
-    });
-  }
-
-  /* ===== НЕДЕЛЯ (как было у тебя) ===== */
-  function monthRuUpper(monthIndex) {
-    const m = ["ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ","ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"];
-    return m[monthIndex] || "";
-  }
-
-  function formatPeriodRu(startISO, endISO) {
-    const s = new Date(startISO);
-    const e = new Date(endISO);
-    return `С ${s.getDate()} ${monthRuUpper(s.getMonth())} ${s.getFullYear()} по ${e.getDate()} ${monthRuUpper(e.getMonth())} ${e.getFullYear()}`;
-  }
-
-  function renderLeaderCard(place, row) {
-    const card = document.createElement("div");
-    card.className = "leader-card rank-" + place;
-
-    const icon = document.createElement("div");
-    icon.className = "leader-icon";
-    icon.textContent = place === 1 ? "🏆" : place === 2 ? "🥈" : "🥉";
-
-    const avatar = document.createElement("div");
-    avatar.className = "leader-avatar";
-
-    const main = document.createElement("div");
-    main.className = "leader-main";
-
-    const scoreBlock = document.createElement("div");
-    scoreBlock.className = "leader-score-block";
-
-    if (row) {
-      if (row.avatar_url) {
-        const img = document.createElement("img");
-        img.src = row.avatar_url;
-        avatar.appendChild(img);
+    function openModal(mode){
+      modalBack.classList.add("open");
+      if (mode === "profile"){
+        modalTitle.textContent = "PROFILE";
+        tabs.style.display = "none";
+        loginForm.style.display = "none";
+        registerForm.style.display = "none";
+        profileForm.style.display = "flex";
+        profileHintLine.textContent = "";
       } else {
-        avatar.textContent = row.nick ? row.nick[0] : "?";
+        modalTitle.textContent = "AUTH";
+        tabs.style.display = "flex";
+        profileForm.style.display = "none";
+        showTab(mode || "login");
       }
-
-      const nameRow = document.createElement("div");
-      nameRow.className = "leader-name-row";
-
-      const nickEl = document.createElement("div");
-      nickEl.className = "leader-nick";
-      nickEl.textContent = row.nick || "Без имени";
-
-      const accEl = document.createElement("div");
-      accEl.className = "leader-account";
-      accEl.textContent = row.account_id ? `[${row.account_id}]` : "[—]";
-
-      nameRow.appendChild(nickEl);
-      nameRow.appendChild(accEl);
-
-      const dept = (row.department || "").trim().toUpperCase();
-      const deptEl = document.createElement("div");
-      deptEl.className = "dept-badge " + (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
-      deptEl.textContent = dept || "—";
-
-      main.appendChild(nameRow);
-      main.appendChild(deptEl);
-
-      const scoreRow = document.createElement("div");
-      scoreRow.className = "leader-score";
-
-      const valueEl = document.createElement("span");
-      valueEl.className = "value";
-      valueEl.textContent = row.points ?? 0;
-
-      const unitEl = document.createElement("span");
-      unitEl.className = "unit";
-      unitEl.textContent = "АШ";
-
-      scoreRow.appendChild(valueEl);
-      scoreRow.appendChild(unitEl);
-
-      const crown = document.createElement("div");
-      crown.className = "leader-crown";
-
-      const placeLabel = document.createElement("div");
-      placeLabel.className = "leader-place-label";
-      placeLabel.textContent = place + " место";
-
-      scoreBlock.appendChild(scoreRow);
-      scoreBlock.appendChild(crown);
-      scoreBlock.appendChild(placeLabel);
-    } else {
-      avatar.textContent = "?";
-
-      const emptyTitle = document.createElement("div");
-      emptyTitle.className = "leader-empty";
-      emptyTitle.textContent = "Лидер не назначен";
-
-      const deptEl = document.createElement("div");
-      deptEl.className = "dept-badge";
-      deptEl.textContent = "—";
-
-      main.appendChild(emptyTitle);
-      main.appendChild(deptEl);
-
-      const scoreRow = document.createElement("div");
-      scoreRow.className = "leader-score";
-
-      const valueEl = document.createElement("span");
-      valueEl.className = "value";
-      valueEl.textContent = "0";
-
-      const unitEl = document.createElement("span");
-      unitEl.className = "unit";
-      unitEl.textContent = "АШ";
-
-      scoreRow.appendChild(valueEl);
-      scoreRow.appendChild(unitEl);
-
-      const crown = document.createElement("div");
-      crown.className = "leader-crown";
-
-      const placeLabel = document.createElement("div");
-      placeLabel.className = "leader-place-label";
-      placeLabel.textContent = place + " место";
-
-      scoreBlock.appendChild(scoreRow);
-      scoreBlock.appendChild(crown);
-      scoreBlock.appendChild(placeLabel);
     }
-
-    card.appendChild(icon);
-    card.appendChild(avatar);
-    card.appendChild(main);
-    card.appendChild(scoreBlock);
-
-    if (isAdminLike(currentUser) && currentPeriod === "day" && row) {
-      attachAvatarHandlers(avatar, row);
-
-      const actions = document.createElement("div");
-      actions.className = "leader-actions";
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "btn-outline btn-sm";
-      btn.textContent = "Редактировать";
-      btn.onclick = () => openEditModal(row);
-      actions.appendChild(btn);
-      card.appendChild(actions);
+    function closeModalFn(){
+      modalBack.classList.remove("open");
+      loginHint.textContent = "";
+      regHint.textContent = "";
+      profileHintLine.textContent = "";
     }
-
-    return card;
-  }
-
-  async function loadWeeklyBlocks() {
-    if (!leadersWrapper) return;
-    leadersWrapper.textContent = "Загрузка…";
-
-    const { data: weeks, error } = await supabaseClient
-      .from("vk_weekly_activity")
-      .select("*")
-      .order("period_start", { ascending: false })
-      .limit(10);
-
-    if (error) {
-      console.error(error);
-      leadersWrapper.textContent = "Ошибка загрузки активности недели.";
-      showErrorModal("Ошибка загрузки таблицы vk_weekly_activity.");
-      return;
-    }
-
-    const weeklyRows = weeks || [];
-    if (!weeklyRows.length) {
-      leadersWrapper.textContent = "Пока нет данных по неделям.";
-      return;
-    }
-
-    const allNicks = Array.from(
-      new Set(
-        weeklyRows.flatMap(w => [w.place1_nick, w.place2_nick, w.place3_nick].filter(Boolean))
-      )
-    );
-
-    let detailsMap = {};
-    if (allNicks.length) {
-      const { data: details, error: dErr } = await supabaseClient
-        .from("leader_stats")
-        .select("nick, account_id, avatar_url, department")
-        .in("nick", allNicks);
-
-      if (!dErr && details) {
-        detailsMap = Object.fromEntries(details.map(r => [r.nick, r]));
+    function showTab(which){
+      if (which === "login"){
+        tabLogin.classList.add("active");
+        tabRegister.classList.remove("active");
+        loginForm.style.display = "flex";
+        registerForm.style.display = "none";
+      } else {
+        tabRegister.classList.add("active");
+        tabLogin.classList.remove("active");
+        loginForm.style.display = "none";
+        registerForm.style.display = "flex";
       }
     }
 
-    leadersWrapper.innerHTML = "";
+    function ripple(btn, clientX, clientY){
+      const rect = btn.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      const r = document.createElement("span");
+      r.className = "ripple";
+      r.style.left = x + "px";
+      r.style.top = y + "px";
+      btn.appendChild(r);
+      setTimeout(() => r.remove(), 560);
+    }
 
-    weeklyRows.forEach((w) => {
-      const block = document.createElement("div");
-      block.className = "week-block";
+    function actionIcon(action){
+      if (action === "Бонус") return "✦";
+      if (action === "Рулетка") return "⟡";
+      if (action === "Шанс") return "⚑";
+      return "⛭";
+    }
 
-      const badge = document.createElement("div");
-      badge.className = "week-period-badge";
-      badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(w.period_start, w.period_end)}`;
-      block.appendChild(badge);
+    // ===== HUD tables =====
+    async function fetchMyHudProfile(uid){
+      const { data, error } = await supabase
+        .from("hud_profiles")
+        .select("id,login,nick,avatar_url,created_at")
+        .eq("id", uid)
+        .maybeSingle();
 
-      const slots = [
-        { nick: w.place1_nick, points: w.ash1 ?? 0 },
-        { nick: w.place2_nick, points: w.ash2 ?? 0 },
-        { nick: w.place3_nick, points: w.ash3 ?? 0 },
-      ];
+      if (error) return null;
+      return data || null;
+    }
 
-      slots.forEach((s, index) => {
-        const place = index + 1;
-        const info = s.nick ? (detailsMap[s.nick] || {}) : {};
-        const row = s.nick ? {
-          nick: s.nick,
-          points: s.points,
-          account_id: info.account_id || null,
-          avatar_url: info.avatar_url || null,
-          department: info.department || null,
-        } : null;
+    async function uploadAvatar(file, uid){
+      const ext = (file.name.split(".").pop() || "png").toLowerCase();
+      const path = `${uid}/${Date.now()}.${ext}`;
 
-        block.appendChild(renderLeaderCard(place, row));
+      const { error: upErr } = await supabase
+        .storage
+        .from("hud_avatars")
+        .upload(path, file, { upsert: true, contentType: file.type });
+
+      if (upErr) throw upErr;
+
+      const { data } = supabase.storage.from("hud_avatars").getPublicUrl(path);
+      return data.publicUrl;
+    }
+
+    // ===== Activity (HUD) =====
+    function renderHistory(items, animateTop=false){
+      historyList.innerHTML = items.map((h, idx) => {
+        const t = new Date(h.created_at);
+        const cls = (animateTop && idx === 0) ? "hitem pop" : "hitem";
+        const login = (h.login || "unknown").toString();
+        const nick  = (h.nick || "unknown").toString();
+        const action = (h.action || "").toString();
+        const time = nowTime(t);
+
+        const badge = h.avatar_url
+          ? `<img alt="" src="${h.avatar_url}">`
+          : `${actionIcon(action)}`;
+
+        return `
+          <div class="${cls}">
+            <div class="hleft">
+              <div class="hbadge">${badge}</div>
+              <div class="hmain">
+                <div class="hline1">${login}</div>
+                <div class="hline2">${nick} • ${action}</div>
+              </div>
+            </div>
+            <div class="htime">${time}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function loadLatestActivity(){
+      const { data, error } = await supabase
+        .from("hud_activity")
+        .select("id,user_id,login,nick,avatar_url,action,created_at")
+        .order("id", { ascending: false })
+        .limit(MAX_HISTORY);
+
+      if (error){
+        activitySub.textContent = "OFFLINE";
+        return;
+      }
+      activitySub.textContent = "LIVE";
+      renderHistory(data || [], false);
+    }
+
+    async function trimActivityTo15(){
+      // удаляем всё, что "ниже" первых 15
+      const { data, error } = await supabase
+        .from("hud_activity")
+        .select("id")
+        .order("id", { ascending: false })
+        .range(MAX_HISTORY, MAX_HISTORY + 500);
+
+      if (error || !data || data.length === 0) return;
+      await supabase.from("hud_activity").delete().in("id", data.map(x => x.id));
+    }
+
+    async function insertActivity(action){
+      if (!currentUser || !hudProfile) return;
+
+      const row = {
+        user_id: currentUser.id,
+        login: hudProfile.login,
+        nick: hudProfile.nick,
+        avatar_url: hudProfile.avatar_url || null,
+        action
+      };
+
+      const { error } = await supabase.from("hud_activity").insert(row);
+      if (!error) await trimActivityTo15();
+    }
+
+    function subscribeRealtime(){
+      if (activityChannel) return;
+      activityChannel = supabase
+        .channel("hud_activity_live")
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "hud_activity" }, async (payload) => {
+          const newRow = payload.new;
+          await loadLatestActivity();
+          coreSub.textContent = newRow.action;
+          footRight.textContent = "LIVE";
+          setTimeout(() => { footRight.textContent = "READY"; }, 800);
+        })
+        .subscribe();
+    }
+
+    // ===== Auth flows =====
+    async function initAuth(){
+      const { data } = await supabase.auth.getSession();
+      currentUser = data?.session?.user || null;
+
+      if (currentUser){
+        const p = await fetchMyHudProfile(currentUser.id);
+        setHudProfileUI(p);
+      } else {
+        setGuestUI();
+      }
+    }
+
+    async function doLoginFlow(){
+      loginHint.textContent = "";
+      const email = emailLogin.value.trim();
+      const pass = passLogin.value;
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (error){
+        loginHint.textContent = error.message;
+        return;
+      }
+
+      currentUser = data.user;
+      const p = await fetchMyHudProfile(currentUser.id);
+      setHudProfileUI(p);
+      closeModalFn();
+    }
+
+    async function doRegisterFlow(){
+      regHint.textContent = "";
+
+      const email = emailReg.value.trim();
+      const pass = passReg.value;
+      const login = loginReg.value.trim();
+      const nick = nickReg.value.trim();
+      const file = avatarFile.files?.[0] || null;
+
+      if (!email || !pass || !login || !nick){
+        regHint.textContent = "Заполни поля";
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({ email, password: pass });
+      if (error){
+        regHint.textContent = error.message;
+        return;
+      }
+
+      const user = data.user;
+      if (!user){
+        regHint.textContent = "Подтверди email и войди";
+        return;
+      }
+
+      let avatarUrl = null;
+      try{
+        if (file) avatarUrl = await uploadAvatar(file, user.id);
+      } catch (e){
+        avatarUrl = null;
+      }
+
+      const { error: pErr } = await supabase.from("hud_profiles").insert({
+        id: user.id,
+        login,
+        nick,
+        avatar_url: avatarUrl
       });
 
-      leadersWrapper.appendChild(block);
-    });
-  }
+      if (pErr){
+        regHint.textContent = pErr.message;
+        return;
+      }
 
-  /* ===== ДЕНЬ: очки из vk_leaderboard, остальное из leader_stats ===== */
-  async function loadLeaders(period) {
-    currentPeriod = period;
+      // если email confirm выключен, сессия может быть сразу
+      const s = await supabase.auth.getSession();
+      currentUser = s.data?.session?.user || user;
 
-    if (dateEl) {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      dateEl.textContent = `${dd}.${mm}.${yyyy}`;
+      const p = await fetchMyHudProfile(user.id);
+      setHudProfileUI(p);
+      closeModalFn();
     }
 
-    if (!leadersWrapper) return;
-    leadersWrapper.textContent = "Загрузка…";
-
-    const { data: vkRows, error: vkError } = await supabaseClient
-      .from("vk_leaderboard")
-      .select("nick, points")
-      .order("points", { ascending: false })
-      .limit(3);
-
-    if (vkError) {
-      console.error(vkError);
-      leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
-      showErrorModal("Ошибка загрузки таблицы vk_leaderboard.");
-      return;
+    async function doLogoutFlow(){
+      await supabase.auth.signOut();
+      currentUser = null;
+      hudProfile = null;
+      setGuestUI();
+      await loadLatestActivity();
     }
 
-    const top = (vkRows || []).map((r) => ({
-      nick: (r.nick || "").trim(),
-      points: Number(r.points || 0),
-    }));
+    // ===== Events =====
+    authBtn.addEventListener("click", () => openModal("login"));
+    logoutBtn.addEventListener("click", doLogoutFlow);
 
-    const nicks = top.map((x) => x.nick).filter(Boolean);
-
-    let statsMap = {};
-    if (nicks.length) {
-      const { data: statRows, error: statError } = await supabaseClient
-        .from("leader_stats")
-        .select("*")
-        .eq("period", "day")
-        .in("nick", nicks);
-
-      if (statError) console.error(statError);
-      else statsMap = Object.fromEntries((statRows || []).map((r) => [r.nick, r]));
-    }
-
-    const slots = [0, 1, 2].map((i) => {
-      const vk = top[i] || null;
-      if (!vk || !vk.nick) return null;
-
-      const st = statsMap[vk.nick] || null;
-      return {
-        id: st?.id ?? null,
-        nick: vk.nick,
-        points: vk.points,
-        avatar_url: st?.avatar_url ?? null,
-        account_id: st?.account_id ?? null,
-        department: st?.department ?? null,
-        period: "day",
-      };
+    profileBtn.addEventListener("click", () => {
+      if (!currentUser){
+        openModal("login");
+        return;
+      }
+      // Если пользователь авторизован, но HUD-профиль не создан — показываем регистрацию
+      if (!hudProfile){
+        openModal("register");
+        return;
+      }
+      openModal("profile");
     });
 
-    leadersWrapper.innerHTML = "";
-
-    slots.forEach((row, index) => {
-      leadersWrapper.appendChild(renderLeaderCard(index + 1, row));
+    profileBtn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") profileBtn.click();
     });
-  }
 
-  /* ===== Навигация табов ===== */
-  const tabDay = document.getElementById("tab-day");
-  const tabWeek = document.getElementById("tab-week");
-
-  if (tabDay && tabWeek) {
-    const tabs = [tabDay, tabWeek];
-    tabs.forEach((btn) => {
-      btn.onclick = () => {
-        tabs.forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        const period = btn.dataset.period;
-        currentPeriod = period;
-
-        if (period === "week") loadWeeklyBlocks();
-        else loadLeaders("day");
-      };
+    closeModal.addEventListener("click", closeModalFn);
+    modalBack.addEventListener("click", (e) => { if (e.target === modalBack) closeModalFn(); });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalBack.classList.contains("open")) closeModalFn();
     });
-  }
 
-  /* ===== ИНИЦИАЛИЗАЦИЯ ===== */
-  const userTagEl = document.getElementById("user-tag");
+    tabLogin.addEventListener("click", () => showTab("login"));
+    tabRegister.addEventListener("click", () => showTab("register"));
 
-  async function initPage() {
-    await loadThemeFromDB();
-    applyThemeBackground();
-    applyThemeToBlocks();
-    applySiteBranding();
+    doLogin.addEventListener("click", doLoginFlow);
+    doRegister.addEventListener("click", doRegisterFlow);
 
-    currentUser = loadSession();
-    if (userTagEl) 
-    {
-      userTagEl.textContent = "Активность лидера каждой фракции за текущий день...";
-    }
+    signOut2.addEventListener("click", async () => { await doLogoutFlow(); closeModalFn(); });
 
-    await loadLeaders("day");
-  }
+    pickAvatar.addEventListener("click", () => avatarFile.click());
+    avatarFile.addEventListener("change", () => {
+      const f = avatarFile.files?.[0];
+      avatarName.textContent = f ? f.name : "—";
+    });
 
-  window.addEventListener("load", initPage);
-</script>
+    cmdButtons.forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        if (btn.disabled){
+          openModal(currentUser ? "register" : "login");
+          return;
+        }
+        ripple(btn, e.clientX, e.clientY);
+        const action = btn.dataset.cmd;
+
+        coreSub.textContent = action;
+        footRight.textContent = action.toUpperCase();
+        setTimeout(() => { footRight.textContent = "READY"; }, 850);
+
+        await insertActivity(action);
+      });
+    });
+
+    pingPill.addEventListener("click", () => {
+      const v = Math.floor(18 + Math.random()*22);
+      pingEl.textContent = String(v);
+    });
+
+    setInterval(() => {
+      const base = 1240;
+      const delta = Math.floor(Math.random()*7) - 3;
+      crEl.textContent = (base + delta).toLocaleString("ru-RU");
+    }, 2200);
+
+    // ===== Boot =====
+    (async function boot(){
+      statusLine.textContent = "ONLINE";
+      await initAuth();
+      await loadLatestActivity();
+      subscribeRealtime();
+
+      supabase.auth.onAuthStateChange(async (_event, session) => {
+        currentUser = session?.user || null;
+        if (!currentUser){
+          setGuestUI();
+          return;
+        }
+        const p = await fetchMyHudProfile(currentUser.id);
+        setHudProfileUI(p);
+      });
+    })();
+  </script>
 </body>
 </html>
