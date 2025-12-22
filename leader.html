@@ -57,9 +57,7 @@
       transition: opacity 1s ease-in-out;
       pointer-events: none;
     }
-    #bg-rotator img.active {
-      opacity: 1;
-    }
+    #bg-rotator img.active { opacity: 1; }
 
     #app {
       width: 100%;
@@ -68,13 +66,8 @@
       z-index: 1;
     }
 
-    a {
-      color: var(--accent-pink-soft);
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
+    a { color: var(--accent-pink-soft); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
     .btn {
       padding: 8px 16px;
@@ -95,10 +88,7 @@
       transform: translateY(-1px);
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
     }
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 13px;
-    }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
 
     .btn-outline {
       padding: 6px 14px;
@@ -119,7 +109,6 @@
       box-shadow: 0 6px 16px rgba(15, 23, 42, 0.85);
     }
 
-    /* Верхняя строка */
     .page-header {
       display: flex;
       justify-content: space-between;
@@ -127,31 +116,20 @@
       margin-bottom: 16px;
       gap: 12px;
     }
-
     .page-title-block {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
-
     .page-title {
       font-size: 28px;
       font-weight: 700;
       letter-spacing: 0.02em;
       text-shadow: 0 0 18px rgba(168, 85, 247, 0.55);
     }
+    .page-subtitle { font-size: 13px; color: var(--muted); }
+    .user-tag { font-size: 12px; color: var(--muted); }
 
-    .page-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .user-tag {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* Основная панель */
     .leader-panel {
       border-radius: 32px;
       border: 1px solid var(--panel-border);
@@ -181,7 +159,6 @@
       padding: 4px;
       box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.6);
     }
-
     .leader-tab {
       min-width: 160px;
       padding: 10px 20px;
@@ -201,15 +178,8 @@
       position: relative;
       transition: color 0.12s;
     }
-
-    .leader-tab span.icon {
-      font-size: 14px;
-    }
-
-    .leader-tab.active {
-      color: #f9fafb;
-    }
-
+    .leader-tab span.icon { font-size: 14px; }
+    .leader-tab.active { color: #f9fafb; }
     .leader-tab.active::before {
       content: "";
       position: absolute;
@@ -221,17 +191,9 @@
         0 18px 40px rgba(15, 23, 42, 0.9);
       z-index: -1;
     }
+    .leader-tab.active span.label { font-weight: 700; }
+    .leader-date { font-size: 14px; color: var(--muted); }
 
-    .leader-tab.active span.label {
-      font-weight: 700;
-    }
-
-    .leader-date {
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    /* Лидеры (3 карточки) */
     .leaders-wrapper {
       margin-top: 8px;
       display: flex;
@@ -262,16 +224,9 @@
       font-size: 26px;
       flex-shrink: 0;
     }
-
-    .leader-card.rank-1 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9));
-    }
-    .leader-card.rank-2 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.55), rgba(15, 23, 42, 0.9));
-    }
-    .leader-card.rank-3 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.55), rgba(15, 23, 42, 0.9));
-    }
+    .leader-card.rank-1 .leader-icon { background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9)); }
+    .leader-card.rank-2 .leader-icon { background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.55), rgba(15, 23, 42, 0.9)); }
+    .leader-card.rank-3 .leader-icon { background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.55), rgba(15, 23, 42, 0.9)); }
 
     .leader-avatar {
       width: 68px;
@@ -288,18 +243,8 @@
       position: relative;
       color: #e5e7eb;
     }
-
-    .leader-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .leader-avatar.editable {
-      cursor: pointer;
-      border-style: solid;
-    }
-
+    .leader-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .leader-avatar.editable { cursor: pointer; border-style: solid; }
     .leader-avatar.editable::after {
       content: "✎";
       position: absolute;
@@ -315,10 +260,7 @@
       align-items: center;
       justify-content: center;
     }
-
-    .leader-avatar.drag-over {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8);
-    }
+    .leader-avatar.drag-over { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8); }
 
     .leader-main {
       flex: 1;
@@ -340,20 +282,17 @@
       font-weight: 700;
       text-shadow: 0 0 14px rgba(15, 23, 42, 0.8);
     }
-
     .leader-account {
       font-size: 13px;
       color: var(--accent-pink-soft);
       text-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
     }
 
-    /* плашка департамента (по ширине текста) */
+    /* плашка департамента */
     .dept-badge {
-      display: inline-flex;
-      align-items: center;
+      display:inline-flex;
+      align-items:center;
       width: fit-content;
-      max-width: 100%;
-      align-self: flex-start;
       padding: 4px 10px;
       border-radius: 999px;
       font-size: 12px;
@@ -363,47 +302,10 @@
       margin-top: 2px;
       border: 1px solid rgba(148,163,184,.25);
       background: rgba(15,23,42,.65);
-      white-space: nowrap;
     }
-
     .dept-badge.lspd { color:#22c55e; box-shadow: 0 0 18px rgba(34,197,94,.25); }
     .dept-badge.sfpd { color:#38bdf8; box-shadow: 0 0 18px rgba(56,189,248,.25); }
     .dept-badge.lvpd { color:#ef4444; box-shadow: 0 0 18px rgba(239,68,68,.25); }
-
-    .week-block {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .week-period-badge {
-      display: inline-flex;
-      align-items: center;
-      width: fit-content;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      border: 1px solid rgba(148,163,184,.28);
-      background:
-        radial-gradient(circle at top left, rgba(34,197,94,.18), transparent 55%),
-        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(239,68,68,.18), transparent 55%),
-        rgba(15,23,42,.55);
-      box-shadow: 0 14px 30px rgba(15, 23, 42, .75);
-    }
-
-    .week-period-badge .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      margin-right: 10px;
-      background: rgba(236,72,153,.9);
-      box-shadow: 0 0 14px rgba(236,72,153,.55);
-    }
 
     .leader-score-block {
       display: flex;
@@ -412,7 +314,6 @@
       gap: 4px;
       min-width: 110px;
     }
-
     .leader-score {
       display: flex;
       align-items: baseline;
@@ -420,18 +321,8 @@
       font-weight: 800;
       text-shadow: 0 0 16px rgba(236, 72, 153, 0.85);
     }
-
-    .leader-score .value {
-      font-size: 26px;
-      color: var(--score-color);
-    }
-
-    .leader-score .unit {
-      font-size: 13px;
-      color: #e5e7eb;
-    }
-
-    .leader-crown { font-size: 18px; }
+    .leader-score .value { font-size: 26px; color: var(--score-color); }
+    .leader-score .unit { font-size: 13px; color: #e5e7eb; }
     .leader-place-label { font-size: 12px; color: var(--muted); }
 
     .leader-actions {
@@ -440,12 +331,8 @@
       bottom: 10px;
     }
 
-    .leader-empty {
-      font-size: 15px;
-      color: var(--muted);
-    }
+    .leader-empty { font-size: 15px; color: var(--muted); }
 
-    /* Модалка ошибки */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -467,7 +354,12 @@
     }
     .modal h3 { font-size: 18px; margin-bottom: 4px; }
     .modal p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
-    .modal-footer { margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px; }
+    .modal-footer {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
 
     .field { margin-bottom: 8px; }
     .field label { display: block; font-size: 13px; margin-bottom: 3px; }
@@ -519,8 +411,36 @@
       align-items: center;
       justify-content: center;
     }
-
     .error-text { font-size: 12px; color: #f97373; margin-top: 4px; }
+
+    /* WEEK BLOCKS */
+    .week-block { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+    .week-period-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(148,163,184,.28);
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(239,68,68,.18), transparent 55%),
+        rgba(15,23,42,.55);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .75);
+    }
+    .week-period-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      margin-right: 10px;
+      background: rgba(236,72,153,.9);
+      box-shadow: 0 0 14px rgba(236,72,153,.55);
+    }
 
     @media (max-width: 720px) {
       body { padding: 12px; }
@@ -600,7 +520,9 @@
       <div class="leader-date" id="leader-date"></div>
     </div>
 
-    <div class="leaders-wrapper" id="leaders-wrapper">Загрузка…</div>
+    <div class="leaders-wrapper" id="leaders-wrapper">
+      Загрузка…
+    </div>
   </div>
 </div>
 
@@ -647,6 +569,7 @@
     <div class="field">
       <label for="edit-points">Текущее количество АШ</label>
       <input id="edit-points" type="number" min="0" step="1" value="0" />
+      <div class="hint">Очки берутся из таблицы vk_leaderboard и не редактируются здесь.</div>
     </div>
 
     <div class="error-text" id="edit-error" style="display:none;"></div>
@@ -658,7 +581,6 @@
   </div>
 </div>
 
-<!-- Supabase -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
@@ -676,7 +598,6 @@
     favicon: null,
     siteTitle: null,
   };
-
   let bgRotationTimer = null;
   let bgCurrentIndex = 0;
   const bgRotatorEl = document.getElementById("bg-rotator");
@@ -747,7 +668,7 @@
   }
 
   function applySiteBranding() {
-    document.title = themeConfig.siteTitle ? themeConfig.siteTitle : "Рейтинг лидеров PD";
+    document.title = themeConfig.siteTitle || "Рейтинг лидеров PD";
 
     if (themeConfig.favicon) {
       let link = document.querySelector("link[rel~='icon']");
@@ -760,48 +681,49 @@
     }
   }
 
-  /* ===== СЕССИЯ ПОЛЬЗОВАТЕЛЯ ===== */
+  /* ===== СЕССИЯ ===== */
   let currentUser = null;
-
   function loadSession() {
     try { return JSON.parse(localStorage.getItem("pp_user")); }
     catch { return null; }
   }
-
   function roleLabel(role) {
     if (role === "admin") return "Администратор";
     if (role === "moderator") return "Модератор";
     if (role === "creator") return "Редактор";
     return "Офицер";
   }
-
   function isAdminLike(user) {
-    if (!user) return false;
-    return user.role === "admin" || user.role === "moderator" || user.role === "creator";
+    return !!user && (user.role === "admin" || user.role === "moderator" || user.role === "creator");
   }
 
   /* ===== ОШИБКИ ===== */
   const errorModal = document.getElementById("error-modal");
   const errorModalText = document.getElementById("error-modal-text");
   const errorModalClose = document.getElementById("error-modal-close");
-
   function showErrorModal(message) {
     errorModalText.textContent = message || "Неизвестная ошибка.";
     errorModal.classList.add("active");
   }
+  if (errorModalClose) errorModalClose.onclick = () => errorModal.classList.remove("active");
 
-  if (errorModalClose) {
-    errorModalClose.onclick = () => errorModal.classList.remove("active");
+  /* ===== HELPERS WEEK ===== */
+  function monthRuUpper(monthIndex) {
+    const m = ["ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ","ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"];
+    return m[monthIndex] || "";
+  }
+  function formatPeriodRu(startISO, endISO) {
+    const s = new Date(startISO);
+    const e = new Date(endISO);
+    return `С ${s.getDate()} ${monthRuUpper(s.getMonth())} ${s.getFullYear()} по ${e.getDate()} ${monthRuUpper(e.getMonth())} ${e.getFullYear()}`;
   }
 
-  /* ===== ЛИДЕРЫ ===== */
+  /* ===== UI / DATA ===== */
   const leadersWrapper = document.getElementById("leaders-wrapper");
   const dateEl = document.getElementById("leader-date");
-
   let currentPeriod = "day";
-  let editingRowId = null;
-  let editingAvatarData = null;
 
+  // edit state
   const editModal = document.getElementById("leader-edit-modal");
   const editAvatarPreview = document.getElementById("edit-avatar-preview");
   const editAvatarFile = document.getElementById("edit-avatar-file");
@@ -812,6 +734,10 @@
   const editError = document.getElementById("edit-error");
   const editCancelBtn = document.getElementById("leader-edit-cancel");
   const editSaveBtn = document.getElementById("leader-edit-save");
+
+  let editingAvatarData = null;
+  let editingOriginalNick = null; // <- важно для смены ника
+  let editingRow = null;          // текущая карточка (объект)
 
   function setEditAvatarPreview(src, nickInitial) {
     editAvatarPreview.innerHTML = "";
@@ -832,23 +758,19 @@
       return;
     }
 
-    editingRowId = row && row.id ? row.id : null;
+    editingRow = row || null;
+    editingOriginalNick = row?.nick || null;
 
-    const nick = row && row.nick ? row.nick : "";
-    const acc = row && row.account_id ? row.account_id : "";
-    const dept = row && row.department ? row.department : "LSPD";
-    const pts = row && typeof row.points === "number" ? row.points : 0;
+    editDept.value = (row?.department || "LSPD").trim().toUpperCase();
+    editNick.value = row?.nick || "";
+    editAccount.value = row?.account_id || "";
 
-    editDept.value = dept;
-    editNick.value = nick;
-    editAccount.value = acc;
-    editPoints.value = pts;
-
-    // очки берём из vk_leaderboard → редактирование отключено, но в БД всё равно пишем, чтобы INSERT не падал
+    // очки в UI показываем, но не даём менять (они из vk_leaderboard)
+    editPoints.value = (row?.points ?? 0);
     editPoints.disabled = true;
 
-    const initialAvatar = editingAvatarData || (row && row.avatar_url ? row.avatar_url : null);
-    setEditAvatarPreview(initialAvatar, nick ? nick[0] : "?");
+    const initialAvatar = editingAvatarData || row?.avatar_url || null;
+    setEditAvatarPreview(initialAvatar, (row?.nick ? row.nick[0] : "?"));
 
     editError.style.display = "none";
     editModal.classList.add("active");
@@ -856,39 +778,10 @@
 
   function closeEditModal() {
     editModal.classList.remove("active");
-    editingRowId = null;
     editingAvatarData = null;
+    editingOriginalNick = null;
+    editingRow = null;
     setEditAvatarPreview(null, "?");
-  }
-
-  if (editAvatarPreview) {
-    editAvatarPreview.addEventListener("click", () => {
-      if (!isAdminLike(currentUser)) return;
-      editAvatarFile.click();
-    });
-
-    editAvatarPreview.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      editAvatarPreview.classList.add("drag-over");
-    });
-    editAvatarPreview.addEventListener("dragleave", () => {
-      editAvatarPreview.classList.remove("drag-over");
-    });
-    editAvatarPreview.addEventListener("drop", (e) => {
-      e.preventDefault();
-      editAvatarPreview.classList.remove("drag-over");
-      if (!isAdminLike(currentUser)) return;
-      const file = e.dataTransfer.files[0];
-      if (file) handleEditAvatarFile(file);
-    });
-  }
-
-  if (editAvatarFile) {
-    editAvatarFile.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) handleEditAvatarFile(file);
-      editAvatarFile.value = "";
-    };
   }
 
   function handleEditAvatarFile(file) {
@@ -902,9 +795,34 @@
     reader.readAsDataURL(file);
   }
 
-  if (editCancelBtn) editCancelBtn.onclick = () => closeEditModal();
+  if (editAvatarPreview) {
+    editAvatarPreview.addEventListener("click", () => {
+      if (!isAdminLike(currentUser)) return;
+      editAvatarFile.click();
+    });
+    editAvatarPreview.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      editAvatarPreview.classList.add("drag-over");
+    });
+    editAvatarPreview.addEventListener("dragleave", () => editAvatarPreview.classList.remove("drag-over"));
+    editAvatarPreview.addEventListener("drop", (e) => {
+      e.preventDefault();
+      editAvatarPreview.classList.remove("drag-over");
+      if (!isAdminLike(currentUser)) return;
+      const file = e.dataTransfer.files[0];
+      if (file) handleEditAvatarFile(file);
+    });
+  }
+  if (editAvatarFile) {
+    editAvatarFile.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) handleEditAvatarFile(file);
+      editAvatarFile.value = "";
+    };
+  }
+  if (editCancelBtn) editCancelBtn.onclick = closeEditModal;
 
-  // ✅ FIX: сохраняем корректно (обязательно points + корректный period для leader_stats)
+  // ✅ ВАЖНО: теперь сохраняем через UPSERT по nick и корректно обрабатываем смену ника
   if (editSaveBtn) {
     editSaveBtn.onclick = async () => {
       if (!isAdminLike(currentUser)) {
@@ -912,75 +830,74 @@
         return;
       }
 
-      const dept = editDept.value || "LSPD";
-      const nick = editNick.value.trim();
+      const dept = (editDept.value || "LSPD").trim().toUpperCase();
+      const newNick = editNick.value.trim();
       const account = editAccount.value.trim();
 
-      let pts = parseInt(editPoints.value, 10);
-      if (isNaN(pts) || pts < 0) pts = 0;
-
-      if (!nick || !account) {
+      if (!newNick || !account) {
         editError.style.display = "block";
         editError.textContent = "Ник и номер аккаунта обязательны.";
         return;
       }
       editError.style.display = "none";
 
-      // leader_stats — это "профиль" (аватар/департамент/акк).
-      // очки берём из vk_leaderboard, но points обязателен для INSERT, поэтому записываем pts тоже.
+      // 1) сохраняем профиль лидера в leader_stats (по NICK)
+      //    (points сюда НЕ пишем — они из vk_leaderboard)
       const payload = {
-        period: "day",
+        nick: newNick,
         department: dept,
-        nick,
         account_id: account,
-        points: pts
       };
       if (editingAvatarData) payload.avatar_url = editingAvatarData;
 
       try {
-        // Если id нет (строки может не существовать) — попробуем найти строку по (period=day, nick)
-        let targetId = editingRowId;
+        // upsert, чтобы не зависеть от id и не ловить конфликты
+        const { data: upData, error: upErr } = await supabaseClient
+          .from("leader_stats")
+          .upsert(payload, { onConflict: "nick" })
+          .select("*")
+          .single();
 
-        if (!targetId) {
-          const { data: existing, error: exErr } = await supabaseClient
-            .from("leader_stats")
-            .select("id")
-            .eq("period", "day")
-            .eq("nick", nick)
-            .maybeSingle();
-
-          if (exErr) console.warn("find existing leader_stats error:", exErr);
-          if (existing?.id) targetId = existing.id;
-        }
-
-        let resp;
-        if (targetId) {
-          resp = await supabaseClient
-            .from("leader_stats")
-            .update(payload)
-            .eq("id", targetId)
-            .select("*")
-            .single();
-        } else {
-          resp = await supabaseClient
-            .from("leader_stats")
-            .insert(payload)
-            .select("*")
-            .single();
-        }
-
-        const { data, error } = resp || {};
-        if (error) {
-          console.error("SAVE error:", error);
+        if (upErr) {
+          console.error("leader_stats upsert error:", upErr);
           showErrorModal(
             "Ошибка сохранения лидера: " +
-              (error.message || "unknown") +
-              (error.details ? "\n" + error.details : "")
+            (upErr.message || "unknown") +
+            (upErr.details ? "\n" + upErr.details : "")
           );
           return;
         }
 
-        if (data?.id) editingRowId = data.id;
+        // 2) если ник поменяли — нужно, чтобы страница не “слетала”
+        //    потому что топ берётся из vk_leaderboard (nick+points).
+        //    Поэтому “переименовываем” ник и там, иначе на следующей загрузке
+        //    подтянется старый ник -> и детали будут пустыми.
+        if (editingOriginalNick && editingOriginalNick !== newNick) {
+          // переименовать в vk_leaderboard
+          const { error: vkUpdErr } = await supabaseClient
+            .from("vk_leaderboard")
+            .update({ nick: newNick })
+            .eq("nick", editingOriginalNick);
+
+          // удалить старую строку из leader_stats (по желанию; чтобы не копить мусор)
+          await supabaseClient
+            .from("leader_stats")
+            .delete()
+            .eq("nick", editingOriginalNick);
+
+          if (vkUpdErr) {
+            // не фейлим полностью — просто предупреждаем
+            console.warn("vk_leaderboard rename error:", vkUpdErr);
+            showErrorModal(
+              "Лидер сохранён, но ник в vk_leaderboard не обновился.\n" +
+              "Из-за этого при следующей загрузке могут подтянуться старые ники.\n\n" +
+              (vkUpdErr.message || "")
+            );
+            closeEditModal();
+            await loadLeaders("day");
+            return;
+          }
+        }
 
         closeEditModal();
         await loadLeaders("day");
@@ -1032,18 +949,6 @@
     });
   }
 
-  /* ===== НЕДЕЛЯ (как было у тебя) ===== */
-  function monthRuUpper(monthIndex) {
-    const m = ["ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ","ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"];
-    return m[monthIndex] || "";
-  }
-
-  function formatPeriodRu(startISO, endISO) {
-    const s = new Date(startISO);
-    const e = new Date(endISO);
-    return `С ${s.getDate()} ${monthRuUpper(s.getMonth())} ${s.getFullYear()} по ${e.getDate()} ${monthRuUpper(e.getMonth())} ${e.getFullYear()}`;
-  }
-
   function renderLeaderCard(place, row) {
     const card = document.createElement("div");
     card.className = "leader-card rank-" + place;
@@ -1086,7 +991,9 @@
 
       const dept = (row.department || "").trim().toUpperCase();
       const deptEl = document.createElement("div");
-      deptEl.className = "dept-badge " + (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
+      deptEl.className =
+        "dept-badge " +
+        (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
       deptEl.textContent = dept || "—";
 
       main.appendChild(nameRow);
@@ -1106,15 +1013,11 @@
       scoreRow.appendChild(valueEl);
       scoreRow.appendChild(unitEl);
 
-      const crown = document.createElement("div");
-      crown.className = "leader-crown";
-
       const placeLabel = document.createElement("div");
       placeLabel.className = "leader-place-label";
       placeLabel.textContent = place + " место";
 
       scoreBlock.appendChild(scoreRow);
-      scoreBlock.appendChild(crown);
       scoreBlock.appendChild(placeLabel);
     } else {
       avatar.textContent = "?";
@@ -1144,15 +1047,11 @@
       scoreRow.appendChild(valueEl);
       scoreRow.appendChild(unitEl);
 
-      const crown = document.createElement("div");
-      crown.className = "leader-crown";
-
       const placeLabel = document.createElement("div");
       placeLabel.className = "leader-place-label";
       placeLabel.textContent = place + " место";
 
       scoreBlock.appendChild(scoreRow);
-      scoreBlock.appendChild(crown);
       scoreBlock.appendChild(placeLabel);
     }
 
@@ -1161,16 +1060,19 @@
     card.appendChild(main);
     card.appendChild(scoreBlock);
 
+    // редактирование разрешаем только на "день"
     if (isAdminLike(currentUser) && currentPeriod === "day" && row) {
       attachAvatarHandlers(avatar, row);
 
       const actions = document.createElement("div");
       actions.className = "leader-actions";
+
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn-outline btn-sm";
       btn.textContent = "Редактировать";
       btn.onclick = () => openEditModal(row);
+
       actions.appendChild(btn);
       card.appendChild(actions);
     }
@@ -1178,7 +1080,81 @@
     return card;
   }
 
+  async function loadLeaders() {
+    currentPeriod = "day";
+
+    if (dateEl) {
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      dateEl.textContent = `${dd}.${mm}.${yyyy}`;
+    }
+
+    if (!leadersWrapper) return;
+    leadersWrapper.textContent = "Загрузка…";
+
+    // 1) берём ТОП-3 только из vk_leaderboard (nick + points)
+    const { data: vkRows, error: vkError } = await supabaseClient
+      .from("vk_leaderboard")
+      .select("nick, points")
+      .order("points", { ascending: false })
+      .limit(3);
+
+    if (vkError) {
+      console.error(vkError);
+      leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
+      showErrorModal("Ошибка загрузки таблицы vk_leaderboard.");
+      return;
+    }
+
+    const top = (vkRows || []).map((r) => ({
+      nick: (r.nick || "").trim(),
+      points: Number(r.points || 0),
+    }));
+
+    // 2) детали (департамент/акк/аватар) берём из leader_stats по нику (без period!)
+    const nicks = top.map((x) => x.nick).filter(Boolean);
+    let statsMap = {};
+
+    if (nicks.length) {
+      const { data: statRows, error: statError } = await supabaseClient
+        .from("leader_stats")
+        .select("nick, account_id, avatar_url, department")
+        .in("nick", nicks);
+
+      if (statError) {
+        console.error(statError);
+      } else {
+        statsMap = Object.fromEntries((statRows || []).map((r) => [r.nick, r]));
+      }
+    }
+
+    // 3) собираем 3 карточки (если по нику нет профиля — показываем пустые поля, но ник и очки будут)
+    const slots = [0,1,2].map((i) => {
+      const vk = top[i] || null;
+      if (!vk || !vk.nick) return null;
+
+      const st = statsMap[vk.nick] || null;
+      return {
+        nick: vk.nick,
+        points: vk.points,
+        avatar_url: st?.avatar_url ?? null,
+        account_id: st?.account_id ?? null,
+        department: st?.department ?? null,
+      };
+    });
+
+    leadersWrapper.innerHTML = "";
+    slots.forEach((row, idx) => {
+      leadersWrapper.appendChild(renderLeaderCard(idx + 1, row));
+    });
+  }
+
   async function loadWeeklyBlocks() {
+    currentPeriod = "week";
+    if (dateEl) dateEl.textContent = ""; // у недель будут свои плашки
+
     if (!leadersWrapper) return;
     leadersWrapper.textContent = "Загрузка…";
 
@@ -1201,11 +1177,9 @@
       return;
     }
 
-    const allNicks = Array.from(
-      new Set(
-        weeklyRows.flatMap(w => [w.place1_nick, w.place2_nick, w.place3_nick].filter(Boolean))
-      )
-    );
+    const allNicks = Array.from(new Set(
+      weeklyRows.flatMap(w => [w.place1_nick, w.place2_nick, w.place3_nick].filter(Boolean))
+    ));
 
     let detailsMap = {};
     if (allNicks.length) {
@@ -1237,7 +1211,6 @@
       ];
 
       slots.forEach((s, index) => {
-        const place = index + 1;
         const info = s.nick ? (detailsMap[s.nick] || {}) : {};
         const row = s.nick ? {
           nick: s.nick,
@@ -1246,105 +1219,30 @@
           avatar_url: info.avatar_url || null,
           department: info.department || null,
         } : null;
-
-        block.appendChild(renderLeaderCard(place, row));
+        block.appendChild(renderLeaderCard(index + 1, row));
       });
 
       leadersWrapper.appendChild(block);
     });
   }
 
-  /* ===== ДЕНЬ: очки из vk_leaderboard, остальное из leader_stats ===== */
-  async function loadLeaders(period) {
-    currentPeriod = period;
-
-    if (dateEl) {
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      dateEl.textContent = `${dd}.${mm}.${yyyy}`;
-    }
-
-    if (!leadersWrapper) return;
-    leadersWrapper.textContent = "Загрузка…";
-
-    const { data: vkRows, error: vkError } = await supabaseClient
-      .from("vk_leaderboard")
-      .select("nick, points")
-      .order("points", { ascending: false })
-      .limit(3);
-
-    if (vkError) {
-      console.error(vkError);
-      leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
-      showErrorModal("Ошибка загрузки таблицы vk_leaderboard.");
-      return;
-    }
-
-    const top = (vkRows || []).map((r) => ({
-      nick: (r.nick || "").trim(),
-      points: Number(r.points || 0),
-    }));
-
-    const nicks = top.map((x) => x.nick).filter(Boolean);
-
-    let statsMap = {};
-    if (nicks.length) {
-      const { data: statRows, error: statError } = await supabaseClient
-        .from("leader_stats")
-        .select("*")
-        .eq("period", "day")
-        .in("nick", nicks);
-
-      if (statError) console.error(statError);
-      else statsMap = Object.fromEntries((statRows || []).map((r) => [r.nick, r]));
-    }
-
-    const slots = [0, 1, 2].map((i) => {
-      const vk = top[i] || null;
-      if (!vk || !vk.nick) return null;
-
-      const st = statsMap[vk.nick] || null;
-      return {
-        id: st?.id ?? null,
-        nick: vk.nick,
-        points: vk.points,
-        avatar_url: st?.avatar_url ?? null,
-        account_id: st?.account_id ?? null,
-        department: st?.department ?? null,
-        period: "day",
-      };
-    });
-
-    leadersWrapper.innerHTML = "";
-
-    slots.forEach((row, index) => {
-      leadersWrapper.appendChild(renderLeaderCard(index + 1, row));
-    });
-  }
-
   /* ===== Навигация табов ===== */
   const tabDay = document.getElementById("tab-day");
   const tabWeek = document.getElementById("tab-week");
-
   if (tabDay && tabWeek) {
     const tabs = [tabDay, tabWeek];
     tabs.forEach((btn) => {
       btn.onclick = () => {
         tabs.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-
         const period = btn.dataset.period;
-        currentPeriod = period;
-
         if (period === "week") loadWeeklyBlocks();
-        else loadLeaders("day");
+        else loadLeaders();
       };
     });
   }
 
-  /* ===== ИНИЦИАЛИЗАЦИЯ ===== */
+  /* ===== INIT ===== */
   const userTagEl = document.getElementById("user-tag");
 
   async function initPage() {
@@ -1355,11 +1253,14 @@
 
     currentUser = loadSession();
     if (userTagEl) {
-      if (!currentUser) userTagEl.textContent = "Режим гостя — доступен только просмотр рейтинга.";
-      else userTagEl.textContent = "Вы вошли как " + currentUser.nick + " (" + roleLabel(currentUser.role) + ")";
+      if (!currentUser) {
+        userTagEl.textContent = "Режим гостя — доступен только просмотр рейтинга.";
+      } else {
+        userTagEl.textContent = "Вы вошли как " + currentUser.nick + " (" + roleLabel(currentUser.role) + ")";
+      }
     }
 
-    await loadLeaders("day");
+    await loadLeaders();
   }
 
   window.addEventListener("load", initPage);
