@@ -288,7 +288,6 @@
       text-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
     }
 
-    /* плашка департамента */
     .dept-badge {
       display:inline-flex;
       align-items:center;
@@ -413,7 +412,6 @@
     }
     .error-text { font-size: 12px; color: #f97373; margin-top: 4px; }
 
-    /* WEEK BLOCKS */
     .week-block { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
     .week-period-badge {
       display: inline-flex;
@@ -569,7 +567,7 @@
     <div class="field">
       <label for="edit-points">Текущее количество АШ</label>
       <input id="edit-points" type="number" min="0" step="1" value="0" />
-      <div class="hint">Очки берутся из таблицы vk_leaderboard и не редактируются здесь.</div>
+      <div class="hint">Очки берутся из leaderinfo.points_day и не редактируются здесь.</div>
     </div>
 
     <div class="error-text" id="edit-error" style="display:none;"></div>
@@ -589,10 +587,10 @@
 
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* ===== ТЕМА: только фон + бренд ===== */
+  /* ===== ТЕМА: фон + бренд ===== */
   let themeConfig = {
     images: [],
-    opacity: 80,
+    opacity: 80,      // % (0-100)
     blur: 0,
     borderColor: "#1f2937",
     favicon: null,
@@ -629,7 +627,9 @@
     bgRotatorEl.innerHTML = "";
 
     const images = themeConfig.images || [];
-    const blurPx = themeConfig.blur || 0;
+    const blurPx = Number(themeConfig.blur || 0);
+    const opacityPct = Math.max(0, Math.min(100, Number(themeConfig.opacity ?? 80)));
+    const imgOpacity = opacityPct / 100;
 
     if (!images.length) {
       bgRotatorEl.style.background = "#020617";
@@ -640,7 +640,14 @@
       const img = document.createElement("img");
       img.src = src;
       img.style.filter = "blur(" + blurPx + "px)";
-      if (index === 0) img.classList.add("active");
+      img.style.opacity = "0";
+      // Применяем "общую" прозрачность темы поверх active-логики:
+      img.dataset.baseOpacity = String(imgOpacity);
+
+      if (index === 0) {
+        img.classList.add("active");
+        img.style.opacity = String(imgOpacity);
+      }
       bgRotatorEl.appendChild(img);
     });
 
@@ -656,8 +663,15 @@
         const prev = imgs[bgCurrentIndex];
         bgCurrentIndex = (bgCurrentIndex + 1) % imgs.length;
         const next = imgs[bgCurrentIndex];
-        if (prev) prev.classList.remove("active");
-        if (next) next.classList.add("active");
+
+        if (prev) {
+          prev.classList.remove("active");
+          prev.style.opacity = "0";
+        }
+        if (next) {
+          next.classList.add("active");
+          next.style.opacity = next.dataset.baseOpacity || "0.8";
+        }
       }, 60 * 1000);
     }
   }
@@ -736,8 +750,7 @@
   const editSaveBtn = document.getElementById("leader-edit-save");
 
   let editingAvatarData = null;
-  let editingOriginalNick = null; // <- важно для смены ника
-  let editingRow = null;          // текущая карточка (объект)
+  let editingRow = null; // текущая карточка (объект leaderinfo)
 
   function setEditAvatarPreview(src, nickInitial) {
     editAvatarPreview.innerHTML = "";
@@ -757,20 +770,24 @@
       showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
       return;
     }
+    if (!row || !row.id) {
+      showErrorModal("Невозможно открыть редактирование: лидер не найден.");
+      return;
+    }
 
-    editingRow = row || null;
-    editingOriginalNick = row?.nick || null;
+    // фикс "утечки" состояния: при открытии всегда стартуем чисто
+    editingRow = row;
+    if (!editingAvatarData) editingAvatarData = null;
 
-    editDept.value = (row?.department || "LSPD").trim().toUpperCase();
-    editNick.value = row?.nick || "";
-    editAccount.value = row?.account_id || "";
+    editDept.value = (row.department || "LSPD").trim().toUpperCase();
+    editNick.value = row.nick || "";
+    editAccount.value = row.account_id || "";
 
-    // очки в UI показываем, но не даём менять (они из vk_leaderboard)
-    editPoints.value = (row?.points ?? 0);
+    editPoints.value = (row.points_day ?? 0);
     editPoints.disabled = true;
 
-    const initialAvatar = editingAvatarData || row?.avatar_url || null;
-    setEditAvatarPreview(initialAvatar, (row?.nick ? row.nick[0] : "?"));
+    const initialAvatar = editingAvatarData || row.avatar_url || null;
+    setEditAvatarPreview(initialAvatar, (row.nick ? row.nick[0] : "?"));
 
     editError.style.display = "none";
     editModal.classList.add("active");
@@ -779,7 +796,6 @@
   function closeEditModal() {
     editModal.classList.remove("active");
     editingAvatarData = null;
-    editingOriginalNick = null;
     editingRow = null;
     setEditAvatarPreview(null, "?");
   }
@@ -822,11 +838,15 @@
   }
   if (editCancelBtn) editCancelBtn.onclick = closeEditModal;
 
-  // ✅ ВАЖНО: теперь сохраняем через UPSERT по nick и корректно обрабатываем смену ника
+  // сохранение в leaderinfo (обновление по id)
   if (editSaveBtn) {
     editSaveBtn.onclick = async () => {
       if (!isAdminLike(currentUser)) {
         showErrorModal("Редактирование доступно только администраторам, модераторам и редакторам.");
+        return;
+      }
+      if (!editingRow?.id) {
+        showErrorModal("Невозможно сохранить: лидер не выбран.");
         return;
       }
 
@@ -841,66 +861,32 @@
       }
       editError.style.display = "none";
 
-      // 1) сохраняем профиль лидера в leader_stats (по NICK)
-      //    (points сюда НЕ пишем — они из vk_leaderboard)
       const payload = {
-        nick: newNick,
         department: dept,
+        nick: newNick,
         account_id: account,
+        updated_at: new Date().toISOString(),
       };
       if (editingAvatarData) payload.avatar_url = editingAvatarData;
 
       try {
-        // upsert, чтобы не зависеть от id и не ловить конфликты
-        const { data: upData, error: upErr } = await supabaseClient
-          .from("leader_stats")
-          .upsert(payload, { onConflict: "nick" })
-          .select("*")
-          .single();
+        const { error } = await supabaseClient
+          .from("leaderinfo")
+          .update(payload)
+          .eq("id", editingRow.id);
 
-        if (upErr) {
-          console.error("leader_stats upsert error:", upErr);
+        if (error) {
+          console.error("leaderinfo update error:", error);
           showErrorModal(
             "Ошибка сохранения лидера: " +
-            (upErr.message || "unknown") +
-            (upErr.details ? "\n" + upErr.details : "")
+            (error.message || "unknown") +
+            (error.details ? "\n" + error.details : "")
           );
           return;
         }
 
-        // 2) если ник поменяли — нужно, чтобы страница не “слетала”
-        //    потому что топ берётся из vk_leaderboard (nick+points).
-        //    Поэтому “переименовываем” ник и там, иначе на следующей загрузке
-        //    подтянется старый ник -> и детали будут пустыми.
-        if (editingOriginalNick && editingOriginalNick !== newNick) {
-          // переименовать в vk_leaderboard
-          const { error: vkUpdErr } = await supabaseClient
-            .from("vk_leaderboard")
-            .update({ nick: newNick })
-            .eq("nick", editingOriginalNick);
-
-          // удалить старую строку из leader_stats (по желанию; чтобы не копить мусор)
-          await supabaseClient
-            .from("leader_stats")
-            .delete()
-            .eq("nick", editingOriginalNick);
-
-          if (vkUpdErr) {
-            // не фейлим полностью — просто предупреждаем
-            console.warn("vk_leaderboard rename error:", vkUpdErr);
-            showErrorModal(
-              "Лидер сохранён, но ник в vk_leaderboard не обновился.\n" +
-              "Из-за этого при следующей загрузке могут подтянуться старые ники.\n\n" +
-              (vkUpdErr.message || "")
-            );
-            closeEditModal();
-            await loadLeaders("day");
-            return;
-          }
-        }
-
         closeEditModal();
-        await loadLeaders("day");
+        await loadLeaders("day"); // остаёмся на дне (как раньше)
       } catch (e) {
         console.error(e);
         showErrorModal("Ошибка сохранения лидера: " + (e?.message || e));
@@ -915,6 +901,7 @@
     const startWithFile = (file) => {
       const reader = new FileReader();
       reader.onload = () => {
+        // фикс "утечки": аватар сохраняем только для текущего открытия
         editingAvatarData = reader.result;
         openEditModal(row);
       };
@@ -1004,6 +991,7 @@
 
       const valueEl = document.createElement("span");
       valueEl.className = "value";
+      // points для дня/недели кладём заранее в row.points
       valueEl.textContent = row.points ?? 0;
 
       const unitEl = document.createElement("span");
@@ -1071,7 +1059,10 @@
       btn.type = "button";
       btn.className = "btn-outline btn-sm";
       btn.textContent = "Редактировать";
-      btn.onclick = () => openEditModal(row);
+      btn.onclick = () => {
+        editingAvatarData = null; // фикс: чистим перед открытием
+        openEditModal(row);
+      };
 
       actions.appendChild(btn);
       card.appendChild(actions);
@@ -1080,8 +1071,8 @@
     return card;
   }
 
-  async function loadLeaders() {
-    currentPeriod = "day";
+  async function loadLeaders(period = "day") {
+    currentPeriod = period;
 
     if (dateEl) {
       const now = new Date();
@@ -1094,56 +1085,32 @@
     if (!leadersWrapper) return;
     leadersWrapper.textContent = "Загрузка…";
 
-    // 1) берём ТОП-3 только из vk_leaderboard (nick + points)
-    const { data: vkRows, error: vkError } = await supabaseClient
-      .from("vk_leaderboard")
-      .select("nick, points")
-      .order("points", { ascending: false })
+    // ТОП-3 из leaderinfo по points_day
+    const { data, error } = await supabaseClient
+      .from("leaderinfo")
+      .select("id, nick, account_id, avatar_url, department, points_day")
+      .order("points_day", { ascending: false })
       .limit(3);
 
-    if (vkError) {
-      console.error(vkError);
+    if (error) {
+      console.error(error);
       leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
-      showErrorModal("Ошибка загрузки данных по рейтингам!");
+      showErrorModal("Ошибка загрузки данных по рейтингу дня (leaderinfo).");
       return;
     }
 
-    const top = (vkRows || []).map((r) => ({
+    // Слоты всегда 3 — если в базе меньше, добиваем пустыми
+    const rows = (data || []).map((r) => ({
+      id: r.id,
       nick: (r.nick || "").trim(),
-      points: Number(r.points || 0),
+      account_id: r.account_id || null,
+      avatar_url: r.avatar_url || null,
+      department: r.department || null,
+      points_day: Number(r.points_day || 0),
+      points: Number(r.points_day || 0),
     }));
 
-    // 2) детали (департамент/акк/аватар) берём из leader_stats по нику (без period!)
-    const nicks = top.map((x) => x.nick).filter(Boolean);
-    let statsMap = {};
-
-    if (nicks.length) {
-      const { data: statRows, error: statError } = await supabaseClient
-        .from("leader_stats")
-        .select("nick, account_id, avatar_url, department")
-        .in("nick", nicks);
-
-      if (statError) {
-        console.error(statError);
-      } else {
-        statsMap = Object.fromEntries((statRows || []).map((r) => [r.nick, r]));
-      }
-    }
-
-    // 3) собираем 3 карточки (если по нику нет профиля — показываем пустые поля, но ник и очки будут)
-    const slots = [0,1,2].map((i) => {
-      const vk = top[i] || null;
-      if (!vk || !vk.nick) return null;
-
-      const st = statsMap[vk.nick] || null;
-      return {
-        nick: vk.nick,
-        points: vk.points,
-        avatar_url: st?.avatar_url ?? null,
-        account_id: st?.account_id ?? null,
-        department: st?.department ?? null,
-      };
-    });
+    const slots = [0,1,2].map((i) => rows[i] || null);
 
     leadersWrapper.innerHTML = "";
     slots.forEach((row, idx) => {
@@ -1153,77 +1120,92 @@
 
   async function loadWeeklyBlocks() {
     currentPeriod = "week";
-    if (dateEl) dateEl.textContent = ""; // у недель будут свои плашки
+    if (dateEl) dateEl.textContent = "";
 
     if (!leadersWrapper) return;
     leadersWrapper.textContent = "Загрузка…";
 
-    const { data: weeks, error } = await supabaseClient
-      .from("vk_weekly_activity")
-      .select("*")
-      .order("period_start", { ascending: false })
-      .limit(10);
+    // Берём последние 10 недель * 3 места = 30 строк
+    // Сразу с join на leaderinfo по FK leader_id
+    const { data, error } = await supabaseClient
+      .from("leaderinfo_week")
+      .select(`
+        week_start,
+        week_end,
+        place,
+        points_week,
+        leader:leader_id (
+          id,
+          nick,
+          account_id,
+          avatar_url,
+          department
+        )
+      `)
+      .order("week_start", { ascending: false })
+      .order("place", { ascending: true })
+      .limit(30);
 
     if (error) {
       console.error(error);
       leadersWrapper.textContent = "Ошибка загрузки активности недели.";
-      showErrorModal("Ошибка загрузки таблицы vk_weekly_activity.");
+      showErrorModal("Ошибка загрузки таблицы leaderinfo_week.");
       return;
     }
 
-    const weeklyRows = weeks || [];
-    if (!weeklyRows.length) {
+    const rows = data || [];
+    if (!rows.length) {
       leadersWrapper.textContent = "Пока нет данных по неделям.";
       return;
     }
 
-    const allNicks = Array.from(new Set(
-      weeklyRows.flatMap(w => [w.place1_nick, w.place2_nick, w.place3_nick].filter(Boolean))
-    ));
-
-    let detailsMap = {};
-    if (allNicks.length) {
-      const { data: details, error: dErr } = await supabaseClient
-        .from("leader_stats")
-        .select("nick, account_id, avatar_url, department")
-        .in("nick", allNicks);
-
-      if (!dErr && details) {
-        detailsMap = Object.fromEntries(details.map(r => [r.nick, r]));
+    // группируем по week_start
+    const byWeek = new Map();
+    for (const r of rows) {
+      const key = r.week_start;
+      if (!byWeek.has(key)) {
+        byWeek.set(key, {
+          week_start: r.week_start,
+          week_end: r.week_end,
+          places: new Map(),
+        });
       }
+      byWeek.get(key).places.set(Number(r.place), r);
     }
 
     leadersWrapper.innerHTML = "";
 
-    weeklyRows.forEach((w) => {
+    // порядок уже desc из запроса — но Map сохраняет порядок вставки
+    for (const [, w] of byWeek) {
       const block = document.createElement("div");
       block.className = "week-block";
 
       const badge = document.createElement("div");
       badge.className = "week-period-badge";
-      badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(w.period_start, w.period_end)}`;
+      badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(w.week_start, w.week_end)}`;
       block.appendChild(badge);
 
-      const slots = [
-        { nick: w.place1_nick, points: w.ash1 ?? 0 },
-        { nick: w.place2_nick, points: w.ash2 ?? 0 },
-        { nick: w.place3_nick, points: w.ash3 ?? 0 },
-      ];
-
-      slots.forEach((s, index) => {
-        const info = s.nick ? (detailsMap[s.nick] || {}) : {};
-        const row = s.nick ? {
-          nick: s.nick,
-          points: s.points,
-          account_id: info.account_id || null,
-          avatar_url: info.avatar_url || null,
-          department: info.department || null,
-        } : null;
-        block.appendChild(renderLeaderCard(index + 1, row));
-      });
+      // 3 места всегда
+      for (let place = 1; place <= 3; place++) {
+        const item = w.places.get(place);
+        if (item && item.leader) {
+          const leader = item.leader;
+          const row = {
+            id: leader.id,
+            nick: leader.nick,
+            account_id: leader.account_id,
+            avatar_url: leader.avatar_url,
+            department: leader.department,
+            points: Number(item.points_week || 0),
+          };
+          block.appendChild(renderLeaderCard(place, row));
+        } else {
+          block.appendChild(renderLeaderCard(place, null));
+        }
+      }
 
       leadersWrapper.appendChild(block);
-    });
+    }
   }
 
   /* ===== Навигация табов ===== */
@@ -1237,7 +1219,7 @@
         btn.classList.add("active");
         const period = btn.dataset.period;
         if (period === "week") loadWeeklyBlocks();
-        else loadLeaders();
+        else loadLeaders("day");
       };
     });
   }
@@ -1260,7 +1242,7 @@
       }
     }
 
-    await loadLeaders();
+    await loadLeaders("day");
   }
 
   window.addEventListener("load", initPage);
