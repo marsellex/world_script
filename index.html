@@ -2900,10 +2900,6 @@ document.getElementById("register-form").addEventListener("submit", async (e) =>
     showError("reg-dept-error", "Выберите департамент");
     return;
   }
-  if (!avatarFile) {
-    showError("reg-avatar-error", "Загрузите аватарку");
-    return;
-  }
 
   const reader = new FileReader();
   reader.onload = async () => {
@@ -4982,4 +4978,5 @@ if (document.getElementById("officers-add-save")) {
 </script>
 </body>
 </html>
+
 
