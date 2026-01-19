@@ -1231,9 +1231,9 @@
     currentUser = loadSession();
     if (userTagEl) {
       if (!currentUser) {
-        userTagEl.textContent = "Режим гостя — доступен только просмотр рейтинга.";
+        userTagEl.textContent = "";
       } else {
-        userTagEl.textContent = "Вы вошли как " + currentUser.nick + " (" + roleLabel(currentUser.role) + ")";
+        userTagEl.textContent = "";
       }
     }
 
