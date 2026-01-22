@@ -34,14 +34,12 @@
 
     body {
       min-height: 100vh;
-      background: url('https://source.unsplash.com/1600x900/?nature,abstract') no-repeat center center fixed;
-      background-size: cover;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #020617 100%);
       color: var(--text);
       display: flex;
       justify-content: center;
       align-items: flex-start;
       padding: 20px;
-      transition: background 0.3s ease-in-out;
     }
 
     #bg-rotator {
@@ -51,7 +49,6 @@
       background: #020617;
       overflow: hidden;
     }
-
     #bg-rotator img {
       position: absolute;
       inset: 0;
@@ -62,10 +59,7 @@
       transition: opacity 1s ease-in-out;
       pointer-events: none;
     }
-
-    #bg-rotator img.active {
-      opacity: 1;
-    }
+    #bg-rotator img.active { opacity: 1; }
 
     #app {
       width: 100%;
@@ -138,6 +132,7 @@
     .page-subtitle { font-size: 13px; color: var(--muted); }
     .user-tag { font-size: 12px; color: var(--muted); }
 
+    /* ✅ добавлено: блок кнопок в хедере */
     .page-header-actions{
       display:flex;
       gap:10px;
@@ -487,6 +482,7 @@
       <div class="user-tag" id="user-tag"></div>
     </div>
 
+    <!-- ✅ добавлено: кнопка в верхней панели -->
     <div class="page-header-actions">
       <button class="btn btn-sm" id="edit-leaders-top" style="display:none;">Редактировать лидеров</button>
     </div>
@@ -513,6 +509,7 @@
   </div>
 </div>
 
+<!-- Модалка ошибки -->
 <div id="error-modal" class="modal-backdrop">
   <div class="modal">
     <h3>Ошибка</h3>
@@ -523,6 +520,7 @@
   </div>
 </div>
 
+<!-- ✅ добавлено: Модалка редактирования 3х лидеров -->
 <div id="leaders-bulk-modal" class="modal-backdrop">
   <div class="modal" style="max-width: 720px;">
     <h3>Редактирование лидеров (LSPD / SFPD / LVPD)</h3>
@@ -546,6 +544,7 @@
 
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  /* ===== ТЕМА: фон + бренд ===== */
   let themeConfig = {
     images: [],
     opacity: 80,
@@ -554,7 +553,6 @@
     favicon: null,
     siteTitle: null,
   };
-
   let bgRotationTimer = null;
   let bgCurrentIndex = 0;
   const bgRotatorEl = document.getElementById("bg-rotator");
@@ -653,12 +651,12 @@
     }
   }
 
+  /* ===== СЕССИЯ ===== */
   let currentUser = null;
   function loadSession() {
     try { return JSON.parse(localStorage.getItem("pp_user")); }
     catch { return null; }
   }
-
   function roleLabel(role) {
     role = String(role || "").trim().toLowerCase();
     if (role === "admin") return "Администратор";
@@ -667,11 +665,13 @@
     return "Офицер";
   }
 
+  // ✅ права для верхней кнопки: только admin и creator
   function canBulkEdit(user) {
     const role = String(user?.role || "").trim().toLowerCase();
     return role === "admin" || role === "creator";
   }
 
+  /* ===== ОШИБКИ ===== */
   const errorModal = document.getElementById("error-modal");
   const errorModalText = document.getElementById("error-modal-text");
   const errorModalClose = document.getElementById("error-modal-close");
@@ -681,6 +681,22 @@
   }
   if (errorModalClose) errorModalClose.onclick = () => errorModal.classList.remove("active");
 
+  /* ===== HELPERS WEEK ===== */
+  function monthRuUpper(monthIndex) {
+    const m = ["ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ","ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"];
+    return m[monthIndex] || "";
+  }
+  function parseDateOnly(iso) {
+    const [y,m,d] = String(iso).split("-").map(Number);
+    return new Date(y, (m || 1) - 1, d || 1);
+  }
+  function formatPeriodRu(startISO, endISO) {
+    const s = parseDateOnly(startISO);
+    const e = parseDateOnly(endISO);
+    return `С ${s.getDate()} ${monthRuUpper(s.getMonth())} ${s.getFullYear()} по ${e.getDate()} ${monthRuUpper(e.getMonth())} ${e.getFullYear()}`;
+  }
+
+  /* ===== UI / DATA ===== */
   const leadersWrapper = document.getElementById("leaders-wrapper");
   const dateEl = document.getElementById("leader-date");
   let currentPeriod = "day";
@@ -929,6 +945,7 @@
     }
   }
 
+  /* ===== Навигация табов ===== */
   const tabDay = document.getElementById("tab-day");
   const tabWeek = document.getElementById("tab-week");
   if (tabDay && tabWeek) {
@@ -944,6 +961,7 @@
     });
   }
 
+  /* ===== BULK EDIT (LSPD/SFPD/LVPD) ===== */
   const editLeadersTopBtn = document.getElementById("edit-leaders-top");
   const bulkModal = document.getElementById("leaders-bulk-modal");
   const bulkFormsEl = document.getElementById("bulk-forms");
@@ -951,8 +969,8 @@
   const bulkSaveBtn = document.getElementById("bulk-save");
   const bulkErrorEl = document.getElementById("bulk-error");
 
-  let bulkRows = [];
-  let bulkAvatarByDept = {};
+  let bulkRows = []; // [{id, department, nick, account_id, avatar_url, _ui}]
+  let bulkAvatarByDept = {}; // {LSPD: base64|null, ...}
 
   function showBulkError(msg){
     if(!bulkErrorEl) return;
@@ -973,7 +991,6 @@
     hideBulkError();
     bulkModal.classList.add("active");
   }
-
   function closeBulkModal(){
     bulkModal.classList.remove("active");
     bulkRows = [];
@@ -1204,6 +1221,9 @@
   if (bulkCancelBtn) bulkCancelBtn.addEventListener("click", closeBulkModal);
   if (bulkSaveBtn) bulkSaveBtn.addEventListener("click", saveBulk);
 
+  /* ===== INIT ===== */
+  const userTagEl = document.getElementById("user-tag");
+
   async function initPage() {
     await loadThemeFromDB();
     applyThemeBackground();
@@ -1219,6 +1239,7 @@
       }
     }
 
+    // ✅ показать/скрыть кнопку сверху
     if (editLeadersTopBtn) {
       editLeadersTopBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
     }
