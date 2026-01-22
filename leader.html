@@ -61,6 +61,27 @@
     }
     #bg-rotator img.active { opacity: 1; }
 
+    #bg-rotator {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: #020617;
+      overflow: hidden;
+      animation: fireAnimation 4s infinite linear; /* Анимация фона */
+    }
+    
+    @keyframes fireAnimation {
+      0% {
+        background: url('path/to/fire-image.jpg') no-repeat center center fixed;
+        background-size: cover;
+      }
+      100% {
+        background: url('path/to/fire-image2.jpg') no-repeat center center fixed;
+        background-size: cover;
+      }
+    }
+
+
     #app {
       width: 100%;
       max-width: 1100px;
@@ -222,6 +243,16 @@
       box-shadow: 0 22px 40px rgba(15, 23, 42, 0.9);
     }
 
+    .smiley {
+      font-size: 18px;
+      margin-left: 8px;
+    }
+    
+    .smiley.angry { color: #ff0000; }  /* Злой смайлик */
+    .smiley.sad { color: #ff9900; }    /* Растроенный смайлик */
+    .smiley.happy { color: #00ff00; }  /* Улыбающийся смайлик */
+    
+
     .leader-icon {
       width: 52px;
       height: 52px;
@@ -317,6 +348,35 @@
     .leader-place-label { font-size: 12px; color: var(--muted); }
 
     .leader-empty { font-size: 15px; color: var(--muted); }
+    
+        /* Эффект подсветки на панели */
+    .leader-card:hover {
+      background: rgba(15, 23, 42, 0.85); /* Подсветка фона */
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.8); /* Эффект тени */
+      transition: background 0.3s, box-shadow 0.3s; /* Плавность */
+    }
+    
+    /* Увеличение аватарки при наведении */
+    .leader-card .leader-main:hover .leader-avatar {
+      transform: scale(1.1); /* Увеличиваем аватарку */
+      transition: transform 0.3s; /* Плавный эффект увеличения */
+    }
+    
+    /* Добавление анимации для иконок пистолетов */
+    .leader-card .leader-icon {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      opacity: 0;
+      animation: gunAnim 1s linear infinite; /* Анимация движения */
+    }
+    
+    @keyframes gunAnim {
+      0% { left: -40px; opacity: 1; } /* Начало анимации */
+      50% { left: 30px; opacity: 1; } /* Позиция в середине */
+      100% { left: -40px; opacity: 0; } /* Конец анимации */
+    }
+
 
     .modal-backdrop {
       position: fixed;
@@ -701,23 +761,48 @@
   const dateEl = document.getElementById("leader-date");
   let currentPeriod = "day";
 
+    // Функция для получения смайлика в зависимости от АШ
+  function getSmiley(points) {
+    if (points < 10) return '😡';  // Злой смайлик
+    if (points < 20) return '😕';  // Растроенный смайлик
+    return '😊';  // Улыбающийся смайлик
+  }
+
   function renderLeaderCard(place, row) {
     const card = document.createElement("div");
     card.className = "leader-card rank-" + place;
-
+  
+    // Иконка пистолета
     const icon = document.createElement("div");
     icon.className = "leader-icon";
     icon.textContent = place === 1 ? "🏆" : place === 2 ? "🥈" : "🥉";
-
+  
+    // Аватар
     const avatar = document.createElement("div");
     avatar.className = "leader-avatar";
-
+  
     const main = document.createElement("div");
     main.className = "leader-main";
-
+  
     const scoreBlock = document.createElement("div");
     scoreBlock.className = "leader-score-block";
-
+  
+    // Смайлик в зависимости от АШ
+    const smiley = document.createElement("span");
+    smiley.className = "smiley";
+    const points = row.points ?? 0;
+  
+    if (points < 10) {
+      smiley.textContent = "😡"; // Злой смайлик
+      smiley.classList.add("angry");
+    } else if (points < 20) {
+      smiley.textContent = "😕"; // Растроенный смайлик
+      smiley.classList.add("sad");
+    } else if (points >= 40) {
+      smiley.textContent = "😊"; // Смайлик с улыбкой
+      smiley.classList.add("happy");
+    }
+  
     if (row) {
       if (row.avatar_url) {
         const img = document.createElement("img");
@@ -726,94 +811,99 @@
       } else {
         avatar.textContent = row.nick ? row.nick[0] : "?";
       }
-
+  
       const nameRow = document.createElement("div");
       nameRow.className = "leader-name-row";
-
+  
       const nickEl = document.createElement("div");
       nickEl.className = "leader-nick";
       nickEl.textContent = row.nick || "Без имени";
-
+  
       const accEl = document.createElement("div");
       accEl.className = "leader-account";
       accEl.textContent = row.account_id ? `[${row.account_id}]` : "[—]";
-
+  
       nameRow.appendChild(nickEl);
       nameRow.appendChild(accEl);
-
+      nameRow.appendChild(smiley); // Добавляем смайлик рядом с ником
+  
       const dept = (row.department || "").trim().toUpperCase();
       const deptEl = document.createElement("div");
       deptEl.className =
         "dept-badge " +
         (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
       deptEl.textContent = dept || "—";
-
+  
       main.appendChild(nameRow);
       main.appendChild(deptEl);
-
+  
       const scoreRow = document.createElement("div");
       scoreRow.className = "leader-score";
-
+  
       const valueEl = document.createElement("span");
       valueEl.className = "value";
       valueEl.textContent = row.points ?? 0;
-
+  
       const unitEl = document.createElement("span");
       unitEl.className = "unit";
       unitEl.textContent = "АШ";
-
+  
       scoreRow.appendChild(valueEl);
       scoreRow.appendChild(unitEl);
-
+  
       const placeLabel = document.createElement("div");
       placeLabel.className = "leader-place-label";
       placeLabel.textContent = place + " место";
-
+  
       scoreBlock.appendChild(scoreRow);
       scoreBlock.appendChild(placeLabel);
     } else {
       avatar.textContent = "?";
-
+  
       const emptyTitle = document.createElement("div");
       emptyTitle.className = "leader-empty";
       emptyTitle.textContent = "Лидер не назначен";
-
+  
       const deptEl = document.createElement("div");
       deptEl.className = "dept-badge";
       deptEl.textContent = "—";
-
+  
       main.appendChild(emptyTitle);
       main.appendChild(deptEl);
-
+  
       const scoreRow = document.createElement("div");
       scoreRow.className = "leader-score";
-
+  
       const valueEl = document.createElement("span");
       valueEl.className = "value";
       valueEl.textContent = "0";
-
+  
       const unitEl = document.createElement("span");
       unitEl.className = "unit";
       unitEl.textContent = "АШ";
-
+  
       scoreRow.appendChild(valueEl);
       scoreRow.appendChild(unitEl);
-
+  
       const placeLabel = document.createElement("div");
       placeLabel.className = "leader-place-label";
       placeLabel.textContent = place + " место";
-
+  
       scoreBlock.appendChild(scoreRow);
       scoreBlock.appendChild(placeLabel);
     }
-
+  
+    // Добавление анимации пистолета и подсветки при наведении
+    card.classList.add("leader-card-hover");
+  
     card.appendChild(icon);
     card.appendChild(avatar);
     card.appendChild(main);
     card.appendChild(scoreBlock);
-
+  
     return card;
   }
+
 
   async function loadLeaders(period = "day") {
     currentPeriod = period;
