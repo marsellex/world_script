@@ -50,16 +50,16 @@
     }
     
     .leader-tab.active {
+      color: #f9fafb;
       background: rgba(251, 113, 133, 0.85);
       box-shadow: 0 0 22px rgba(236, 72, 153, 0.8), 0 18px 40px rgba(15, 23, 42, 0.9);
-      animation: hoverEffect 0.4s ease-in-out forwards;
-      transition: background 0.2s ease, box-shadow 0.2s ease; /* Плавное изменение */
+      transition: background 0.3s ease, box-shadow 0.3s ease; /* Плавное изменение фона */
     }
   
     .leader-card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.8);
-      animation: hoverEffect 0.4s ease-in-out forwards;
+      transform: scale(1.03);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.9);
+      background: linear-gradient(145deg, #2e3440, #1c1f26); /* Меняем фон при наведении */
     }
 
     * {
@@ -122,10 +122,11 @@
       transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.75);
     }
-    .btn:hover {
-      transform: scale(1.05); /* Плавное увеличение */
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9); /* Подсветка */
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .btn:hover, .leader-tab:hover {
+      background: rgba(31, 41, 55, 0.95);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
+      transform: scale(1.05);
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; /* Плавное увеличение и подсветка */
     }
     .btn-sm { padding: 6px 12px; font-size: 13px; }
 
@@ -251,16 +252,14 @@
     }
 
     .leader-card {
-      position: relative;
       display: flex;
       align-items: center;
-      gap: 18px;
-      padding: 18px 22px;
-      border-radius: 20px;
-      background: radial-gradient(circle at right, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.98));
-      border: 1px solid rgba(31, 41, 55, 0.9);
-      box-shadow: 0 22px 40px rgba(15, 23, 42, 0.9);
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Плавный переход для изменения transform и box-shadow */
+      gap: 16px;
+      padding: 16px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #1f2937, #111827);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease; /* Добавляем плавное изменение фона */
     }
 
     .leader-icon {
