@@ -123,9 +123,9 @@
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.75);
     }
     .btn:hover {
-      background: rgba(31, 41, 55, 0.95);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
+      transform: scale(1.05); /* Плавное увеличение */
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9); /* Подсветка */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .btn-sm { padding: 6px 12px; font-size: 13px; }
 
@@ -180,13 +180,16 @@
       border-radius: 32px;
       border: 1px solid var(--panel-border);
       padding: 26px 26px 20px;
-      background:
-        radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), transparent 55%),
-        radial-gradient(circle at top right, rgba(236, 72, 153, 0.35), transparent 55%),
-        linear-gradient(145deg, #020617 0%, #020617 40%, #020617 100%);
-      box-shadow:
-        0 40px 80px rgba(15, 23, 42, 0.95),
-        0 0 0 1px rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), transparent 55%),
+                  radial-gradient(circle at top right, rgba(236, 72, 153, 0.35), transparent 55%),
+                  linear-gradient(145deg, #020617 0%, #020617 40%, #020617 100%);
+      box-shadow: 0 40px 80px rgba(15, 23, 42, 0.95), 0 0 0 1px rgba(15, 23, 42, 0.9);
+      transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    }
+    
+    .leader-panel:hover {
+      transform: scale(1.03); 
+      box-shadow: 0 40px 90px rgba(15, 23, 42, 0.95), 0 0 0 1px rgba(236, 72, 153, 0.8); 
     }
 
     .leader-panel-header {
