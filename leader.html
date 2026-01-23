@@ -25,6 +25,43 @@
       --bronze: #fb923c;
     }
 
+    @keyframes hoverEffect {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+      }
+    }
+  
+    /* Эффекты для кнопок, вкладок и карточек */
+    .btn:hover {
+      animation: hoverEffect 0.4s ease-in-out forwards;
+    }
+  
+    .leader-tab:hover {
+      background: rgba(236, 72, 153, 0.3);
+      animation: hoverEffect 0.4s ease-in-out forwards;
+    }
+  
+    .leader-tab.active {
+      background: rgba(251, 113, 133, 0.85);
+      box-shadow: 0 0 22px rgba(236, 72, 153, 0.8), 0 18px 40px rgba(15, 23, 42, 0.9);
+      animation: hoverEffect 0.4s ease-in-out forwards;
+    }
+  
+    .leader-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.8);
+      animation: hoverEffect 0.4s ease-in-out forwards;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -898,6 +935,26 @@
       leadersWrapper.textContent = "Пока нет данных по неделям.";
       return;
     }
+
+    const tabs = document.querySelectorAll('.leader-tab');
+    
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+    
+    // Пример для кнопок
+    const buttons = document.querySelectorAll('.btn');
+    
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        // Убираем активность у всех кнопок
+        buttons.forEach((b) => b.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
 
     const byWeek = new Map();
     for (const r of rows) {
