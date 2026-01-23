@@ -40,20 +40,20 @@
       }
     }
   
-    /* Эффекты для кнопок, вкладок и карточек */
-    .btn:hover {
-      animation: hoverEffect 0.4s ease-in-out forwards;
+    .btn, .leader-tab {
+      transition: background 0.2s ease, box-shadow 0.2s ease;
     }
-  
-    .leader-tab:hover {
-      background: rgba(236, 72, 153, 0.3);
-      animation: hoverEffect 0.4s ease-in-out forwards;
+    
+    .btn:hover, .leader-tab:hover {
+      background: rgba(31, 41, 55, 0.95);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
     }
-  
+    
     .leader-tab.active {
       background: rgba(251, 113, 133, 0.85);
       box-shadow: 0 0 22px rgba(236, 72, 153, 0.8), 0 18px 40px rgba(15, 23, 42, 0.9);
       animation: hoverEffect 0.4s ease-in-out forwards;
+      transition: background 0.2s ease, box-shadow 0.2s ease; /* Плавное изменение */
     }
   
     .leader-card:hover {
@@ -257,6 +257,7 @@
       background: radial-gradient(circle at right, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.98));
       border: 1px solid rgba(31, 41, 55, 0.9);
       box-shadow: 0 22px 40px rgba(15, 23, 42, 0.9);
+      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Плавный переход для изменения transform и box-shadow */
     }
 
     .leader-icon {
