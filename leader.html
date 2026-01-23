@@ -23,7 +23,6 @@
       --gold: #facc15;
       --silver: #e5e7eb;
       --bronze: #fb923c;
-      --highlight: #f472b6; /* Розовый цвет для акцентов */
     }
 
     * {
@@ -50,7 +49,6 @@
       background: #020617;
       overflow: hidden;
     }
-
     #bg-rotator img {
       position: absolute;
       inset: 0;
@@ -61,10 +59,7 @@
       transition: opacity 1s ease-in-out;
       pointer-events: none;
     }
-
-    #bg-rotator img.active {
-      opacity: 1;
-    }
+    #bg-rotator img.active { opacity: 1; }
 
     #app {
       width: 100%;
@@ -73,37 +68,29 @@
       z-index: 1;
     }
 
-    a {
-      color: var(--accent-pink-soft);
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .leader-tab.active {
-      color: var(--text); /* Цвет текста */
-      background: rgba(236, 72, 153, 0.85); /* Розовый неоновый цвет */
-      box-shadow: 0 0 22px rgba(236, 72, 153, 0.8), 0 18px 40px rgba(15, 23, 42, 0.9); /* Неоновый светящийся эффект */
-    }
+    a { color: var(--accent-pink-soft); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
     .btn {
-      background: var(--highlight); /* Розовый цвет для кнопок */
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.8);
       color: var(--text);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.75); /* Легкая тень для кнопок */
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.75);
     }
-
     .btn:hover {
       background: rgba(31, 41, 55, 0.95);
       transform: translateY(-1px);
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.9);
     }
-
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 13px;
-    }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
 
     .btn-outline {
       padding: 6px 14px;
@@ -118,7 +105,6 @@
       gap: 6px;
       transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     }
-
     .btn-outline:hover {
       background: rgba(15, 23, 42, 0.85);
       transform: translateY(-1px);
@@ -132,36 +118,25 @@
       margin-bottom: 16px;
       gap: 12px;
     }
-
     .page-title-block {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
-
     .page-title {
       font-size: 28px;
       font-weight: 700;
       letter-spacing: 0.02em;
-      color: var(--highlight); /* Использовать акцентный цвет */
-      text-shadow: 0 0 18px rgba(168, 85, 247, 0.55); /* Неоновый эффект */
+      text-shadow: 0 0 18px rgba(168, 85, 247, 0.55);
     }
-
-    .page-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .user-tag {
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .page-subtitle { font-size: 13px; color: var(--muted); }
+    .user-tag { font-size: 12px; color: var(--muted); }
 
     /* ✅ добавлено: блок кнопок в хедере */
-    .page-header-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
+    .page-header-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
     }
 
     .leader-panel {
@@ -193,7 +168,6 @@
       padding: 4px;
       box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.6);
     }
-
     .leader-tab {
       min-width: 160px;
       padding: 10px 20px;
@@ -213,15 +187,8 @@
       position: relative;
       transition: color 0.12s;
     }
-
-    .leader-tab span.icon {
-      font-size: 14px;
-    }
-
-    .leader-tab.active {
-      color: #f9fafb;
-    }
-
+    .leader-tab span.icon { font-size: 14px; }
+    .leader-tab.active { color: #f9fafb; }
     .leader-tab.active::before {
       content: "";
       position: absolute;
@@ -233,15 +200,8 @@
         0 18px 40px rgba(15, 23, 42, 0.9);
       z-index: -1;
     }
-
-    .leader-tab.active span.label {
-      font-weight: 700;
-    }
-
-    .leader-date {
-      font-size: 14px;
-      color: var(--muted);
-    }
+    .leader-tab.active span.label { font-weight: 700; }
+    .leader-date { font-size: 14px; color: var(--muted); }
 
     .leaders-wrapper {
       margin-top: 8px;
@@ -257,53 +217,42 @@
       gap: 18px;
       padding: 18px 22px;
       border-radius: 20px;
-      background: radial-gradient(circle at right, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.98)); /* Темный фон с градиентом */
+      background: radial-gradient(circle at right, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.98));
       border: 1px solid rgba(31, 41, 55, 0.9);
-      box-shadow: 0 22px 40px rgba(15, 23, 42, 0.9); /* Неоновая тень */
+      box-shadow: 0 22px 40px rgba(15, 23, 42, 0.9);
     }
 
     .leader-icon {
       width: 52px;
       height: 52px;
       border-radius: 16px;
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.35), rgba(15, 23, 42, 0.95)); /* Золотистый градиент */
+      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.35), rgba(15, 23, 42, 0.95));
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 26px;
+      flex-shrink: 0;
     }
-
-    .leader-card.rank-1 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9));
-    }
-
-    .leader-card.rank-2 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.55), rgba(15, 23, 42, 0.9));
-    }
-
-    .leader-card.rank-3 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.55), rgba(15, 23, 42, 0.9));
-    }
+    .leader-card.rank-1 .leader-icon { background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9)); }
+    .leader-card.rank-2 .leader-icon { background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.55), rgba(15, 23, 42, 0.9)); }
+    .leader-card.rank-3 .leader-icon { background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.55), rgba(15, 23, 42, 0.9)); }
 
     .leader-avatar {
       width: 68px;
       height: 68px;
       border-radius: 18px;
-      border: 2px solid rgba(236, 72, 153, 0.7); /* Розовая граница */
+      border: 2px solid rgba(236, 72, 153, 0.7);
       background: #020617;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 26px;
+      flex-shrink: 0;
+      position: relative;
       color: #e5e7eb;
     }
-
-    .leader-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    .leader-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
     .leader-main {
       flex: 1;
@@ -325,7 +274,6 @@
       font-weight: 700;
       text-shadow: 0 0 14px rgba(15, 23, 42, 0.8);
     }
-
     .leader-account {
       font-size: 13px;
       color: var(--accent-pink-soft);
@@ -333,8 +281,8 @@
     }
 
     .dept-badge {
-      display: inline-flex;
-      align-items: center;
+      display:inline-flex;
+      align-items:center;
       width: fit-content;
       padding: 4px 10px;
       border-radius: 999px;
@@ -343,24 +291,12 @@
       letter-spacing: .08em;
       text-transform: uppercase;
       margin-top: 2px;
-      border: 1px solid rgba(148, 163, 184, .25);
-      background: rgba(15, 23, 42, .65);
+      border: 1px solid rgba(148,163,184,.25);
+      background: rgba(15,23,42,.65);
     }
-
-    .dept-badge.lspd {
-      color: #22c55e;
-      box-shadow: 0 0 18px rgba(34, 197, 94, .25);
-    }
-
-    .dept-badge.sfpd {
-      color: #38bdf8;
-      box-shadow: 0 0 18px rgba(56, 189, 248, .25);
-    }
-
-    .dept-badge.lvpd {
-      color: #ef4444;
-      box-shadow: 0 0 18px rgba(239, 68, 68, .25);
-    }
+    .dept-badge.lspd { color:#22c55e; box-shadow: 0 0 18px rgba(34,197,94,.25); }
+    .dept-badge.sfpd { color:#38bdf8; box-shadow: 0 0 18px rgba(56,189,248,.25); }
+    .dept-badge.lvpd { color:#ef4444; box-shadow: 0 0 18px rgba(239,68,68,.25); }
 
     .leader-score-block {
       display: flex;
@@ -369,7 +305,6 @@
       gap: 4px;
       min-width: 110px;
     }
-
     .leader-score {
       display: flex;
       align-items: baseline;
@@ -377,26 +312,11 @@
       font-weight: 800;
       text-shadow: 0 0 16px rgba(236, 72, 153, 0.85);
     }
+    .leader-score .value { font-size: 26px; color: var(--score-color); }
+    .leader-score .unit { font-size: 13px; color: #e5e7eb; }
+    .leader-place-label { font-size: 12px; color: var(--muted); }
 
-    .leader-score .value {
-      font-size: 26px;
-      color: var(--score-color);
-    }
-
-    .leader-score .unit {
-      font-size: 13px;
-      color: #e5e7eb;
-    }
-
-    .leader-place-label {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .leader-empty {
-      font-size: 15px;
-      color: var(--muted);
-    }
+    .leader-empty { font-size: 15px; color: var(--muted); }
 
     .modal-backdrop {
       position: fixed;
@@ -407,11 +327,7 @@
       justify-content: center;
       z-index: 50;
     }
-
-    .modal-backdrop.active {
-      display: flex;
-    }
-
+    .modal-backdrop.active { display: flex; }
     .modal {
       width: 100%;
       max-width: 420px;
@@ -421,18 +337,8 @@
       box-shadow: 0 30px 70px rgba(15, 23, 42, 0.95);
       padding: 18px 18px 14px;
     }
-
-    .modal h3 {
-      font-size: 18px;
-      margin-bottom: 4px;
-    }
-
-    .modal p {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
+    .modal h3 { font-size: 18px; margin-bottom: 4px; }
+    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
     .modal-footer {
       margin-top: 12px;
       display: flex;
@@ -440,18 +346,9 @@
       gap: 8px;
     }
 
-    .field {
-      margin-bottom: 8px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 3px;
-    }
-
-    .field input,
-    .field select {
+    .field { margin-bottom: 8px; }
+    .field label { display: block; font-size: 13px; margin-bottom: 3px; }
+    .field input, .field select {
       width: 100%;
       padding: 7px 9px;
       border-radius: 9px;
@@ -460,19 +357,12 @@
       color: var(--text);
       font-size: 14px;
     }
-
-    .field input:focus,
-    .field select:focus {
+    .field input:focus, .field select:focus {
       outline: none;
       border-color: rgba(129, 140, 248, 0.9);
       box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.8);
     }
-
-    .hint {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
+    .hint { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
 
     .edit-avatar-preview {
       width: 80px;
@@ -490,13 +380,7 @@
       cursor: pointer;
       color: #e5e7eb;
     }
-
-    .edit-avatar-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
+    .edit-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
     .edit-avatar-preview::after {
       content: "✎";
       position: absolute;
@@ -512,20 +396,9 @@
       align-items: center;
       justify-content: center;
     }
+    .error-text { font-size: 12px; color: #f97373; margin-top: 4px; }
 
-    .error-text {
-      font-size: 12px;
-      color: #f97373;
-      margin-top: 4px;
-    }
-
-    .week-block {
-      margin-top: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
+    .week-block { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
     .week-period-badge {
       display: inline-flex;
       align-items: center;
@@ -536,32 +409,27 @@
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
-      border: 1px solid rgba(148, 163, 184, .28);
+      border: 1px solid rgba(148,163,184,.28);
       background:
-        radial-gradient(circle at top left, rgba(34, 197, 94, .18), transparent 55%),
-        radial-gradient(circle at top right, rgba(56, 189, 248, .18), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(239, 68, 68, .18), transparent 55%),
-        rgba(15, 23, 42, .55);
+        radial-gradient(circle at top left, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(239,68,68,.18), transparent 55%),
+        rgba(15,23,42,.55);
       box-shadow: 0 14px 30px rgba(15, 23, 42, .75);
     }
-
     .week-period-badge .dot {
       width: 8px;
       height: 8px;
       border-radius: 999px;
       margin-right: 10px;
-      background: rgba(236, 72, 153, .9);
-      box-shadow: 0 0 14px rgba(236, 72, 153, .55);
+      background: rgba(236,72,153,.9);
+      box-shadow: 0 0 14px rgba(236,72,153,.55);
     }
 
-    .drag-over {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8);
-    }
+    .drag-over { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8); }
 
     @media (max-width: 720px) {
-      body {
-        padding: 12px;
-      }
+      body { padding: 12px; }
 
       .page-header {
         flex-direction: column;
@@ -579,15 +447,8 @@
         padding: 14px 14px;
       }
 
-      .leader-icon {
-        grid-column: 1;
-        grid-row: 1;
-      }
-
-      .leader-avatar {
-        grid-column: 2;
-        grid-row: 1;
-      }
+      .leader-icon { grid-column: 1; grid-row: 1; }
+      .leader-avatar { grid-column: 2; grid-row: 1; }
 
       .leader-main {
         grid-column: 3;
@@ -605,9 +466,7 @@
         min-width: 0;
       }
 
-      .leader-score .value {
-        font-size: 22px;
-      }
+      .leader-score .value { font-size: 22px; }
     }
   </style>
 </head>
@@ -798,6 +657,13 @@
     try { return JSON.parse(localStorage.getItem("pp_user")); }
     catch { return null; }
   }
+  function roleLabel(role) {
+    role = String(role || "").trim().toLowerCase();
+    if (role === "admin") return "Администратор";
+    if (role === "moderator") return "Модератор";
+    if (role === "creator") return "Редактор";
+    return "Офицер";
+  }
 
   // ✅ права для верхней кнопки: только admin и creator
   function canBulkEdit(user) {
@@ -805,8 +671,163 @@
     return role === "admin" || role === "creator";
   }
 
+  /* ===== ОШИБКИ ===== */
+  const errorModal = document.getElementById("error-modal");
+  const errorModalText = document.getElementById("error-modal-text");
+  const errorModalClose = document.getElementById("error-modal-close");
+  function showErrorModal(message) {
+    errorModalText.textContent = message || "Неизвестная ошибка.";
+    errorModal.classList.add("active");
+  }
+  if (errorModalClose) errorModalClose.onclick = () => errorModal.classList.remove("active");
+
+  /* ===== HELPERS WEEK ===== */
+  function monthRuUpper(monthIndex) {
+    const m = ["ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ","ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"];
+    return m[monthIndex] || "";
+  }
+  function parseDateOnly(iso) {
+    const [y,m,d] = String(iso).split("-").map(Number);
+    return new Date(y, (m || 1) - 1, d || 1);
+  }
+  function formatPeriodRu(startISO, endISO) {
+    const s = parseDateOnly(startISO);
+    const e = parseDateOnly(endISO);
+    return `С ${s.getDate()} ${monthRuUpper(s.getMonth())} ${s.getFullYear()} по ${e.getDate()} ${monthRuUpper(e.getMonth())} ${e.getFullYear()}`;
+  }
+
+  /* ===== UI / DATA ===== */
+  const leadersWrapper = document.getElementById("leaders-wrapper");
+  const dateEl = document.getElementById("leader-date");
+  let currentPeriod = "day";
+
+  function renderLeaderCard(place, row) {
+    const card = document.createElement("div");
+    card.className = "leader-card rank-" + place;
+
+    const icon = document.createElement("div");
+    icon.className = "leader-icon";
+    icon.textContent = place === 1 ? "🏆" : place === 2 ? "🥈" : "🥉";
+
+    const avatar = document.createElement("div");
+    avatar.className = "leader-avatar";
+
+    const main = document.createElement("div");
+    main.className = "leader-main";
+
+    const scoreBlock = document.createElement("div");
+    scoreBlock.className = "leader-score-block";
+
+    if (row) {
+      if (row.avatar_url) {
+        const img = document.createElement("img");
+        img.src = row.avatar_url;
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = row.nick ? row.nick[0] : "?";
+      }
+
+      const nameRow = document.createElement("div");
+      nameRow.className = "leader-name-row";
+
+      const nickEl = document.createElement("div");
+      nickEl.className = "leader-nick";
+      nickEl.textContent = row.nick || "Без имени";
+
+      const accEl = document.createElement("div");
+      accEl.className = "leader-account";
+      accEl.textContent = row.account_id ? `[${row.account_id}]` : "[—]";
+
+      nameRow.appendChild(nickEl);
+      nameRow.appendChild(accEl);
+
+      const dept = (row.department || "").trim().toUpperCase();
+      const deptEl = document.createElement("div");
+      deptEl.className =
+        "dept-badge " +
+        (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
+      deptEl.textContent = dept || "—";
+
+      main.appendChild(nameRow);
+      main.appendChild(deptEl);
+
+      const scoreRow = document.createElement("div");
+      scoreRow.className = "leader-score";
+
+      const valueEl = document.createElement("span");
+      valueEl.className = "value";
+      valueEl.textContent = row.points ?? 0;
+
+      const unitEl = document.createElement("span");
+      unitEl.className = "unit";
+      unitEl.textContent = "АШ";
+
+      scoreRow.appendChild(valueEl);
+      scoreRow.appendChild(unitEl);
+
+      const placeLabel = document.createElement("div");
+      placeLabel.className = "leader-place-label";
+      placeLabel.textContent = place + " место";
+
+      scoreBlock.appendChild(scoreRow);
+      scoreBlock.appendChild(placeLabel);
+    } else {
+      avatar.textContent = "?";
+
+      const emptyTitle = document.createElement("div");
+      emptyTitle.className = "leader-empty";
+      emptyTitle.textContent = "Лидер не назначен";
+
+      const deptEl = document.createElement("div");
+      deptEl.className = "dept-badge";
+      deptEl.textContent = "—";
+
+      main.appendChild(emptyTitle);
+      main.appendChild(deptEl);
+
+      const scoreRow = document.createElement("div");
+      scoreRow.className = "leader-score";
+
+      const valueEl = document.createElement("span");
+      valueEl.className = "value";
+      valueEl.textContent = "0";
+
+      const unitEl = document.createElement("span");
+      unitEl.className = "unit";
+      unitEl.textContent = "АШ";
+
+      scoreRow.appendChild(valueEl);
+      scoreRow.appendChild(unitEl);
+
+      const placeLabel = document.createElement("div");
+      placeLabel.className = "leader-place-label";
+      placeLabel.textContent = place + " место";
+
+      scoreBlock.appendChild(scoreRow);
+      scoreBlock.appendChild(placeLabel);
+    }
+
+    card.appendChild(icon);
+    card.appendChild(avatar);
+    card.appendChild(main);
+    card.appendChild(scoreBlock);
+
+    return card;
+  }
+
   async function loadLeaders(period = "day") {
     currentPeriod = period;
+
+    if (dateEl) {
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      dateEl.textContent = `${dd}.${mm}.${yyyy}`;
+    }
+
+    if (!leadersWrapper) return;
+    leadersWrapper.textContent = "Загрузка…";
 
     const { data, error } = await supabaseClient
       .from("leaderinfo")
@@ -817,6 +838,7 @@
     if (error) {
       console.error(error);
       leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
+      showErrorModal("Ошибка загрузки данных по рейтингу дня (leaderinfo).");
       return;
     }
 
@@ -830,13 +852,378 @@
       points: Number(r.points_day || 0),
     }));
 
+    const slots = [0,1,2].map((i) => rows[i] || null);
+
     leadersWrapper.innerHTML = "";
-    rows.forEach((row, idx) => {
+    slots.forEach((row, idx) => {
       leadersWrapper.appendChild(renderLeaderCard(idx + 1, row));
     });
   }
 
+  async function loadWeeklyBlocks() {
+    currentPeriod = "week";
+    if (dateEl) dateEl.textContent = "";
+
+    if (!leadersWrapper) return;
+    leadersWrapper.textContent = "Загрузка…";
+
+    const { data, error } = await supabaseClient
+      .from("leaderinfo_week")
+      .select(`
+        week_start,
+        week_end,
+        place,
+        points_week,
+        leader:leader_id (
+          id,
+          nick,
+          account_id,
+          avatar_url,
+          department
+        )
+      `)
+      .order("week_start", { ascending: false })
+      .order("place", { ascending: true })
+      .limit(30);
+
+    if (error) {
+      console.error(error);
+      leadersWrapper.textContent = "Ошибка загрузки активности недели.";
+      showErrorModal("Ошибка загрузки таблицы leaderinfo_week.");
+      return;
+    }
+
+    const rows = data || [];
+    if (!rows.length) {
+      leadersWrapper.textContent = "Пока нет данных по неделям.";
+      return;
+    }
+
+    const byWeek = new Map();
+    for (const r of rows) {
+      const key = r.week_start;
+      if (!byWeek.has(key)) {
+        byWeek.set(key, {
+          week_start: r.week_start,
+          week_end: r.week_end,
+          places: new Map(),
+        });
+      }
+      byWeek.get(key).places.set(Number(r.place), r);
+    }
+
+    leadersWrapper.innerHTML = "";
+
+    for (const [, w] of byWeek) {
+      const block = document.createElement("div");
+      block.className = "week-block";
+
+      const badge = document.createElement("div");
+      badge.className = "week-period-badge";
+      badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(w.week_start, w.week_end)}`;
+      block.appendChild(badge);
+
+      for (let place = 1; place <= 3; place++) {
+        const item = w.places.get(place);
+        if (item && item.leader) {
+          const leader = item.leader;
+          const row = {
+            id: leader.id,
+            nick: leader.nick,
+            account_id: leader.account_id,
+            avatar_url: leader.avatar_url,
+            department: leader.department,
+            points: Number(item.points_week || 0),
+          };
+          block.appendChild(renderLeaderCard(place, row));
+        } else {
+          block.appendChild(renderLeaderCard(place, null));
+        }
+      }
+
+      leadersWrapper.appendChild(block);
+    }
+  }
+
+  /* ===== Навигация табов ===== */
+  const tabDay = document.getElementById("tab-day");
+  const tabWeek = document.getElementById("tab-week");
+  if (tabDay && tabWeek) {
+    const tabs = [tabDay, tabWeek];
+    tabs.forEach((btn) => {
+      btn.onclick = () => {
+        tabs.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const period = btn.dataset.period;
+        if (period === "week") loadWeeklyBlocks();
+        else loadLeaders("day");
+      };
+    });
+  }
+
+  /* ===== BULK EDIT (LSPD/SFPD/LVPD) ===== */
+  const editLeadersTopBtn = document.getElementById("edit-leaders-top");
+  const bulkModal = document.getElementById("leaders-bulk-modal");
+  const bulkFormsEl = document.getElementById("bulk-forms");
+  const bulkCancelBtn = document.getElementById("bulk-cancel");
+  const bulkSaveBtn = document.getElementById("bulk-save");
+  const bulkErrorEl = document.getElementById("bulk-error");
+
+  let bulkRows = []; // [{id, department, nick, account_id, avatar_url, _ui}]
+  let bulkAvatarByDept = {}; // {LSPD: base64|null, ...}
+
+  function showBulkError(msg){
+    if(!bulkErrorEl) return;
+    bulkErrorEl.style.display = "block";
+    bulkErrorEl.textContent = msg || "Ошибка.";
+  }
+  function hideBulkError(){
+    if(!bulkErrorEl) return;
+    bulkErrorEl.style.display = "none";
+    bulkErrorEl.textContent = "";
+  }
+
+  function openBulkModal(){
+    if(!canBulkEdit(currentUser)){
+      showErrorModal("Кнопка доступна только admin и creator.");
+      return;
+    }
+    hideBulkError();
+    bulkModal.classList.add("active");
+  }
+  function closeBulkModal(){
+    bulkModal.classList.remove("active");
+    bulkRows = [];
+    bulkAvatarByDept = {};
+    if (bulkFormsEl) bulkFormsEl.innerHTML = "";
+    hideBulkError();
+  }
+
+  async function fetchLeadersForDepts(){
+    const { data, error } = await supabaseClient
+      .from("leaderinfo")
+      .select("id, department, nick, account_id, avatar_url")
+      .in("department", ["LSPD","SFPD","LVPD"]);
+
+    if (error) throw error;
+
+    const map = new Map((data || []).map(r => [String(r.department||"").trim().toUpperCase(), r]));
+    const depts = ["LSPD","SFPD","LVPD"];
+
+    return depts.map(d => {
+      const r = map.get(d);
+      return r ? {
+        id: r.id,
+        department: d,
+        nick: r.nick || "",
+        account_id: r.account_id || "",
+        avatar_url: r.avatar_url || null
+      } : {
+        id: null,
+        department: d,
+        nick: "",
+        account_id: "",
+        avatar_url: null
+      };
+    });
+  }
+
+  function createBulkCard(row){
+    const dept = row.department;
+
+    const wrap = document.createElement("div");
+    wrap.style.border = "1px solid rgba(31,41,55,.9)";
+    wrap.style.borderRadius = "16px";
+    wrap.style.padding = "12px";
+    wrap.style.background = "rgba(15,23,42,.55)";
+    wrap.style.display = "grid";
+    wrap.style.gridTemplateColumns = "110px 1fr";
+    wrap.style.gap = "12px";
+    wrap.style.alignItems = "start";
+
+    const left = document.createElement("div");
+    left.style.display = "flex";
+    left.style.flexDirection = "column";
+    left.style.gap = "10px";
+    left.style.alignItems = "center";
+
+    const badge = document.createElement("div");
+    badge.className = "dept-badge " + (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : "lvpd");
+    badge.textContent = dept;
+
+    const avatar = document.createElement("div");
+    avatar.className = "edit-avatar-preview";
+    avatar.style.margin = "0";
+    avatar.style.width = "92px";
+    avatar.style.height = "92px";
+
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.style.display = "none";
+
+    const nickInput = document.createElement("input");
+    nickInput.type = "text";
+    nickInput.value = row.nick || "";
+    nickInput.placeholder = "Имя_Фамилия";
+
+    const accInput = document.createElement("input");
+    accInput.type = "text";
+    accInput.value = row.account_id || "";
+    accInput.placeholder = "3960680";
+
+    function setAvatarPreview(src){
+      avatar.innerHTML = "";
+      if(src){
+        const img = document.createElement("img");
+        img.src = src;
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = (nickInput.value?.trim()?.[0] || "?");
+      }
+    }
+
+    setAvatarPreview(row.avatar_url || null);
+
+    function handleFile(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        bulkAvatarByDept[dept] = reader.result;
+        setAvatarPreview(reader.result);
+      };
+      reader.onerror = () => showBulkError("Не удалось прочитать файл аватара для " + dept);
+      reader.readAsDataURL(file);
+    }
+
+    avatar.addEventListener("click", () => fileInput.click());
+    avatar.addEventListener("dragover", (e)=>{ e.preventDefault(); avatar.classList.add("drag-over"); });
+    avatar.addEventListener("dragleave", ()=> avatar.classList.remove("drag-over"));
+    avatar.addEventListener("drop", (e)=>{
+      e.preventDefault(); avatar.classList.remove("drag-over");
+      const f = e.dataTransfer.files?.[0];
+      if(f) handleFile(f);
+    });
+
+    fileInput.addEventListener("change", (e)=>{
+      const f = e.target.files?.[0];
+      if(f) handleFile(f);
+      fileInput.value = "";
+    });
+
+    nickInput.addEventListener("input", ()=>{
+      if(!bulkAvatarByDept[dept] && !row.avatar_url){
+        setAvatarPreview(null);
+      }
+    });
+
+    left.appendChild(badge);
+    left.appendChild(avatar);
+    left.appendChild(fileInput);
+
+    const right = document.createElement("div");
+
+    const nickField = document.createElement("div");
+    nickField.className = "field";
+    const nickLabel = document.createElement("label");
+    nickLabel.textContent = "Ник (" + dept + ")";
+    nickField.appendChild(nickLabel);
+    nickField.appendChild(nickInput);
+
+    const accField = document.createElement("div");
+    accField.className = "field";
+    const accLabel = document.createElement("label");
+    accLabel.textContent = "Номер аккаунта (" + dept + ")";
+    accField.appendChild(accLabel);
+    accField.appendChild(accInput);
+
+    right.appendChild(nickField);
+    right.appendChild(accField);
+
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+
+    return { wrap, nickInput, accInput };
+  }
+
+  async function buildBulkModal(){
+    try{
+      hideBulkError();
+      bulkFormsEl.innerHTML = "Загрузка…";
+      bulkRows = await fetchLeadersForDepts();
+      bulkAvatarByDept = {};
+
+      bulkFormsEl.innerHTML = "";
+      bulkRows.forEach((row) => {
+        const ui = createBulkCard(row);
+        row._ui = ui;
+        bulkFormsEl.appendChild(ui.wrap);
+      });
+    }catch(e){
+      console.error(e);
+      showBulkError("Ошибка загрузки лидеров: " + (e?.message || e));
+      bulkFormsEl.innerHTML = "";
+    }
+  }
+
+  async function saveBulk(){
+    if(!canBulkEdit(currentUser)){
+      showBulkError("Нет прав.");
+      return;
+    }
+    hideBulkError();
+
+    for(const row of bulkRows){
+      const nick = row._ui.nickInput.value.trim();
+      const acc = row._ui.accInput.value.trim();
+      if(!row.id){
+        showBulkError(`В leaderinfo нет строки для департамента ${row.department}. Выполни SQL из сообщения (создать 3 записи).`);
+        return;
+      }
+      if(!nick || !acc){
+        showBulkError(`Заполни ник и аккаунт для ${row.department}.`);
+        return;
+      }
+    }
+
+    try{
+      for(const row of bulkRows){
+        const dept = row.department;
+        const payload = {
+          department: dept,
+          nick: row._ui.nickInput.value.trim(),
+          account_id: row._ui.accInput.value.trim(),
+          updated_at: new Date().toISOString(),
+        };
+        if (bulkAvatarByDept[dept]) payload.avatar_url = bulkAvatarByDept[dept];
+
+        const { error } = await supabaseClient
+          .from("leaderinfo")
+          .update(payload)
+          .eq("id", row.id);
+
+        if(error) throw error;
+      }
+
+      closeBulkModal();
+      await loadLeaders("day");
+    }catch(e){
+      console.error(e);
+      showBulkError("Ошибка сохранения: " + (e?.message || e));
+    }
+  }
+
+  if (editLeadersTopBtn) {
+    editLeadersTopBtn.addEventListener("click", async () => {
+      openBulkModal();
+      await buildBulkModal();
+    });
+  }
+  if (bulkCancelBtn) bulkCancelBtn.addEventListener("click", closeBulkModal);
+  if (bulkSaveBtn) bulkSaveBtn.addEventListener("click", saveBulk);
+
   /* ===== INIT ===== */
+  const userTagEl = document.getElementById("user-tag");
+
   async function initPage() {
     await loadThemeFromDB();
     applyThemeBackground();
@@ -844,6 +1231,15 @@
     applySiteBranding();
 
     currentUser = loadSession();
+    if (userTagEl) {
+      if (!currentUser) {
+        userTagEl.textContent = "";
+      } else {
+        userTagEl.textContent = "";
+      }
+    }
+
+    // ✅ показать/скрыть кнопку сверху
     if (editLeadersTopBtn) {
       editLeadersTopBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
     }
