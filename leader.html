@@ -252,44 +252,34 @@
     }
   </style>
 </head>
-
 <body>
-<div id="bg-rotator"></div>
-
-<div id="app">
-  <div class="page-header">
-    <div class="page-title-block">
-      <div class="page-title">Топ лидеров PD</div>
-      <div class="page-subtitle">Кто сегодня набрал больше всех АШ.</div>
-      <div class="user-tag" id="user-tag"></div>
-    </div>
-
-    <!-- ✅ добавлено: кнопка в верхней панели -->
-    <div class="page-header-actions">
-      <button class="btn btn-sm" id="edit-leaders-top" style="display:none;">Редактировать лидеров</button>
-    </div>
-  </div>
-
-  <div class="leader-panel">
-    <div class="leader-panel-header">
-      <div class="leader-tabs">
-        <button class="leader-tab active" id="tab-day" data-period="day">
-          <span class="icon">♥</span>
-          <span class="label">Активность дня</span>
-        </button>
-        <button class="leader-tab" id="tab-week" data-period="week">
-          <span class="icon">♥</span>
-          <span class="label">Активность недели</span>
-        </button>
+  <div id="app">
+    <div class="page-header">
+      <div class="page-title-block">
+        <div class="page-title">Топ лидеров PD</div>
+        <div class="page-subtitle">Кто сегодня набрал больше всех АШ.</div>
       </div>
-      <div class="leader-date" id="leader-date"></div>
     </div>
 
-    <div class="leaders-wrapper" id="leaders-wrapper">
-      Загрузка…
+    <div class="leader-panel">
+      <div class="leader-panel-header">
+        <div class="leader-tabs">
+          <button class="leader-tab active" id="tab-day" data-period="day">
+            <span class="icon">♥</span>
+            <span class="label">Активность дня</span>
+          </button>
+          <button class="leader-tab" id="tab-week" data-period="week">
+            <span class="icon">♥</span>
+            <span class="label">Активность недели</span>
+          </button>
+        </div>
+        <div class="leader-date" id="leader-date"></div>
+      </div>
+      <div class="leaders-wrapper" id="leaders-wrapper">
+        Загрузка…
+      </div>
     </div>
   </div>
-</div>
 
 <!-- Модалка ошибки -->
 <div id="error-modal" class="modal-backdrop">
