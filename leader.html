@@ -55,7 +55,6 @@
         radial-gradient(900px 520px at 10% 10%, rgba(255,45,122,.22), transparent 58%),
         radial-gradient(900px 520px at 90% 18%, rgba(255,106,213,.14), transparent 60%),
         linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,.22) 45%, rgba(0,0,0,.34) 100%);
-
       mix-blend-mode: normal;
     }
 
@@ -285,6 +284,8 @@
       color: rgba(243,246,255,.78);
       cursor:pointer;
       transition: transform .14s ease, color .14s ease, filter .14s ease;
+      overflow: hidden;     /* для SVG */
+      isolation: isolate;   /* чтобы слои не мешали */
     }
 
     .leader-tab:hover{
@@ -293,33 +294,10 @@
       filter: drop-shadow(0 0 12px rgba(255,45,122,.22));
     }
 
-    .leader-tab.active{
-      color:#fff;
-      text-shadow: 0 0 18px rgba(255,45,122,.22);
-    }
-
-    .leader-tab.active::before{
-      content:"";
-      position:absolute;
-      inset:-2px -10px -2px -2px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(255,45,122,.95), rgba(255,54,86,.85));
-      box-shadow:
-        0 0 30px rgba(255,45,122,.30),
-        0 0 44px rgba(255,54,86,.18);
-      z-index:-2;
-      clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
-    }
-
+    /* убираем старую заливку активной табы */
+    .leader-tab.active::before,
     .leader-tab.active::after{
-      content:"";
-      position:absolute;
-      inset: 2px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.18);
-      z-index:-1;
-      clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
-      backdrop-filter: blur(12px);
+      content: none !important;
     }
 
     .leader-date{
@@ -339,47 +317,7 @@
       z-index:1;
     }
 
-    /* ===== EMOJI STREAM (на весь блок) ===== */
-    .leader-card{
-      position: relative; /* важно */
-    }
-    
-    .emoji-layer{
-      position: absolute;
-      inset: 0;                 /* ВЕСЬ БЛОК */
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;               /* под контентом */
-    }
-    
-    /* контент карточки выше эмодзи */
-    .leader-card > :not(.emoji-layer):not(.sheen){
-      position: relative;
-      z-index: 2;
-    }
-    
-    .emoji{
-      position: absolute;
-      left: 0;
-      top: 110%;                /* старт снизу */
-      font-size: 22px;
-      opacity: .22;
-      filter: drop-shadow(0 0 10px rgba(255,45,122,.35));
-      will-change: transform, opacity;
-      animation-name: emojiUp;
-      animation-timing-function: linear;
-      animation-fill-mode: forwards;
-    }
-    
-    @keyframes emojiUp{
-      0%   { transform: translateY(0) scale(.95); opacity: .0; }
-      10%  { opacity: .22; }
-      100% { transform: translateY(-140%) scale(1.05); opacity: 0; }
-    }
-
-    
     /* ================= LEADER CARDS ================= */
-
     .leader-card{
       position:relative;
       display:flex;
@@ -387,12 +325,8 @@
       gap: 22px;
       padding: 18px 24px;
 
-      /* более “квадратная” геометрия */
       border-radius: 14px;
-
-      /* без размытия/заливки */
       background: transparent;
-      backdrop-filter: none;
       border: 0;
 
       box-shadow: 0 14px 54px rgba(0,0,0,.30);
@@ -408,6 +342,7 @@
       );
 
       transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      isolation: isolate; /* важно для слоёв */
     }
 
     .leader-card:hover{
@@ -418,7 +353,27 @@
       filter: saturate(1.06) brightness(1.02);
     }
 
-    /* Блик (оставим, но он не “размывает” блок) */
+    /* ===== СЛОИ: emoji (0) -> svg (1) -> sheen (2) -> контент (3) ===== */
+    .emoji-layer{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity .12s ease;
+    }
+    .leader-card:hover .emoji-layer{ opacity: 1; }
+
+    .leader-card .border-svg{
+      position:absolute;
+      inset:-2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      pointer-events:none;
+      z-index: 1;
+    }
+
     .leader-card .sheen{
       position:absolute;
       inset:-40% -60%;
@@ -436,7 +391,7 @@
       opacity: 0;
       transition: opacity .16s ease;
       mix-blend-mode: screen;
-      z-index: 0;
+      z-index: 2;
     }
     .leader-card:hover .sheen{
       opacity: 1;
@@ -447,24 +402,12 @@
       100% { transform: translateX( 60%) rotate(10deg); }
     }
 
-    /* ====== SVG рамка: двойная обводка + разные оттенки по месту + хвосты ====== */
-
-    .leader-card .border-svg{
-      position:absolute;
-      inset: -2px; /* было 0 */
-      width: calc(100% + 4px);
-      height: calc(100% + 4px);
-      pointer-events:none;
-      z-index: 0;
+    .leader-card > :not(.emoji-layer):not(.border-svg):not(.sheen){
+      position: relative;
+      z-index: 3;
     }
 
-
-    .leader-card > *{
-      position:relative;
-      z-index: 1;
-    }
-
-    /* внешняя обводка (толстая) */
+    /* ====== SVG рамка: двойная обводка + неоновые хвосты ====== */
     .border-outer{
       fill:none;
       stroke: rgba(255,45,122,.85);
@@ -472,8 +415,6 @@
       vector-effect: non-scaling-stroke;
       stroke-linejoin: round;
     }
-
-    /* внутренняя обводка (тонкая, светлее) */
     .border-inner{
       fill:none;
       stroke: rgba(255,160,190,.55);
@@ -482,8 +423,6 @@
       stroke-linejoin: round;
       filter: drop-shadow(0 0 8px rgba(255,45,122,.22));
     }
-
-    /* мягкое внутреннее свечение вдоль рамки */
     .border-glow{
       fill:none;
       stroke: rgba(255,54,86,.18);
@@ -493,7 +432,6 @@
       filter: blur(0.8px);
     }
 
-    /* неоновые бегущие сегменты (2 слоя в разные стороны) */
     .border-neon{
       fill:none;
       stroke-width: 5.8;
@@ -507,22 +445,20 @@
         drop-shadow(0 0 18px rgba(255,106,213,.22));
     }
 
-    /* “хвост” длиннее/короче регулируем dasharray */
     .border-neon.neon-a{
       stroke: rgba(255,106,213,.95);
-      stroke-dasharray: 110 620;       /* ДЛИННЫЙ хвост */
-      animation: dashA 5.4s linear infinite;
+      stroke-dasharray: 130 650;
+      animation: dashA 5.0s linear infinite;
     }
     .border-neon.neon-b{
       stroke: rgba(255,45,122,.95);
       stroke-width: 4.8;
-      stroke-dasharray: 70 520;        /* ЧУТЬ короче */
-      opacity: .85;
-      animation: dashB 4.8s linear infinite;
+      stroke-dasharray: 85 560;
+      opacity: .80;
+      animation: dashB 4.4s linear infinite;
     }
-
-    @keyframes dashA{ to { stroke-dashoffset: -1100; } }
-    @keyframes dashB{ to { stroke-dashoffset:  1100; } }
+    @keyframes dashA{ to { stroke-dashoffset: -1200; } }
+    @keyframes dashB{ to { stroke-dashoffset:  1200; } }
 
     /* разные оттенки/интенсивность по месту */
     .leader-card.rank-1 .border-svg{
@@ -531,8 +467,6 @@
         drop-shadow(0 0 28px rgba(255,106,213,.22));
     }
     .leader-card.rank-1 .border-outer{ stroke: rgba(255,60,120,.92); }
-    .leader-card.rank-1 .border-neon.neon-a{ animation-duration: 5.0s; stroke-dasharray: 130 650; }
-    .leader-card.rank-1 .border-neon.neon-b{ animation-duration: 4.4s; stroke-dasharray: 85 560; }
 
     .leader-card.rank-2 .border-svg{
       filter:
@@ -552,43 +486,24 @@
     .leader-card.rank-3 .border-neon.neon-a{ animation-duration: 6.0s; stroke-dasharray: 95 620; }
     .leader-card.rank-3 .border-neon.neon-b{ animation-duration: 5.2s; stroke-dasharray: 60 520; }
 
-    /* ====== EMOJI hover layer ====== */
-    .leader-card .emoji-layer{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      overflow:hidden;
-      z-index: 0;
-      opacity: 0;
-      transition: opacity .15s ease;
-    }
-    .leader-card:hover .emoji-layer{
-      opacity: 1;
-    }
-    .leader-card .emoji-layer span{
-      position:absolute;
-      bottom: -26px;
-      animation-name: floatUp;
-      animation-timing-function: linear;
-      animation-iteration-count: infinite;
+    /* ===== EMOJI STREAM (быстрее и по всему блоку) ===== */
+    .emoji{
+      position: absolute;
+      left: 0;
+      top: 110%;
+      font-size: 22px;
+      opacity: .22;
+      filter: drop-shadow(0 0 10px rgba(255,45,122,.35));
       will-change: transform, opacity;
-      filter: drop-shadow(0 0 10px rgba(255,45,122,.25));
+      animation-name: emojiUp;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
       user-select:none;
     }
-    @keyframes floatUp{
-      0%   { transform: translateY(0);      opacity: 0; }
-      12%  { opacity: .65; }
-      100% { transform: translateY(-140%);  opacity: 0; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .border-neon.neon-a,
-      .border-neon.neon-b,
-      .leader-card .emoji-layer span,
-      .bg-live .scanlines,
-      .bg-live .particles{
-        animation: none !important;
-      }
+    @keyframes emojiUp{
+      0%   { transform: translateY(0) scale(.95); opacity: 0; }
+      10%  { opacity: .55; }
+      100% { transform: translateY(-160%) scale(1.10); opacity: 0; }
     }
 
     /* Иконка места */
@@ -908,19 +823,6 @@
     }
 
     /* ================= TAB BORDERS (SVG) ================= */
-    .leader-tab{
-      position: relative;
-      overflow: hidden;          /* чтобы неон не вылезал */
-      isolation: isolate;        /* чтобы слои не мешали друг другу */
-    }
-    
-    /* убираем старую “заливку” активной табы, она теперь не нужна */
-    .leader-tab.active::before,
-    .leader-tab.active::after{
-      content: none !important;
-    }
-    
-    /* SVG рамка таба */
     .leader-tab .tab-border-svg{
       position:absolute;
       inset:-2px;
@@ -929,49 +831,48 @@
       pointer-events:none;
       z-index:0;
     }
-    
+
     .leader-tab .tab-border-glow{
       fill:none;
       stroke: rgba(255, 45, 122, .55);
-      stroke-width: 7;                 /* свечение */
+      stroke-width: 7;
       filter: drop-shadow(0 0 18px rgba(255, 45, 122, .55));
       opacity: .85;
     }
-    
+
     .leader-tab .tab-border-outer{
-      fill: rgba(0,0,0,.18);          /* лёгкая тёмная подложка внутри */
+      fill: rgba(0,0,0,.18);
       stroke: rgba(255, 60, 120, .95);
-      stroke-width: 3.2;              /* основная рамка */
+      stroke-width: 3.2;
       filter: drop-shadow(0 0 10px rgba(255, 60, 120, .35));
       opacity: .95;
     }
-    
+
     .leader-tab .tab-border-inner{
       fill:none;
       stroke: rgba(255, 150, 200, .65);
-      stroke-width: 1.6;              /* внутренняя “тонкая” */
+      stroke-width: 1.6;
       opacity: .85;
     }
-    
-    /* бегущий неон (два слоя, разные направления) */
+
     .leader-tab .tab-border-neon{
       fill:none;
       stroke-linecap: round;
       stroke-width: 5.2;
       filter: drop-shadow(0 0 10px rgba(255, 80, 160, .55));
       opacity: .95;
-    
-      stroke-dasharray: 70 420;       /* “хвост” и пауза */
+
+      stroke-dasharray: 70 420;
       animation: tabNeonRun 3.8s linear infinite;
     }
-    
+
     .leader-tab .tab-border-neon.neon-b{
       opacity: .55;
       stroke-width: 4.6;
       stroke-dasharray: 40 520;
       animation: tabNeonRunReverse 5.2s linear infinite;
     }
-    
+
     @keyframes tabNeonRun{
       from { stroke-dashoffset: 0; }
       to   { stroke-dashoffset: -620; }
@@ -980,40 +881,25 @@
       from { stroke-dashoffset: 0; }
       to   { stroke-dashoffset: 620; }
     }
-    
-    /* текст/иконки таба поверх рамки */
+
     .leader-tab > *{
       position: relative;
       z-index: 1;
     }
-    
-    /* состояния: неактивная таба — спокойнее */
+
     .leader-tab:not(.active) .tab-border-glow{ opacity: .45; }
     .leader-tab:not(.active) .tab-border-outer{ opacity: .45; fill: rgba(0,0,0,.08); }
     .leader-tab:not(.active) .tab-border-inner{ opacity: .35; }
     .leader-tab:not(.active) .tab-border-neon{ opacity: .35; }
-    
-    /* активная — ярче */
+
     .leader-tab.active .tab-border-glow{ opacity: .95; }
     .leader-tab.active .tab-border-outer{ opacity: .98; }
     .leader-tab.active .tab-border-inner{ opacity: .90; }
     .leader-tab.active .tab-border-neon{ opacity: .95; }
-    
-    /* hover — лёгкий буст */
-    .leader-tab:hover .tab-border-glow{ opacity: 1; }
-    .leader-tab:hover .tab-border-outer{ filter: drop-shadow(0 0 14px rgba(255, 60, 120, .45)); }
 
-    /* ===== EXTRA: активная таба живее, неактивная спокойнее ===== */
-
-    /* БАЗОВО: чуть медленнее на неактивной */
-    .leader-tab:not(.active) .tab-border-neon.neon-a { animation-duration: 6.2s; }
-    .leader-tab:not(.active) .tab-border-neon.neon-b { animation-duration: 8.2s; }
-    
-    /* АКТИВНАЯ: быстрее + заметнее */
     .leader-tab.active .tab-border-neon.neon-a { animation-duration: 3.2s; }
     .leader-tab.active .tab-border-neon.neon-b { animation-duration: 4.6s; }
-    
-    /* лёгкая “дышащая” подсветка активной */
+
     .leader-tab.active .tab-border-glow{
       animation: tabGlowPulse 1.8s ease-in-out infinite;
     }
@@ -1021,13 +907,19 @@
       0%,100% { opacity: .92; filter: drop-shadow(0 0 16px rgba(255,45,122,.55)); }
       50%     { opacity: 1;    filter: drop-shadow(0 0 22px rgba(255,45,122,.70)); }
     }
-    
-    /* hover: мгновенно чуть бодрее, но без дерготни */
-    .leader-tab:hover .tab-border-neon.neon-a { animation-duration: 2.9s; }
-    .leader-tab:hover .tab-border-neon.neon-b { animation-duration: 4.1s; }
-    
 
-    
+    @media (prefers-reduced-motion: reduce){
+      .border-neon.neon-a,
+      .border-neon.neon-b,
+      .tab-border-neon,
+      .bg-live .scanlines,
+      .bg-live .particles,
+      .leader-card .sheen,
+      .emoji{
+        animation: none !important;
+      }
+      .emoji-layer{ opacity: 0 !important; }
+    }
   </style>
 </head>
 
@@ -1146,50 +1038,104 @@
     const dateEl = document.getElementById("leader-date");
     let currentPeriod = "day";
 
-    function injectBorderAndEmoji(card, place) {
-      // === SVG рамка (рисуем в реальных px) ===
+    /* ===== EMOJI STREAM (быстрее, во весь блок) ===== */
+    const EMOJI_POOL = {
+      1: ["🏆","🏆","🏆","✨","🔥"],
+      2: ["🥈","🥈","🏅","✨"],
+      3: ["🥉","🥉","🎖️","✨"],
+    };
+
+    function startEmojiStream(card, place){
+      const layer = card.querySelector(".emoji-layer");
+      if (!layer) return;
+      if (card._emojiTimer) return;
+
+      const pool = EMOJI_POOL[place] || ["✨"];
+
+      const perTick = place === 1 ? 8 : place === 2 ? 6 : 5;  // больше
+      const tickMs  = 90;  // чаще (быстрее поток)
+
+      card._emojiTimer = setInterval(() => {
+        for (let i = 0; i < perTick; i++){
+          const el = document.createElement("div");
+          el.className = "emoji";
+          el.textContent = pool[(Math.random() * pool.length) | 0];
+
+          // вся ширина и по всей нижней зоне (чтобы не была “полоса”)
+          el.style.left = (Math.random() * 100).toFixed(2) + "%";
+          el.style.top  = (105 + Math.random() * 35).toFixed(0) + "%";
+
+          // быстрее: 0.9–1.6 сек
+          const dur = 0.9 + Math.random() * 0.7;
+          el.style.animationDuration = dur.toFixed(2) + "s";
+
+          const fs = 14 + Math.random() * 26;
+          el.style.fontSize = fs.toFixed(0) + "px";
+
+          el.style.opacity = (0.18 + Math.random() * 0.45).toFixed(2);
+
+          layer.appendChild(el);
+          el.addEventListener("animationend", () => el.remove());
+        }
+      }, tickMs);
+    }
+
+    function stopEmojiStream(card){
+      if (card._emojiTimer){
+        clearInterval(card._emojiTimer);
+        card._emojiTimer = null;
+      }
+      // если хочешь сразу очищать остатки — раскомментируй:
+      // const layer = card.querySelector(".emoji-layer");
+      // if (layer) layer.innerHTML = "";
+    }
+
+    function injectBorderAndEmoji(card) {
+      // emoji слой (самый нижний)
+      const emojiLayer = document.createElement("div");
+      emojiLayer.className = "emoji-layer";
+
+      // SVG рамка
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svg.setAttribute("class", "border-svg");
       svg.setAttribute("aria-hidden", "true");
       svg.setAttribute("preserveAspectRatio", "none");
-    
+
       const glow = document.createElementNS("http://www.w3.org/2000/svg", "path");
       glow.setAttribute("class", "border-glow");
-    
+
       const outer = document.createElementNS("http://www.w3.org/2000/svg", "path");
       outer.setAttribute("class", "border-outer");
-    
+
       const inner = document.createElementNS("http://www.w3.org/2000/svg", "path");
       inner.setAttribute("class", "border-inner");
-    
+
       const neonA = document.createElementNS("http://www.w3.org/2000/svg", "path");
       neonA.setAttribute("class", "border-neon neon-a");
-    
+
       const neonB = document.createElementNS("http://www.w3.org/2000/svg", "path");
       neonB.setAttribute("class", "border-neon neon-b");
-    
+
       svg.appendChild(glow);
       svg.appendChild(outer);
       svg.appendChild(inner);
       svg.appendChild(neonA);
       svg.appendChild(neonB);
-    
-      card.appendChild(svg);
-    
-      // Функция, которая строит путь под текущие размеры карточки
+
+      // ВАЖНО: слои должны быть в начале карточки
+      card.prepend(svg);
+      card.prepend(emojiLayer);
+
       function updateBorderPath() {
         const r = card.getBoundingClientRect();
         const w = Math.max(1, Math.round(r.width));
         const h = Math.max(1, Math.round(r.height));
-    
-        // те же значения, что визуально у тебя:
-        const cut = 26;    // размер среза (как в clip-path)
-        const pad = 3;     // небольшой отступ внутрь, чтобы stroke не резался
-    
+
+        const cut = 26;    // как в clip-path
+        const pad = 3;     // чтобы stroke не резался
+
         svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-    
-        // путь: верх -> право -> вниз до (h-cut) -> диагональ влево вниз -> низ -> вверх
-        // (в px, поэтому не будет “косить”)
+
         const d = [
           `M ${pad} ${pad}`,
           `H ${w - pad}`,
@@ -1198,64 +1144,31 @@
           `H ${pad}`,
           `Z`
         ].join(" ");
-    
+
         glow.setAttribute("d", d);
         outer.setAttribute("d", d);
         inner.setAttribute("d", d);
         neonA.setAttribute("d", d);
         neonB.setAttribute("d", d);
       }
-    
-      // первый расчёт — после добавления в DOM
-      requestAnimationFrame(updateBorderPath);
-    
-      // обновление при изменении размеров (адаптив/шрифты/мобилка)
-      const ro = new ResizeObserver(() => updateBorderPath());
-      ro.observe(card);
-    
-      // === Emoji слой (как было) ===
-      const emojiLayer = document.createElement("div");
-      emojiLayer.className = "emoji-layer";
-      card.appendChild(emojiLayer);
-    
-      const emojiByPlace = { 1: "🏆", 2: "🥈", 3: "🥉" };
-      const countByPlace = { 1: 22, 2: 18, 3: 14 };
-    
-      const emoji = emojiByPlace[place] || "✨";
-      const count = countByPlace[place] || 12;
-    
-      for (let i = 0; i < count; i++) {
-        const s = document.createElement("span");
-        s.textContent = emoji;
-    
-        s.style.left = (Math.random() * 100).toFixed(2) + "%";
-        s.style.animationDelay = (Math.random() * 1.6).toFixed(2) + "s";
-        s.style.animationDuration = (2.6 + Math.random() * 2.2).toFixed(2) + "s";
-        s.style.fontSize = (12 + Math.random() * 16).toFixed(0) + "px";
-        s.style.opacity = (0.22 + Math.random() * 0.55).toFixed(2);
-    
-        emojiLayer.appendChild(s);
-      }
-    }
 
+      requestAnimationFrame(updateBorderPath);
+      const ro = new ResizeObserver(updateBorderPath);
+      ro.observe(card);
+      card._borderRO = ro;
+    }
 
     function renderLeaderCard(place, row) {
       const card = document.createElement("div");
       card.className = "leader-card rank-" + place;
 
-      // sheen
+      // слои (emoji + svg)
+      injectBorderAndEmoji(card);
+
+      // sheen (выше рамки/эмодзи)
       const sheen = document.createElement("div");
       sheen.className = "sheen";
       card.appendChild(sheen);
-
-      // слой эмодзи (на весь блок)
-      const emojiLayer = document.createElement("div");
-      emojiLayer.className = "emoji-layer";
-      card.appendChild(emojiLayer);
-
-
-      // рамка + эмодзи-слой
-      injectBorderAndEmoji(card, place);
 
       const icon = document.createElement("div");
       icon.className = "leader-icon";
@@ -1364,74 +1277,12 @@
       card.appendChild(main);
       card.appendChild(scoreBlock);
 
-      // запускаем поток эмодзи только при наведении
+      // эмодзи запускаем только на hover
       card.addEventListener("mouseenter", () => startEmojiStream(card, place));
       card.addEventListener("mouseleave", () => stopEmojiStream(card));
 
-
       return card;
     }
-
-    /* ===== EMOJI STREAM ===== */
-    const EMOJI_BY_PLACE = {
-      1: ["🏆","🏆","🏆","✨"],
-      2: ["🥈","🥈","🏅","✨"],
-      3: ["🥉","🥉","🎖️","✨"],
-    };
-    
-    function startEmojiStream(card, place){
-      const layer = card.querySelector(".emoji-layer");
-      if (!layer) return;
-    
-      // если уже запущено — не запускаем повторно
-      if (card._emojiTimer) return;
-    
-      const pool = EMOJI_BY_PLACE[place] || ["✨"];
-    
-      // сколько эмодзи в секунду (быстрее)
-      const perTick = place === 1 ? 4 : place === 2 ? 3 : 2;  // за тик
-      const tickMs  = 120; // чем меньше — тем чаще (быстрее поток)
-    
-      card._emojiTimer = setInterval(() => {
-        for (let i = 0; i < perTick; i++){
-          const el = document.createElement("div");
-          el.className = "emoji";
-          el.textContent = pool[(Math.random() * pool.length) | 0];
-    
-          // распределение по ВСЕЙ ширине блока
-          const x = Math.random() * 100; // %
-          el.style.left = x + "%";
-    
-          // скорость выше: 1.6–2.8 сек
-          const dur = 1.6 + Math.random() * 1.2;
-          el.style.animationDuration = dur + "s";
-    
-          // небольшая разница размеров
-          const fs = 18 + Math.random() * 14;
-          el.style.fontSize = fs + "px";
-    
-          // чуть разная прозрачность
-          el.style.opacity = (0.16 + Math.random() * 0.18).toFixed(2);
-    
-          layer.appendChild(el);
-    
-          // чистим после завершения анимации
-          el.addEventListener("animationend", () => el.remove());
-        }
-      }, tickMs);
-    }
-    
-    function stopEmojiStream(card){
-      if (card._emojiTimer){
-        clearInterval(card._emojiTimer);
-        card._emojiTimer = null;
-      }
-      // можно оставить уже летящие эмодзи (они сами удалятся), либо моментально очистить:
-      // const layer = card.querySelector(".emoji-layer");
-      // if (layer) layer.innerHTML = "";
-    }
-
-    
 
     async function loadLeaders(period = "day") {
       currentPeriod = period;
@@ -1840,57 +1691,52 @@
     if (bulkCancelBtn) bulkCancelBtn.addEventListener("click", closeBulkModal);
     if (bulkSaveBtn) bulkSaveBtn.addEventListener("click", saveBulk);
 
-
+    /* ===== TAB SVG BORDER INJECT ===== */
     function injectTabBorder(btn, opts = {}) {
-      // чтобы не создать 2 раза
-      if (btn.querySelector(".tab-border-svg")) return;
-    
+      if (!btn || btn.querySelector(".tab-border-svg")) return;
+
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svg.setAttribute("class", "tab-border-svg");
       svg.setAttribute("aria-hidden", "true");
       svg.setAttribute("preserveAspectRatio", "none");
-    
+
       const glow = document.createElementNS("http://www.w3.org/2000/svg", "path");
       glow.setAttribute("class", "tab-border-glow");
-    
+
       const outer = document.createElementNS("http://www.w3.org/2000/svg", "path");
       outer.setAttribute("class", "tab-border-outer");
-    
+
       const inner = document.createElementNS("http://www.w3.org/2000/svg", "path");
       inner.setAttribute("class", "tab-border-inner");
-    
+
       const neonA = document.createElementNS("http://www.w3.org/2000/svg", "path");
       neonA.setAttribute("class", "tab-border-neon neon-a");
-    
+
       const neonB = document.createElementNS("http://www.w3.org/2000/svg", "path");
       neonB.setAttribute("class", "tab-border-neon neon-b");
-    
+
       svg.appendChild(glow);
       svg.appendChild(outer);
       svg.appendChild(inner);
       svg.appendChild(neonA);
       svg.appendChild(neonB);
-    
+
       btn.appendChild(svg);
-    
+
       function updatePath() {
         const r = btn.getBoundingClientRect();
         const w = Math.max(1, Math.round(r.width));
         const h = Math.max(1, Math.round(r.height));
-    
+
         svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-    
-        // параметры формы (можно чуть подстроить)
+
         const pad = 3;
-        const radius = 16;                 // “квадратнее”, но с мягкими углами
-        const cut = opts.cut ?? 18;        // лёгкий “срез” справа, как у рефа
-    
-        // Рисуем “почти-пилюлю” со срезом справа:
-        // слева скругления, справа диагональный “носик”
-        // Путь в пикселях => не будет кривить на широких кнопках.
+        const radius = 16;
+        const cut = opts.cut ?? 18;
+
         const rightX = w - pad;
         const cutX = w - cut - pad;
-    
+
         const d = [
           `M ${pad + radius} ${pad}`,
           `H ${cutX}`,
@@ -1902,31 +1748,26 @@
           `Q ${pad} ${pad} ${pad + radius} ${pad}`,
           `Z`
         ].join(" ");
-    
+
         glow.setAttribute("d", d);
         outer.setAttribute("d", d);
         inner.setAttribute("d", d);
         neonA.setAttribute("d", d);
         neonB.setAttribute("d", d);
-    
-        // градиент для неона — в красно-розовом
+
         neonA.setAttribute("stroke", "rgba(255, 110, 200, 1)");
         neonB.setAttribute("stroke", "rgba(255, 45, 122, 1)");
       }
-    
+
       requestAnimationFrame(updatePath);
-    
-      const ro = new ResizeObserver(() => updatePath());
+      const ro = new ResizeObserver(updatePath);
       ro.observe(btn);
     }
-    
-    function enhanceTabs() {
-      const day = document.getElementById("tab-day");
-      const week = document.getElementById("tab-week");
-      [day, week].filter(Boolean).forEach((btn) => injectTabBorder(btn, { cut: 18 }));
-    }
 
-    
+    function enhanceTabs() {
+      injectTabBorder(document.getElementById("tab-day"), { cut: 18 });
+      injectTabBorder(document.getElementById("tab-week"), { cut: 18 });
+    }
 
     /* ===== INIT ===== */
     const userTagEl = document.getElementById("user-tag");
@@ -1937,6 +1778,7 @@
       if (editLeadersTopBtn) {
         editLeadersTopBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
       }
+
       enhanceTabs();
       await loadLeaders("day");
     }
