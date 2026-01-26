@@ -867,6 +867,104 @@
       .leader-nick{ font-size: 24px; }
       .leader-account{ font-size: 14px; }
     }
+
+    /* ================= TAB BORDERS (SVG) ================= */
+    .leader-tab{
+      position: relative;
+      overflow: hidden;          /* чтобы неон не вылезал */
+      isolation: isolate;        /* чтобы слои не мешали друг другу */
+    }
+    
+    /* убираем старую “заливку” активной табы, она теперь не нужна */
+    .leader-tab.active::before,
+    .leader-tab.active::after{
+      content: none !important;
+    }
+    
+    /* SVG рамка таба */
+    .leader-tab .tab-border-svg{
+      position:absolute;
+      inset:-2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      pointer-events:none;
+      z-index:0;
+    }
+    
+    .leader-tab .tab-border-glow{
+      fill:none;
+      stroke: rgba(255, 45, 122, .55);
+      stroke-width: 7;                 /* свечение */
+      filter: drop-shadow(0 0 18px rgba(255, 45, 122, .55));
+      opacity: .85;
+    }
+    
+    .leader-tab .tab-border-outer{
+      fill: rgba(0,0,0,.18);          /* лёгкая тёмная подложка внутри */
+      stroke: rgba(255, 60, 120, .95);
+      stroke-width: 3.2;              /* основная рамка */
+      filter: drop-shadow(0 0 10px rgba(255, 60, 120, .35));
+      opacity: .95;
+    }
+    
+    .leader-tab .tab-border-inner{
+      fill:none;
+      stroke: rgba(255, 150, 200, .65);
+      stroke-width: 1.6;              /* внутренняя “тонкая” */
+      opacity: .85;
+    }
+    
+    /* бегущий неон (два слоя, разные направления) */
+    .leader-tab .tab-border-neon{
+      fill:none;
+      stroke-linecap: round;
+      stroke-width: 5.2;
+      filter: drop-shadow(0 0 10px rgba(255, 80, 160, .55));
+      opacity: .95;
+    
+      stroke-dasharray: 70 420;       /* “хвост” и пауза */
+      animation: tabNeonRun 3.8s linear infinite;
+    }
+    
+    .leader-tab .tab-border-neon.neon-b{
+      opacity: .55;
+      stroke-width: 4.6;
+      stroke-dasharray: 40 520;
+      animation: tabNeonRunReverse 5.2s linear infinite;
+    }
+    
+    @keyframes tabNeonRun{
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: -620; }
+    }
+    @keyframes tabNeonRunReverse{
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: 620; }
+    }
+    
+    /* текст/иконки таба поверх рамки */
+    .leader-tab > *{
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* состояния: неактивная таба — спокойнее */
+    .leader-tab:not(.active) .tab-border-glow{ opacity: .45; }
+    .leader-tab:not(.active) .tab-border-outer{ opacity: .45; fill: rgba(0,0,0,.08); }
+    .leader-tab:not(.active) .tab-border-inner{ opacity: .35; }
+    .leader-tab:not(.active) .tab-border-neon{ opacity: .35; }
+    
+    /* активная — ярче */
+    .leader-tab.active .tab-border-glow{ opacity: .95; }
+    .leader-tab.active .tab-border-outer{ opacity: .98; }
+    .leader-tab.active .tab-border-inner{ opacity: .90; }
+    .leader-tab.active .tab-border-neon{ opacity: .95; }
+    
+    /* hover — лёгкий буст */
+    .leader-tab:hover .tab-border-glow{ opacity: 1; }
+    .leader-tab:hover .tab-border-outer{ filter: drop-shadow(0 0 14px rgba(255, 60, 120, .45)); }
+
+    
   </style>
 </head>
 
@@ -1607,6 +1705,94 @@
     if (bulkCancelBtn) bulkCancelBtn.addEventListener("click", closeBulkModal);
     if (bulkSaveBtn) bulkSaveBtn.addEventListener("click", saveBulk);
 
+
+    function injectTabBorder(btn, opts = {}) {
+      // чтобы не создать 2 раза
+      if (btn.querySelector(".tab-border-svg")) return;
+    
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "tab-border-svg");
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("preserveAspectRatio", "none");
+    
+      const glow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      glow.setAttribute("class", "tab-border-glow");
+    
+      const outer = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      outer.setAttribute("class", "tab-border-outer");
+    
+      const inner = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      inner.setAttribute("class", "tab-border-inner");
+    
+      const neonA = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      neonA.setAttribute("class", "tab-border-neon neon-a");
+    
+      const neonB = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      neonB.setAttribute("class", "tab-border-neon neon-b");
+    
+      svg.appendChild(glow);
+      svg.appendChild(outer);
+      svg.appendChild(inner);
+      svg.appendChild(neonA);
+      svg.appendChild(neonB);
+    
+      btn.appendChild(svg);
+    
+      function updatePath() {
+        const r = btn.getBoundingClientRect();
+        const w = Math.max(1, Math.round(r.width));
+        const h = Math.max(1, Math.round(r.height));
+    
+        svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    
+        // параметры формы (можно чуть подстроить)
+        const pad = 3;
+        const radius = 16;                 // “квадратнее”, но с мягкими углами
+        const cut = opts.cut ?? 18;        // лёгкий “срез” справа, как у рефа
+    
+        // Рисуем “почти-пилюлю” со срезом справа:
+        // слева скругления, справа диагональный “носик”
+        // Путь в пикселях => не будет кривить на широких кнопках.
+        const rightX = w - pad;
+        const cutX = w - cut - pad;
+    
+        const d = [
+          `M ${pad + radius} ${pad}`,
+          `H ${cutX}`,
+          `L ${rightX} ${h / 2}`,
+          `L ${cutX} ${h - pad}`,
+          `H ${pad + radius}`,
+          `Q ${pad} ${h - pad} ${pad} ${h - pad - radius}`,
+          `V ${pad + radius}`,
+          `Q ${pad} ${pad} ${pad + radius} ${pad}`,
+          `Z`
+        ].join(" ");
+    
+        glow.setAttribute("d", d);
+        outer.setAttribute("d", d);
+        inner.setAttribute("d", d);
+        neonA.setAttribute("d", d);
+        neonB.setAttribute("d", d);
+    
+        // градиент для неона — в красно-розовом
+        neonA.setAttribute("stroke", "rgba(255, 110, 200, 1)");
+        neonB.setAttribute("stroke", "rgba(255, 45, 122, 1)");
+      }
+    
+      requestAnimationFrame(updatePath);
+    
+      const ro = new ResizeObserver(() => updatePath());
+      ro.observe(btn);
+    }
+    
+    function enhanceTabs() {
+      const day = document.getElementById("tab-day");
+      const week = document.getElementById("tab-week");
+      [day, week].filter(Boolean).forEach((btn) => injectTabBorder(btn, { cut: 18 }));
+    }
+
+    
+
     /* ===== INIT ===== */
     const userTagEl = document.getElementById("user-tag");
 
@@ -1616,7 +1802,7 @@
       if (editLeadersTopBtn) {
         editLeadersTopBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
       }
-
+      enhanceTabs();
       await loadLeaders("day");
     }
 
