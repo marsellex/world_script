@@ -383,39 +383,38 @@
       align-items:center;
       gap: 22px;
       padding: 18px 24px;
-      border-radius: var(--rL);
-
-      background: transparent;
-      backdrop-filter: blur(12px);
-
-      border: 2px solid rgba(255,255,255,.10);
-
-      box-shadow: 0 14px 54px rgba(0,0,0,.30);
+    
+      /* было: border-radius var(--rL) + blur + фон */
+      border-radius: 14px;           /* более “квадратно” */
+      background: transparent;       /* НЕТ заливки */
+      backdrop-filter: none;         /* УБРАЛИ размытие */
+      box-shadow: none;              /* УБРАЛИ внутренний/внешний “туман” */
+    
+      border: 0;                     /* основную рамку убираем — рамка будет через ::before */
       overflow:hidden;
-
+    
+      /* Срезанные углы как на рефе (в обе стороны) */
       clip-path: polygon(
-        0% 0%,
-        100% 0%,
-        100% calc(100% - 26px),
-        calc(100% - 26px) 100%,
-        0% 100%,
-        0% 0%
+        18px 0%,
+        calc(100% - 18px) 0%,
+        100% 18px,
+        100% calc(100% - 18px),
+        calc(100% - 18px) 100%,
+        18px 100%,
+        0% calc(100% - 18px),
+        0% 18px
       );
-
-      transition:
-        transform .18s ease,
-        box-shadow .18s ease,
-        background .18s ease,
-        border-color .18s ease,
-        filter .18s ease;
+    
+      transition: transform .18s ease, filter .18s ease;
     }
-
+    
+    /* Толстая неоновая обводка */
     .leader-card::before{
       content:"";
       position:absolute;
-      inset:-2px;
-      border-radius: calc(var(--rL) + 2px);
-
+      inset: -2px;                   /* чтобы рамка “обнимала” карточку */
+      border-radius: 14px;
+    
       background: linear-gradient(90deg,
         rgba(255,45,122,0) 0%,
         rgba(255,45,122,.95) 14%,
@@ -425,52 +424,68 @@
         rgba(255,45,122,.95) 88%,
         rgba(255,45,122,0) 100%
       );
-
+    
       background-size: 380% 100%;
       background-position: 0% 50%;
-
+    
+      /* делаем именно ОБВОДКУ (дырка внутри) */
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
-
-      padding: 3px;            /* толще */
-      opacity: .98;
-      filter: blur(.16px);
+    
+      padding: 6px;                  /* ТОЛЩИНА ОБВОДКИ (было 3px) */
+      opacity: 1;
       pointer-events:none;
-
-      animation: borderFlow 10s linear infinite; /* плавно */
+    
+      /* те же срезанные углы */
+      clip-path: polygon(
+        18px 0%,
+        calc(100% - 18px) 0%,
+        100% 18px,
+        100% calc(100% - 18px),
+        calc(100% - 18px) 100%,
+        18px 100%,
+        0% calc(100% - 18px),
+        0% 18px
+      );
+    
+      animation: borderFlow 10s linear infinite;
     }
-
-    @keyframes borderFlow{
-      0%   { background-position:   0% 50%; }
-      100% { background-position: 380% 50%; }
-    }
-
-    .leader-card.rank-1::before{ animation-duration: 9s; }
-    .leader-card.rank-2::before{ animation-duration: 11s; }
-    .leader-card.rank-3::before{ animation-duration: 13s; }
-
+    
     .leader-card::after{
       content:"";
-      position:absolute; inset:0;
-      border-radius: var(--rL);
-      box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset;
+      position:absolute;
+      inset: 0;
       pointer-events:none;
-      opacity:.8;
+    
+      /* лёгкий внутренний контур, но без заливки и без blur */
+      box-shadow: 0 0 0 1px rgba(255,255,255,.08) inset;
+      opacity: .55;
+    
+      clip-path: polygon(
+        18px 0%,
+        calc(100% - 18px) 0%,
+        100% 18px,
+        100% calc(100% - 18px),
+        calc(100% - 18px) 100%,
+        18px 100%,
+        0% calc(100% - 18px),
+        0% 18px
+      );
     }
-
+    
+    /* hover — только аккуратный подъём + усиление яркости рамки */
     .leader-card:hover{
-      transform: translateY(-7px);
-      background: rgba(0,0,0,.06);
-      border-color: rgba(46,249,255,.22);
-      box-shadow:
-        0 24px 80px rgba(0,0,0,.45),
-        0 0 44px rgba(46,249,255,.20),
-        0 0 52px rgba(255,58,168,.18);
-      filter: saturate(1.10) brightness(1.02);
+      transform: translateY(-6px);
+      filter: brightness(1.05) saturate(1.08);
     }
+    
+    /* если хочешь: ещё толще на топ-1/2/3 */
+    .leader-card.rank-1::before{ padding: 7px; }
+    .leader-card.rank-2::before{ padding: 6px; }
+    .leader-card.rank-3::before{ padding: 6px; }
 
     /* Блик при наведении */
     .leader-card .sheen{
