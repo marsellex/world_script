@@ -44,11 +44,14 @@
       align-items:flex-start;
       padding:22px;
       overflow-x:hidden;
-
-      /* ВАЖНО: фон картинкой */
-      background: url("fon2.png") center / cover no-repeat fixed;
+    
+      background: url("fon.png") center / cover no-repeat fixed;
       position:relative;
+    
+      /* делаем картинку “живее” */
+      filter: brightness(1.08) saturate(1.18) contrast(1.06);
     }
+
 
     /* затемнение + лёгкая цветная дымка поверх картинки */
     body::before{
@@ -57,12 +60,37 @@
       inset:0;
       pointer-events:none;
       z-index:-4;
+    
+      /* меньше затемнения + больше света */
       background:
-        radial-gradient(1200px 520px at 50% 0%, rgba(124,58,237,.22), transparent 60%),
-        radial-gradient(900px 520px at 10% 10%, rgba(255,58,168,.18), transparent 55%),
-        radial-gradient(900px 520px at 90% 18%, rgba(46,249,255,.12), transparent 55%),
-        linear-gradient(180deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.55) 40%, rgba(0,0,0,.68) 100%);
-      mix-blend-mode: multiply;
+        radial-gradient(1200px 520px at 50% 0%, rgba(124,58,237,.28), transparent 62%),
+        radial-gradient(900px 520px at 10% 10%, rgba(255,58,168,.26), transparent 58%),
+        radial-gradient(900px 520px at 90% 18%, rgba(46,249,255,.20), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,.22) 45%, rgba(0,0,0,.34) 100%);
+    
+      /* УБИРАЕМ multiply — он делает мрачнее */
+      mix-blend-mode: normal;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-3;
+    
+      background:
+        radial-gradient(700px 420px at 18% 18%, rgba(255,58,168,.22), transparent 60%),
+        radial-gradient(760px 520px at 82% 22%, rgba(46,249,255,.18), transparent 62%),
+        linear-gradient(115deg,
+          rgba(255,58,168,.10) 0%,
+          rgba(46,249,255,.08) 40%,
+          rgba(124,58,237,.10) 100%
+        );
+    
+      mix-blend-mode: screen;
+      opacity: .95;
+      filter: blur(0.2px);
     }
 
     /* “живые” слои — но очень деликатно, чтобы фон-картинка читалась */
@@ -438,12 +466,12 @@
     .leader-card:hover{
       transform: translateY(-7px);
       background: rgba(0,0,0,.06);
-      border-color: rgba(46,249,255,.18);
+      border-color: rgba(46,249,255,.22);
       box-shadow:
-        0 24px 80px rgba(0,0,0,.55),
-        0 0 34px rgba(46,249,255,.14),
-        0 0 38px rgba(255,58,168,.12);
-      filter: saturate(1.06);
+        0 24px 80px rgba(0,0,0,.45),
+        0 0 44px rgba(46,249,255,.20),
+        0 0 52px rgba(255,58,168,.18);
+      filter: saturate(1.10) brightness(1.02);
     }
 
     /* Блик при наведении */
@@ -588,19 +616,18 @@
       font-weight: 900;
     }
 
-    /* Кол-во/сумма АШ — делаем красивую подсветку и чуть меньше */
     .leader-score .value{
       font-size: 56px;
       letter-spacing: .02em;
-
-      background: linear-gradient(90deg, rgba(255,102,214,.98), rgba(46,249,255,.90));
+    
+      background: linear-gradient(90deg, rgba(255,102,214,1), rgba(46,249,255,.95));
       -webkit-background-clip:text;
       background-clip:text;
       -webkit-text-fill-color: transparent;
-
+    
       filter:
-        drop-shadow(0 0 10px rgba(255,102,214,.32))
-        drop-shadow(0 0 16px rgba(46,249,255,.18));
+        drop-shadow(0 0 12px rgba(255,102,214,.40))
+        drop-shadow(0 0 20px rgba(46,249,255,.24));
     }
 
     .leader-score .unit{
