@@ -241,49 +241,22 @@
     /* ================= PANEL + TABS ================= */
     .leader-panel{
       position:relative;
-      border-radius: var(--rXL);
-      padding: 22px;
-
-      /* почти полностью прозрачный блок */
-      background: rgba(0,0,0,.05);
-      backdrop-filter: blur(12px);
-
-      /* базовая тонкая рамка (почти незаметная — “основа”) */
-      border: 1px solid rgba(255,255,255,.08);
-      box-shadow: var(--shadowSoft);
-
-      overflow:hidden;
+      border-radius: 0;
+      padding: 0;              /* убираем “плашку” */
+      background: transparent; /* полностью прозрачный */
+      border: none;
+      box-shadow: none;
+      backdrop-filter: none;
+      overflow: visible;
     }
+
 
     /* неоновая рамка по панели */
-    .leader-panel::before{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      border-radius: calc(var(--rXL) + 2px);
-      background:
-        conic-gradient(
-          from 0deg,
-          rgba(255,58,168,0) 0deg,
-          rgba(255,58,168,.95) 45deg,
-          rgba(46,249,255,.95) 95deg,
-          rgba(124,58,237,.90) 150deg,
-          rgba(255,102,214,.95) 215deg,
-          rgba(42,168,255,.85) 280deg,
-          rgba(255,58,168,0) 330deg,
-          rgba(255,58,168,0) 360deg
-        );
-      -webkit-mask:
-        linear-gradient(#000 0 0) content-box,
-        linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      padding: 2px;
-      opacity:.35;
-      filter: blur(.2px);
-      pointer-events:none;
-      animation: panelRun 6.2s linear infinite;
-    }
+    .leader-panel::before{ display:none; content:none; }
+
+    .leader-panel-header{ margin-bottom: 14px; }
+    .leaders-wrapper{ margin-top: 10px; }
+    
     @keyframes panelRun{ to { transform: rotate(360deg); } }
 
     .leader-panel-header{
@@ -396,12 +369,10 @@
       padding: 18px 24px;
       border-radius: var(--rL);
 
-      /* прозрачность (почти “нет фона”) */
-      background: rgba(0,0,0,.04);
+      background: transparent;
       backdrop-filter: blur(12px);
 
-      /* базовая тонкая “подложка” рамки */
-      border: 1px solid rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.04);
 
       box-shadow: 0 14px 54px rgba(0,0,0,.30);
       overflow:hidden;
@@ -423,35 +394,47 @@
         filter .18s ease;
     }
 
-    /* НЕОНОВАЯ РАМКА (бегущая) */
     .leader-card::before{
       content:"";
       position:absolute;
       inset:-2px;
       border-radius: calc(var(--rL) + 2px);
-      background:
-        conic-gradient(
-          from 0deg,
-          rgba(255,58,168,0) 0deg,
-          rgba(255,58,168,.95) 40deg,
-          rgba(46,249,255,.95) 92deg,
-          rgba(124,58,237,.90) 145deg,
-          rgba(255,102,214,.95) 205deg,
-          rgba(42,168,255,.85) 265deg,
-          rgba(255,58,168,0) 320deg,
-          rgba(255,58,168,0) 360deg
-        );
+    
+      background: linear-gradient(90deg,
+        rgba(255,58,168,0) 0%,
+        rgba(255,58,168,.95) 12%,
+        rgba(46,249,255,.95) 28%,
+        rgba(124,58,237,.90) 44%,
+        rgba(255,102,214,.95) 60%,
+        rgba(42,168,255,.85) 76%,
+        rgba(255,58,168,.95) 88%,
+        rgba(255,58,168,0) 100%
+      );
+    
+      background-size: 320% 100%;
+      background-position: 0% 50%;
+    
+      /* оставляем только “рамку” */
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
-      padding: 2px; /* толщина неона */
-      filter: blur(.2px);
-      opacity: .90;
-      animation: borderRun 3.2s linear infinite;
+    
+      padding: 2px;             /* толщина неона */
+      opacity: .95;
+      filter: blur(.18px);
       pointer-events:none;
+    
+      animation: borderFlow 2.2s linear infinite;
     }
+
+    @keyframes borderFlow{
+      0%   { background-position:   0% 50%; }
+      100% { background-position: 320% 50%; }
+    }
+
+
     @keyframes borderRun{ to { transform: rotate(360deg); } }
 
     .leader-card::after{
@@ -503,9 +486,9 @@
       100% { transform: translateX( 60%) rotate(10deg); }
     }
 
-    .leader-card.rank-1::before{ animation-duration: 3.0s; }
-    .leader-card.rank-2::before{ animation-duration: 3.6s; }
-    .leader-card.rank-3::before{ animation-duration: 4.2s; }
+    .leader-card.rank-1::before{ animation-duration: 1.9s; }
+    .leader-card.rank-2::before{ animation-duration: 2.3s; }
+    .leader-card.rank-3::before{ animation-duration: 2.7s; }
 
     /* Иконка места */
     .leader-icon{
