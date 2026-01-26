@@ -964,6 +964,30 @@
     .leader-tab:hover .tab-border-glow{ opacity: 1; }
     .leader-tab:hover .tab-border-outer{ filter: drop-shadow(0 0 14px rgba(255, 60, 120, .45)); }
 
+    /* ===== EXTRA: активная таба живее, неактивная спокойнее ===== */
+
+    /* БАЗОВО: чуть медленнее на неактивной */
+    .leader-tab:not(.active) .tab-border-neon.neon-a { animation-duration: 6.2s; }
+    .leader-tab:not(.active) .tab-border-neon.neon-b { animation-duration: 8.2s; }
+    
+    /* АКТИВНАЯ: быстрее + заметнее */
+    .leader-tab.active .tab-border-neon.neon-a { animation-duration: 3.2s; }
+    .leader-tab.active .tab-border-neon.neon-b { animation-duration: 4.6s; }
+    
+    /* лёгкая “дышащая” подсветка активной */
+    .leader-tab.active .tab-border-glow{
+      animation: tabGlowPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes tabGlowPulse{
+      0%,100% { opacity: .92; filter: drop-shadow(0 0 16px rgba(255,45,122,.55)); }
+      50%     { opacity: 1;    filter: drop-shadow(0 0 22px rgba(255,45,122,.70)); }
+    }
+    
+    /* hover: мгновенно чуть бодрее, но без дерготни */
+    .leader-tab:hover .tab-border-neon.neon-a { animation-duration: 2.9s; }
+    .leader-tab:hover .tab-border-neon.neon-b { animation-duration: 4.1s; }
+    
+
     
   </style>
 </head>
