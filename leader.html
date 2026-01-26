@@ -127,27 +127,29 @@
       font-size: 28px;
       font-weight: 700;
       letter-spacing: 0.02em;
-      color: var(--highlight); /* Неоновый стиль */
       text-shadow: 0 0 18px rgba(168, 85, 247, 0.55);
     }
     .page-subtitle { font-size: 13px; color: var(--muted); }
     .user-tag { font-size: 12px; color: var(--muted); }
 
-    .page-header-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
+    /* ✅ добавлено: блок кнопок в хедере */
+    .page-header-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
     }
 
     .leader-panel {
       border-radius: 32px;
       border: 1px solid var(--panel-border);
       padding: 26px 26px 20px;
-      background: 
-        radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), transparent 55%), 
-        radial-gradient(circle at top right, rgba(236, 72, 153, 0.35), transparent 55%), 
+      background:
+        radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), transparent 55%),
+        radial-gradient(circle at top right, rgba(236, 72, 153, 0.35), transparent 55%),
         linear-gradient(145deg, #020617 0%, #020617 40%, #020617 100%);
-      box-shadow: 0 40px 80px rgba(15, 23, 42, 0.95), 0 0 0 1px rgba(15, 23, 42, 0.9);
+      box-shadow:
+        0 40px 80px rgba(15, 23, 42, 0.95),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
     }
 
     .leader-panel-header {
@@ -185,11 +187,27 @@
       position: relative;
       transition: color 0.12s;
     }
+    .leader-tab span.icon { font-size: 14px; }
+    .leader-tab.active { color: #f9fafb; }
+    .leader-tab.active::before {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top, rgba(251, 113, 133, 0.85), rgba(236, 72, 153, 0.95));
+      box-shadow:
+        0 0 22px rgba(236, 72, 153, 0.8),
+        0 18px 40px rgba(15, 23, 42, 0.9);
+      z-index: -1;
+    }
+    .leader-tab.active span.label { font-weight: 700; }
+    .leader-date { font-size: 14px; color: var(--muted); }
 
-    .leader-tab.active { 
-      color: #f9fafb;
-      background: rgba(236, 72, 153, 0.85); 
-      box-shadow: 0 0 22px rgba(236, 72, 153, 0.8), 0 18px 40px rgba(15, 23, 42, 0.9); 
+    .leaders-wrapper {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
     .leader-card {
@@ -213,11 +231,11 @@
       align-items: center;
       justify-content: center;
       font-size: 26px;
+      flex-shrink: 0;
     }
-
-    .leader-card.rank-1 .leader-icon {
-      background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9));
-    }
+    .leader-card.rank-1 .leader-icon { background: radial-gradient(circle at top left, rgba(250, 204, 21, 0.55), rgba(15, 23, 42, 0.9)); }
+    .leader-card.rank-2 .leader-icon { background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.55), rgba(15, 23, 42, 0.9)); }
+    .leader-card.rank-3 .leader-icon { background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.55), rgba(15, 23, 42, 0.9)); }
 
     .leader-avatar {
       width: 68px;
@@ -234,52 +252,262 @@
       position: relative;
       color: #e5e7eb;
     }
+    .leader-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-    .leader-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .leader-score .value {
-      font-size: 26px;
-      color: var(--score-color);
+    .leader-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
     }
 
-    .leader-score .unit {
+    .leader-name-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .leader-nick {
+      font-size: 18px;
+      font-weight: 700;
+      text-shadow: 0 0 14px rgba(15, 23, 42, 0.8);
+    }
+    .leader-account {
       font-size: 13px;
+      color: var(--accent-pink-soft);
+      text-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
+    }
+
+    .dept-badge {
+      display:inline-flex;
+      align-items:center;
+      width: fit-content;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+      border: 1px solid rgba(148,163,184,.25);
+      background: rgba(15,23,42,.65);
+    }
+    .dept-badge.lspd { color:#22c55e; box-shadow: 0 0 18px rgba(34,197,94,.25); }
+    .dept-badge.sfpd { color:#38bdf8; box-shadow: 0 0 18px rgba(56,189,248,.25); }
+    .dept-badge.lvpd { color:#ef4444; box-shadow: 0 0 18px rgba(239,68,68,.25); }
+
+    .leader-score-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      min-width: 110px;
+    }
+    .leader-score {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-weight: 800;
+      text-shadow: 0 0 16px rgba(236, 72, 153, 0.85);
+    }
+    .leader-score .value { font-size: 26px; color: var(--score-color); }
+    .leader-score .unit { font-size: 13px; color: #e5e7eb; }
+    .leader-place-label { font-size: 12px; color: var(--muted); }
+
+    .leader-empty { font-size: 15px; color: var(--muted); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 18px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: radial-gradient(circle at top, rgba(30, 64, 175, 0.3), rgba(15, 23, 42, 0.96));
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.95);
+      padding: 18px 18px 14px;
+    }
+    .modal h3 { font-size: 18px; margin-bottom: 4px; }
+    .modal p { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+    .modal-footer {
+      margin-top: 12px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .field { margin-bottom: 8px; }
+    .field label { display: block; font-size: 13px; margin-bottom: 3px; }
+    .field input, .field select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 9px;
+      border: 1px solid rgba(55, 65, 81, 0.95);
+      background: #020617;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .field input:focus, .field select:focus {
+      outline: none;
+      border-color: rgba(129, 140, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.8);
+    }
+    .hint { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+    .edit-avatar-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 22px;
+      border: 2px dashed rgba(148, 163, 184, 0.85);
+      background: #020617;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 6px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
       color: #e5e7eb;
+    }
+    .edit-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .edit-avatar-preview::after {
+      content: "✎";
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .error-text { font-size: 12px; color: #f97373; margin-top: 4px; }
+
+    .week-block { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+    .week-period-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(148,163,184,.28);
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(circle at top right, rgba(56,189,248,.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(239,68,68,.18), transparent 55%),
+        rgba(15,23,42,.55);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, .75);
+    }
+    .week-period-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      margin-right: 10px;
+      background: rgba(236,72,153,.9);
+      box-shadow: 0 0 14px rgba(236,72,153,.55);
+    }
+
+    .drag-over { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.8); }
+
+    @media (max-width: 720px) {
+      body { padding: 12px; }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .leader-card {
+        display: grid;
+        grid-template-columns: 52px 68px 1fr;
+        grid-template-rows: auto auto auto;
+        column-gap: 12px;
+        row-gap: 10px;
+        align-items: start;
+        padding: 14px 14px;
+      }
+
+      .leader-icon { grid-column: 1; grid-row: 1; }
+      .leader-avatar { grid-column: 2; grid-row: 1; }
+
+      .leader-main {
+        grid-column: 3;
+        grid-row: 1;
+        min-width: 0;
+      }
+
+      .leader-score-block {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .leader-score .value { font-size: 22px; }
     }
   </style>
 </head>
+
 <body>
-  <div id="app">
-    <div class="page-header">
-      <div class="page-title-block">
-        <div class="page-title">Топ лидеров PD</div>
-        <div class="page-subtitle">Кто сегодня набрал больше всех АШ.</div>
-      </div>
+<div id="bg-rotator"></div>
+
+<div id="app">
+  <div class="page-header">
+    <div class="page-title-block">
+      <div class="page-title">Топ лидеров PD</div>
+      <div class="page-subtitle">Кто сегодня набрал больше всех АШ.</div>
+      <div class="user-tag" id="user-tag"></div>
     </div>
 
-    <div class="leader-panel">
-      <div class="leader-panel-header">
-        <div class="leader-tabs">
-          <button class="leader-tab active" id="tab-day" data-period="day">
-            <span class="icon">♥</span>
-            <span class="label">Активность дня</span>
-          </button>
-          <button class="leader-tab" id="tab-week" data-period="week">
-            <span class="icon">♥</span>
-            <span class="label">Активность недели</span>
-          </button>
-        </div>
-        <div class="leader-date" id="leader-date"></div>
-      </div>
-      <div class="leaders-wrapper" id="leaders-wrapper">
-        Загрузка…
-      </div>
+    <!-- ✅ добавлено: кнопка в верхней панели -->
+    <div class="page-header-actions">
+      <button class="btn btn-sm" id="edit-leaders-top" style="display:none;">Редактировать лидеров</button>
     </div>
   </div>
+
+  <div class="leader-panel">
+    <div class="leader-panel-header">
+      <div class="leader-tabs">
+        <button class="leader-tab active" id="tab-day" data-period="day">
+          <span class="icon">♥</span>
+          <span class="label">Активность дня</span>
+        </button>
+        <button class="leader-tab" id="tab-week" data-period="week">
+          <span class="icon">♥</span>
+          <span class="label">Активность недели</span>
+        </button>
+      </div>
+      <div class="leader-date" id="leader-date"></div>
+    </div>
+
+    <div class="leaders-wrapper" id="leaders-wrapper">
+      Загрузка…
+    </div>
+  </div>
+</div>
 
 <!-- Модалка ошибки -->
 <div id="error-modal" class="modal-backdrop">
