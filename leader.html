@@ -1914,6 +1914,38 @@
     });
   }
 
+  function spawnDropAt(x, y){
+  const icon = pickWeighted();
+  const size = rand(18, 40) * icon.w;
+
+  const vy = rand(BASE_SPEED_MIN, BASE_SPEED_MAX) * (size / 24);
+  const vx = rand(-0.04, 0.04);
+
+  const rot = rand(-0.7, 0.7);
+  const vrot = rand(-0.004, 0.004);
+
+  const willVanish = Math.random() < 0.30;
+  const vanishY = willVanish ? rand(H * 0.20, H * 0.90) : null;
+
+  drops.push({
+    t: icon.t,
+    x: Math.max(0, Math.min(W, x)),
+    y: Math.max(-60, Math.min(H, y)),
+    vx, vy,
+    size,
+    rot, vrot,
+    a: DROP_ALPHA,
+    life: 1,
+    willVanish,
+    vanishY,
+    vanishFade: 0
+  });
+
+  // маленький “пшик” дыма в месте появления
+  puff(x, y);
+}
+
+
   function spawnSmoke(x, y, intensity = 1){
     const n = Math.max(1, Math.round(rand(1, 2) * intensity));
     for (let i = 0; i < n; i++){
@@ -2043,6 +2075,27 @@
   }
 
   requestAnimationFrame(tick);
+
+function canvasToLocal(clientX, clientY){
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - rect.left) * (W / rect.width),
+    y: (clientY - rect.top)  * (H / rect.height),
+  };
+}
+
+// клик/тап по странице → спавн в точке
+window.addEventListener("pointerdown", (e) => {
+  // если клик по кнопкам/инпутам/модалкам — не спавним, чтобы не мешать UI
+  const t = e.target;
+  if (t && (t.closest("button") || t.closest("a") || t.closest("input") || t.closest("select") || t.closest(".modal") || t.closest(".modal-backdrop"))) {
+    return;
+  }
+  const p = canvasToLocal(e.clientX, e.clientY);
+  spawnDropAt(p.x, p.y);
+}, { passive: true });
+
+  
 })();
 
     
