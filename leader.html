@@ -9,36 +9,24 @@
 
   <style>
     /* ===============================
-       CYBERPUNK LIVE BACKGROUND (CSS)
-       + прозрачные карточки
-       + "неон бежит по обводке"
-       + hover: подсветка + подъем + блик
-       =============================== */
+      BACKGROUND: fon.png + лёгкие эффекты (сканлайны/частицы/виньетка)
+      UI: максимально прозрачные блоки, видна неоновая обводка
+      Hover: подсветка + блик
+      =============================== */
 
     :root{
-      --bg0:#050816;
-      --bg1:#070a23;
-
       --text:#f3f6ff;
-      --muted: rgba(243,246,255,.72);
 
       --pink:#ff3aa8;
       --pink2:#ff66d6;
-      --blue:#2aa8ff;
       --cyan:#2ef9ff;
+      --blue:#2aa8ff;
       --violet:#7c3aed;
-
-      --stroke: rgba(255,255,255,.14);
-      --strokeSoft: rgba(255,255,255,.08);
-
-      --shadow: 0 26px 80px rgba(0,0,0,.65);
 
       --rXL: 30px;
       --rL: 24px;
-      --rM: 18px;
 
-      --cardBg: rgba(0,0,0,.12);   /* стало прозрачнее */
-      --panelBg: rgba(0,0,0,.08);  /* стало прозрачнее */
+      --shadowSoft: 0 18px 70px rgba(0,0,0,.55);
     }
 
     *{
@@ -57,51 +45,35 @@
       padding:22px;
       overflow-x:hidden;
 
-      background:
-        radial-gradient(1200px 520px at 50% 0%, rgba(124,58,237,.22), transparent 60%),
-        radial-gradient(900px 520px at 10% 10%, rgba(255,58,168,.14), transparent 55%),
-        radial-gradient(900px 520px at 90% 18%, rgba(42,168,255,.14), transparent 55%),
-        radial-gradient(1200px 700px at 50% 110%, rgba(46,249,255,.06), transparent 55%),
-        linear-gradient(180deg, #040515 0%, #030414 50%, #020212 100%);
+      /* ВАЖНО: фон картинкой */
+      background: url("fon.png") center / cover no-repeat fixed;
+      position:relative;
     }
 
-    /* ЖИВОЙ ФОН (как на 1 фото): диагонали + глитч-барсы + сканлайны + частицы */
+    /* затемнение + лёгкая цветная дымка поверх картинки */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-4;
+      background:
+        radial-gradient(1200px 520px at 50% 0%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(900px 520px at 10% 10%, rgba(255,58,168,.18), transparent 55%),
+        radial-gradient(900px 520px at 90% 18%, rgba(46,249,255,.12), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.55) 40%, rgba(0,0,0,.68) 100%);
+      mix-blend-mode: multiply;
+    }
+
+    /* “живые” слои — но очень деликатно, чтобы фон-картинка читалась */
     .bg-live{
       position: fixed;
       inset: 0;
-      z-index: -5;
+      z-index: -3;
       pointer-events:none;
       overflow:hidden;
     }
 
-    /* Базовая дымка + диагональные “плоскости” */
-    .bg-live::before{
-      content:"";
-      position:absolute; inset:-20%;
-      background:
-        radial-gradient(900px 520px at 20% 10%, rgba(255,58,168,.10), transparent 60%),
-        radial-gradient(900px 520px at 85% 18%, rgba(42,168,255,.10), transparent 60%),
-        radial-gradient(800px 520px at 55% 65%, rgba(124,58,237,.08), transparent 62%),
-        linear-gradient(115deg,
-          rgba(255,58,168,.10) 0%,
-          rgba(255,58,168,0) 18%,
-          rgba(42,168,255,.10) 34%,
-          rgba(42,168,255,0) 52%,
-          rgba(255,102,214,.08) 68%,
-          rgba(255,102,214,0) 86%
-        );
-      filter: blur(10px) saturate(1.05);
-      opacity:.95;
-      transform: rotate(-8deg);
-      animation: bgFloat 10s ease-in-out infinite alternate;
-    }
-
-    @keyframes bgFloat{
-      0%   { transform: translate3d(-1.5%, -1%, 0) rotate(-8deg) scale(1.02); }
-      100% { transform: translate3d( 1.5%,  1%, 0) rotate(-8deg) scale(1.03); }
-    }
-
-    /* Сканлайны */
     .bg-live .scanlines{
       position:absolute; inset:0;
       background:
@@ -110,7 +82,7 @@
           rgba(255,255,255,.05) 0px,
           rgba(255,255,255,.05) 1px,
           rgba(0,0,0,0) 3px,
-          rgba(0,0,0,0) 6px
+          rgba(0,0,0,0) 7px
         );
       opacity:.10;
       mix-blend-mode: overlay;
@@ -121,70 +93,16 @@
       100% { transform: translateY(18px); }
     }
 
-    /* Диагональные неон-строки (как “рейки” на 1 фото) */
-    .bg-live .diag{
-      position:absolute; inset:-15%;
-      background:
-        repeating-linear-gradient(125deg,
-          rgba(255,58,168,.18) 0 2px,
-          rgba(255,58,168,0) 2px 26px
-        ),
-        repeating-linear-gradient(125deg,
-          rgba(42,168,255,.14) 0 2px,
-          rgba(42,168,255,0) 2px 34px
-        ),
-        repeating-linear-gradient(125deg,
-          rgba(124,58,237,.10) 0 1px,
-          rgba(124,58,237,0) 1px 18px
-        );
-      opacity:.25;
-      filter: blur(.2px);
-      transform: rotate(-10deg);
-      animation: diagDrift 14s linear infinite;
-    }
-    @keyframes diagDrift{
-      0%   { transform: translate3d(-2%, -1%, 0) rotate(-10deg); }
-      100% { transform: translate3d( 2%,  1%, 0) rotate(-10deg); }
-    }
-
-    /* Глитч бары */
-    .bg-live .glitch{
-      position:absolute; inset:0;
-      opacity:.55;
-      mix-blend-mode: screen;
-      filter: blur(.2px);
-      background:
-        linear-gradient(90deg,
-          transparent 0%,
-          rgba(255,58,168,.0) 20%,
-          rgba(255,58,168,.35) 24%,
-          rgba(46,249,255,.35) 28%,
-          rgba(255,255,255,.12) 30%,
-          rgba(255,58,168,.0) 36%,
-          transparent 100%
-        );
-      transform: translateX(-30%);
-      animation: glitchSweep 4.2s ease-in-out infinite;
-    }
-    @keyframes glitchSweep{
-      0%   { transform: translateX(-40%) translateY( 8%); opacity:.25; }
-      25%  { transform: translateX(  0%) translateY(12%); opacity:.55; }
-      50%  { transform: translateX( 35%) translateY(10%); opacity:.35; }
-      75%  { transform: translateX( 10%) translateY(14%); opacity:.60; }
-      100% { transform: translateX(-40%) translateY( 8%); opacity:.25; }
-    }
-
-    /* Частицы (звёздная пыль) */
     .bg-live .particles{
       position:absolute; inset:0;
-      opacity:.55;
+      opacity:.28;
       background-image:
         radial-gradient(circle at 20% 30%, rgba(255,255,255,.18) 0 1px, transparent 2px),
         radial-gradient(circle at 70% 20%, rgba(255,255,255,.12) 0 1px, transparent 2px),
         radial-gradient(circle at 42% 76%, rgba(255,255,255,.10) 0 1px, transparent 2px),
         radial-gradient(circle at 88% 66%, rgba(255,255,255,.12) 0 1px, transparent 2px),
-        radial-gradient(circle at 60% 52%, rgba(255,58,168,.14) 0 1px, transparent 2px),
-        radial-gradient(circle at 30% 62%, rgba(42,168,255,.14) 0 1px, transparent 2px);
+        radial-gradient(circle at 60% 52%, rgba(255,58,168,.16) 0 1px, transparent 2px),
+        radial-gradient(circle at 30% 62%, rgba(46,249,255,.14) 0 1px, transparent 2px);
       background-size: 520px 520px, 680px 680px, 760px 760px, 900px 900px, 700px 700px, 820px 820px;
       animation: particlesDrift 22s linear infinite;
     }
@@ -193,11 +111,10 @@
       100% { transform: translate3d(-3%, 2%, 0); }
     }
 
-    /* лёгкая виньетка */
     .bg-live .vignette{
       position:absolute; inset:-2px;
-      background: radial-gradient(circle at center, transparent 0 55%, rgba(0,0,0,.45) 85%, rgba(0,0,0,.70) 100%);
-      opacity:.9;
+      background: radial-gradient(circle at center, transparent 0 52%, rgba(0,0,0,.45) 78%, rgba(0,0,0,.78) 100%);
+      opacity:.95;
     }
 
     #app{
@@ -230,12 +147,12 @@
       letter-spacing:.01em;
       text-shadow:
         0 0 20px rgba(255,58,168,.20),
-        0 0 44px rgba(42,168,255,.12);
+        0 0 44px rgba(46,249,255,.12);
     }
     .page-subtitle{
       font-size:20px;
-      color: rgba(243,246,255,.68);
-      text-shadow: 0 0 18px rgba(42,168,255,.08);
+      color: rgba(243,246,255,.70);
+      text-shadow: 0 0 18px rgba(46,249,255,.10);
     }
     .user-tag{ font-size:12px; color: rgba(243,246,255,.60); margin-top:2px; }
 
@@ -252,9 +169,9 @@
     .btn{
       padding: 12px 18px;
       border-radius: 999px;
-      border: 1px solid rgba(42,168,255,.45);
-      background: rgba(6, 10, 30, .18);
-      color: rgba(243,246,255,.90);
+      border: 1px solid rgba(46,249,255,.35);
+      background: rgba(0,0,0,.10);
+      color: rgba(243,246,255,.92);
       font-size: 14px;
       font-weight: 800;
       cursor:pointer;
@@ -264,16 +181,16 @@
       backdrop-filter: blur(10px);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.05) inset,
-        0 0 24px rgba(42,168,255,.14);
+        0 0 24px rgba(46,249,255,.12);
       transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
     }
     .btn:hover{
       transform: translateY(-1px);
-      border-color: rgba(46,249,255,.55);
+      border-color: rgba(255,58,168,.40);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.06) inset,
-        0 0 30px rgba(42,168,255,.22),
-        0 0 48px rgba(255,58,168,.10);
+        0 0 30px rgba(46,249,255,.18),
+        0 0 48px rgba(255,58,168,.14);
     }
     .btn-sm{ padding: 11px 18px; font-size: 14px; }
 
@@ -281,7 +198,7 @@
       padding: 10px 16px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.16);
-      background: rgba(6,10,30,.14);
+      background: rgba(0,0,0,.10);
       color: rgba(243,246,255,.88);
       cursor:pointer;
       backdrop-filter: blur(10px);
@@ -290,7 +207,7 @@
     .btn-outline:hover{
       transform: translateY(-1px);
       border-color: rgba(255,58,168,.40);
-      box-shadow: 0 0 24px rgba(255,58,168,.14);
+      box-shadow: 0 0 24px rgba(255,58,168,.16);
     }
 
     /* ================= PANEL + TABS ================= */
@@ -298,24 +215,48 @@
       position:relative;
       border-radius: var(--rXL);
       padding: 22px;
-      background: rgba(0,0,0,.10);
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow);
+
+      /* почти полностью прозрачный блок */
+      background: rgba(0,0,0,.05);
+      backdrop-filter: blur(12px);
+
+      /* базовая тонкая рамка (почти незаметная — “основа”) */
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadowSoft);
+
       overflow:hidden;
-      backdrop-filter: blur(10px);
     }
 
+    /* неоновая рамка по панели */
     .leader-panel::before{
       content:"";
-      position:absolute; inset:-2px;
+      position:absolute;
+      inset:-2px;
+      border-radius: calc(var(--rXL) + 2px);
       background:
-        radial-gradient(700px 230px at 25% 0%, rgba(255,58,168,.28), transparent 62%),
-        radial-gradient(700px 230px at 75% 0%, rgba(42,168,255,.22), transparent 62%),
-        linear-gradient(90deg, rgba(255,58,168,.50), rgba(42,168,255,.50), rgba(255,102,214,.50));
-      opacity:.12;
-      filter: blur(14px);
+        conic-gradient(
+          from 0deg,
+          rgba(255,58,168,0) 0deg,
+          rgba(255,58,168,.95) 45deg,
+          rgba(46,249,255,.95) 95deg,
+          rgba(124,58,237,.90) 150deg,
+          rgba(255,102,214,.95) 215deg,
+          rgba(42,168,255,.85) 280deg,
+          rgba(255,58,168,0) 330deg,
+          rgba(255,58,168,0) 360deg
+        );
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+      opacity:.35;
+      filter: blur(.2px);
       pointer-events:none;
+      animation: panelRun 6.2s linear infinite;
     }
+    @keyframes panelRun{ to { transform: rotate(360deg); } }
 
     .leader-panel-header{
       display:flex;
@@ -323,6 +264,8 @@
       align-items:center;
       gap:12px;
       margin-bottom: 14px;
+      position:relative;
+      z-index:1;
     }
 
     .leader-tabs{
@@ -331,12 +274,13 @@
       gap:0;
       border-radius: 999px;
       padding: 6px;
-      background: rgba(6, 10, 30, .22);
+      background: rgba(0,0,0,.08);
       border: 1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(10px);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.05) inset,
-        0 16px 46px rgba(0,0,0,.35);
+        0 16px 46px rgba(0,0,0,.28);
+      overflow:hidden;
     }
 
     .leader-tab{
@@ -360,7 +304,11 @@
       z-index:1;
     }
     .leader-tab span.icon{ font-size: 14px; opacity:.9; }
-    .leader-tab:hover{ transform: translateY(-1px); color: rgba(255,255,255,.92); filter: drop-shadow(0 0 10px rgba(42,168,255,.15)); }
+    .leader-tab:hover{
+      transform: translateY(-1px);
+      color: rgba(255,255,255,.92);
+      filter: drop-shadow(0 0 10px rgba(46,249,255,.16));
+    }
 
     .leader-tab.active{
       color:#fff;
@@ -369,21 +317,21 @@
     .leader-tab.active::before{
       content:"";
       position:absolute;
-      inset: -2px -10px -2px -2px;
+      inset:-2px -10px -2px -2px;
       border-radius: 999px;
-      background: linear-gradient(90deg, rgba(255,58,168,.95), rgba(255,102,214,.85));
+      background: linear-gradient(90deg, rgba(255,58,168,.95), rgba(46,249,255,.75));
       box-shadow:
-        0 0 26px rgba(255,58,168,.32),
-        0 0 34px rgba(255,102,214,.18);
+        0 0 26px rgba(255,58,168,.28),
+        0 0 34px rgba(46,249,255,.14);
       z-index:-2;
       clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
     }
     .leader-tab.active::after{
       content:"";
       position:absolute;
-      inset: 2px 2px 2px 2px;
+      inset: 2px;
       border-radius: 999px;
-      background: rgba(7, 10, 36, .30);
+      background: rgba(0,0,0,.16);
       z-index:-1;
       clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
       backdrop-filter: blur(10px);
@@ -392,8 +340,9 @@
     .leader-date{
       font-size: 18px;
       letter-spacing:.10em;
-      color: rgba(243,246,255,.70);
+      color: rgba(243,246,255,.72);
       margin-top: 4px;
+      text-shadow: 0 0 18px rgba(46,249,255,.10);
     }
 
     .leaders-wrapper{
@@ -401,13 +350,14 @@
       display:flex;
       flex-direction:column;
       gap:18px;
+      position:relative;
+      z-index:1;
     }
 
     /* ================= LEADER CARDS =================
-       - фон прозрачнее
-       - остается “обводка”
-       - неон бежит по обводке (conic-gradient + mask)
-       - hover: подсветка, подъем, блик
+      - почти прозрачные
+      - видна неоновая рамка
+      - hover: сильнее glow + блик
     ================================================== */
 
     .leader-card{
@@ -418,17 +368,16 @@
       padding: 18px 24px;
       border-radius: var(--rL);
 
-      /* прозрачная “пластина”, очень слабая */
-      background: rgba(0,0,0,.10);
-      backdrop-filter: blur(10px);
+      /* прозрачность (почти “нет фона”) */
+      background: rgba(0,0,0,.04);
+      backdrop-filter: blur(12px);
 
-      /* базовая тонкая линия */
-      border: 1px solid rgba(255,255,255,.10);
+      /* базовая тонкая “подложка” рамки */
+      border: 1px solid rgba(255,255,255,.08);
 
-      box-shadow: 0 16px 54px rgba(0,0,0,.38);
+      box-shadow: 0 14px 54px rgba(0,0,0,.30);
       overflow:hidden;
 
-      /* скос справа снизу */
       clip-path: polygon(
         0% 0%,
         100% 0%,
@@ -442,70 +391,62 @@
         transform .18s ease,
         box-shadow .18s ease,
         background .18s ease,
-        border-color .18s ease;
+        border-color .18s ease,
+        filter .18s ease;
     }
 
-    /* БЕГУЩИЙ НЕОН ПО ОБВОДКЕ */
+    /* НЕОНОВАЯ РАМКА (бегущая) */
     .leader-card::before{
       content:"";
       position:absolute;
       inset:-2px;
       border-radius: calc(var(--rL) + 2px);
-
-      /* бегущий градиент */
       background:
         conic-gradient(
           from 0deg,
           rgba(255,58,168,0) 0deg,
           rgba(255,58,168,.95) 40deg,
-          rgba(46,249,255,.95) 90deg,
-          rgba(124,58,237,.90) 140deg,
-          rgba(255,102,214,.95) 200deg,
-          rgba(42,168,255,.85) 260deg,
+          rgba(46,249,255,.95) 92deg,
+          rgba(124,58,237,.90) 145deg,
+          rgba(255,102,214,.95) 205deg,
+          rgba(42,168,255,.85) 265deg,
           rgba(255,58,168,0) 320deg,
           rgba(255,58,168,0) 360deg
         );
-
-      /* оставляем только “рамку” (вырез по центру) */
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
-
       padding: 2px; /* толщина неона */
       filter: blur(.2px);
-      opacity: .85;
+      opacity: .90;
       animation: borderRun 3.2s linear infinite;
       pointer-events:none;
     }
+    @keyframes borderRun{ to { transform: rotate(360deg); } }
 
-    @keyframes borderRun{
-      to { transform: rotate(360deg); }
-    }
-
-    /* Внутренняя тонкая линия */
     .leader-card::after{
       content:"";
       position:absolute; inset:0;
       border-radius: var(--rL);
-      box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset;
       pointer-events:none;
       opacity:.8;
     }
 
-    /* Hover: поднимаем, подсвечиваем, добавляем “блик” */
     .leader-card:hover{
       transform: translateY(-7px);
-      background: rgba(0,0,0,.14);
-      border-color: rgba(46,249,255,.22);
+      background: rgba(0,0,0,.06);
+      border-color: rgba(46,249,255,.18);
       box-shadow:
         0 24px 80px rgba(0,0,0,.55),
-        0 0 28px rgba(42,168,255,.12),
-        0 0 32px rgba(255,58,168,.10);
+        0 0 34px rgba(46,249,255,.14),
+        0 0 38px rgba(255,58,168,.12);
+      filter: saturate(1.06);
     }
 
-    /* Блик-свайп (отдельный псевдоэлемент) */
+    /* Блик при наведении */
     .leader-card .sheen{
       content:"";
       position:absolute;
@@ -514,9 +455,9 @@
       background: linear-gradient(115deg,
         transparent 0%,
         rgba(255,255,255,.00) 35%,
-        rgba(255,255,255,.14) 45%,
-        rgba(255,58,168,.10) 50%,
-        rgba(46,249,255,.10) 55%,
+        rgba(255,255,255,.16) 45%,
+        rgba(255,58,168,.12) 50%,
+        rgba(46,249,255,.12) 55%,
         rgba(255,255,255,.00) 65%,
         transparent 100%
       );
@@ -534,8 +475,6 @@
       100% { transform: translateX( 60%) rotate(10deg); }
     }
 
-    /* Чтобы неон “жил” и без hover */
-    .leader-card:hover::before{ filter: blur(.15px) saturate(1.1); }
     .leader-card.rank-1::before{ animation-duration: 3.0s; }
     .leader-card.rank-2::before{ animation-duration: 3.6s; }
     .leader-card.rank-3::before{ animation-duration: 4.2s; }
@@ -549,9 +488,11 @@
       align-items:center;
       justify-content:center;
       font-size: 26px;
-      background: rgba(0,0,0,.10);
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: 0 0 22px rgba(42,168,255,.10);
+
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 22px rgba(46,249,255,.10);
       flex-shrink:0;
     }
 
@@ -560,8 +501,8 @@
       width: 72px;
       height: 72px;
       border-radius: 18px;
-      border: 2px solid rgba(255,58,168,.38);
-      background: rgba(0,0,0,.14);
+      border: 2px solid rgba(255,58,168,.32);
+      background: rgba(0,0,0,.03);
       overflow:hidden;
       display:flex;
       align-items:center;
@@ -569,9 +510,10 @@
       color: rgba(255,255,255,.85);
       font-size: 26px;
       flex-shrink:0;
+      backdrop-filter: blur(10px);
       box-shadow:
-        0 0 0 1px rgba(255,255,255,.06) inset,
-        0 0 22px rgba(255,58,168,.12);
+        0 0 0 1px rgba(255,255,255,.05) inset,
+        0 0 22px rgba(255,58,168,.10);
     }
     .leader-avatar img{ width:100%; height:100%; object-fit: cover; }
 
@@ -590,13 +532,14 @@
       gap: 12px;
     }
 
+    /* Ник — чуть меньше */
     .leader-nick{
-      font-size: 38px;
+      font-size: 32px;
       font-weight: 900;
       letter-spacing: .01em;
       text-shadow:
-        0 0 18px rgba(255,58,168,.14),
-        0 0 28px rgba(42,168,255,.10);
+        0 0 16px rgba(255,58,168,.12),
+        0 0 24px rgba(46,249,255,.10);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
@@ -604,24 +547,25 @@
     }
 
     .leader-account{
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
       color: rgba(255,102,214,.92);
       text-shadow: 0 0 14px rgba(255,58,168,.12);
     }
 
+    /* Департамент — тоже прозрачный, с неоновой окантовкой */
     .dept-badge{
       display:inline-flex;
       align-items:center;
       width: fit-content;
       padding: 10px 16px;
       border-radius: 999px;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 900;
       letter-spacing: .10em;
       text-transform: uppercase;
       border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.10);
+      background: rgba(0,0,0,.04);
       backdrop-filter: blur(10px);
     }
     .dept-badge.lspd{ color:#28e07a; box-shadow: 0 0 18px rgba(40,224,122,.10); }
@@ -640,27 +584,41 @@
     .leader-score{
       display:flex;
       align-items:baseline;
-      gap: 12px;
+      gap: 10px;
       font-weight: 900;
-      text-shadow: 0 0 22px rgba(255,58,168,.16);
     }
 
+    /* Кол-во/сумма АШ — делаем красивую подсветку и чуть меньше */
     .leader-score .value{
-      font-size: 64px;
-      color: rgba(255,102,214,.95);
+      font-size: 56px;
       letter-spacing: .02em;
+
+      background: linear-gradient(90deg, rgba(255,102,214,.98), rgba(46,249,255,.90));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color: transparent;
+
+      filter:
+        drop-shadow(0 0 10px rgba(255,102,214,.32))
+        drop-shadow(0 0 16px rgba(46,249,255,.18));
     }
+
     .leader-score .unit{
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 900;
-      color: rgba(243,246,255,.85);
+      color: rgba(243,246,255,.86);
       letter-spacing: .08em;
       text-transform: uppercase;
+      text-shadow:
+        0 0 10px rgba(46,249,255,.10),
+        0 0 14px rgba(255,58,168,.08);
     }
+
     .leader-place-label{
-      font-size: 18px;
+      font-size: 16px;
       color: rgba(243,246,255,.72);
       letter-spacing: .06em;
+      text-shadow: 0 0 16px rgba(46,249,255,.08);
     }
 
     .leader-empty{ font-size: 16px; color: rgba(243,246,255,.62); }
@@ -683,8 +641,8 @@
       max-width: 520px;
       border-radius: 18px;
       border: 1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(7,10,36,.60), rgba(5,7,22,.35));
-      backdrop-filter: blur(12px);
+      background: rgba(0,0,0,.16);
+      backdrop-filter: blur(14px);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.06) inset,
         0 28px 80px rgba(0,0,0,.72);
@@ -695,8 +653,8 @@
     .modal::before{
       content:"";
       position:absolute; inset:-2px;
-      background: linear-gradient(90deg, rgba(255,58,168,.55), rgba(42,168,255,.45), rgba(255,102,214,.55));
-      opacity:.18;
+      background: linear-gradient(90deg, rgba(255,58,168,.55), rgba(46,249,255,.45), rgba(255,102,214,.55));
+      opacity:.14;
       filter: blur(12px);
       pointer-events:none;
     }
@@ -721,6 +679,7 @@
       color: var(--text);
       font-size: 14px;
       outline:none;
+      backdrop-filter: blur(10px);
     }
     .field input:focus, .field select:focus{
       border-color: rgba(46,249,255,.40);
@@ -734,7 +693,7 @@
       height: 92px;
       border-radius: 22px;
       border: 2px dashed rgba(255,255,255,.22);
-      background: rgba(0,0,0,.18);
+      background: rgba(0,0,0,.14);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -742,6 +701,7 @@
       cursor:pointer;
       color: rgba(255,255,255,.85);
       position:relative;
+      backdrop-filter: blur(10px);
     }
     .edit-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
     .edit-avatar-preview::after{
@@ -776,10 +736,11 @@
       letter-spacing: .10em;
       text-transform: uppercase;
       border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.12);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 16px 40px rgba(0,0,0,.32);
+      background: rgba(0,0,0,.06);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.26);
       color: rgba(243,246,255,.78);
+      text-shadow: 0 0 14px rgba(46,249,255,.08);
     }
     .week-period-badge .dot{
       width: 8px;
@@ -793,8 +754,8 @@
     /* ================= RESPONSIVE ================= */
     @media (max-width: 1100px){
       .leader-tab{ min-width: 260px; }
-      .leader-nick{ font-size: 32px; }
-      .leader-score .value{ font-size: 56px; }
+      .leader-nick{ font-size: 28px; }
+      .leader-score .value{ font-size: 50px; }
       .page-title{ font-size: 48px; }
       .leader-score-block{ min-width: 200px; }
     }
@@ -831,20 +792,20 @@
         justify-content: space-between;
         min-width: 0;
       }
-      .leader-score .value{ font-size: 44px; }
-      .leader-score .unit{ font-size: 18px; }
-      .leader-place-label{ font-size: 16px; }
+      .leader-score .value{ font-size: 40px; }
+      .leader-score .unit{ font-size: 16px; }
+      .leader-place-label{ font-size: 14px; }
       .leader-tabs{ width:100%; }
       .leader-tab{ min-width: 0; flex:1; padding: 12px 12px; }
+      .leader-nick{ font-size: 24px; }
+      .leader-account{ font-size: 14px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- Живой киберпанк-фон (без загрузки изображений) -->
+  <!-- лёгкие эффекты поверх fon.png -->
   <div class="bg-live" aria-hidden="true">
-    <div class="diag"></div>
-    <div class="glitch"></div>
     <div class="particles"></div>
     <div class="scanlines"></div>
     <div class="vignette"></div>
@@ -1304,8 +1265,8 @@
       wrap.style.border = "1px solid rgba(255,255,255,.12)";
       wrap.style.borderRadius = "18px";
       wrap.style.padding = "14px";
-      wrap.style.background = "rgba(0,0,0,.12)";
-      wrap.style.backdropFilter = "blur(10px)";
+      wrap.style.background = "rgba(0,0,0,.10)";
+      wrap.style.backdropFilter = "blur(12px)";
       wrap.style.display = "grid";
       wrap.style.gridTemplateColumns = "120px 1fr";
       wrap.style.gap = "14px";
@@ -1495,20 +1456,16 @@
     const userTagEl = document.getElementById("user-tag");
 
     async function initPage() {
-      await loadThemeFromDB();
-      applyThemeBackground();
-      applyThemeToBlocks();
-      applySiteBranding();
+      // чтобы сайт не падал, если этих функций реально нет в файле
+      try { if (typeof loadThemeFromDB === "function") await loadThemeFromDB(); } catch(e){}
+      try { if (typeof applyThemeBackground === "function") applyThemeBackground(); } catch(e){}
+      try { if (typeof applyThemeToBlocks === "function") applyThemeToBlocks(); } catch(e){}
+      try { if (typeof applySiteBranding === "function") applySiteBranding(); } catch(e){}
 
       currentUser = loadSession();
       if (userTagEl) {
-        if (!currentUser) {
-          userTagEl.textContent = "";
-        } else {
-          // если захочешь отображать роль/ник — можно включить:
-          // userTagEl.textContent = `${currentUser?.name || ""} • ${roleLabel(currentUser?.role)}`;
-          userTagEl.textContent = "";
-        }
+        if (!currentUser) userTagEl.textContent = "";
+        else userTagEl.textContent = "";
       }
 
       if (editLeadersTopBtn) {
