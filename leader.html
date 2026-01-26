@@ -8,30 +8,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    /* ===============================
-      BACKGROUND: fon.png + лёгкие эффекты (сканлайны/частицы/виньетка)
-      UI: максимально прозрачные блоки, видна неоновая обводка
-      Hover: подсветка + блик
-      =============================== */
-
     :root{
       --text:#f3f6ff;
-    
+
       /* главный акцент (розово-красный) */
       --accent1:#ff2d7a;  /* hot pink */
       --accent2:#ff4d5e;  /* red-pink */
       --accent3:#ff6ad5;  /* magenta */
       --accentSoft: rgba(255,45,122,.18);
-    
-      /* второстепенный (чуть фиолета, но НЕ синий) */
+
       --violet:#a855f7;
-    
+
       --rXL: 30px;
       --rL: 24px;
-    
+
       --shadowSoft: 0 18px 70px rgba(0,0,0,.55);
     }
-
 
     *{
       box-sizing:border-box;
@@ -48,14 +40,13 @@
       align-items:flex-start;
       padding:22px;
       overflow-x:hidden;
-    
+
       background: url("fon.png") center / cover no-repeat fixed;
       position:relative;
-    
-      /* делаем картинку “живее” */
-      filter: brightness(1.08) saturate(1.18) contrast(1.06);
-    }
 
+      /* ✅ FIX LAG: filter на body очень дорогой — убираем */
+      filter: none;
+    }
 
     /* затемнение + лёгкая цветная дымка поверх картинки */
     body::before{
@@ -64,15 +55,13 @@
       inset:0;
       pointer-events:none;
       z-index:-4;
-    
-      /* меньше затемнения + больше света */
+
       background:
         radial-gradient(1200px 520px at 50% 0%, rgba(124,58,237,.28), transparent 62%),
         radial-gradient(900px 520px at 10% 10%, rgba(255,58,168,.26), transparent 58%),
         radial-gradient(900px 520px at 90% 18%, rgba(46,249,255,.20), transparent 60%),
         linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,.22) 45%, rgba(0,0,0,.34) 100%);
-    
-      /* УБИРАЕМ multiply — он делает мрачнее */
+
       mix-blend-mode: normal;
     }
 
@@ -82,7 +71,8 @@
       inset:0;
       pointer-events:none;
       z-index:-3;
-    
+
+      /* ✅ FIX LAG: вместо filter на body — добавили лёгкий “контраст” оверлеем */
       background:
         radial-gradient(700px 420px at 18% 18%, rgba(255,58,168,.22), transparent 60%),
         radial-gradient(760px 520px at 82% 22%, rgba(46,249,255,.18), transparent 62%),
@@ -90,14 +80,15 @@
           rgba(255,58,168,.10) 0%,
           rgba(46,249,255,.08) 40%,
           rgba(124,58,237,.10) 100%
-        );
-    
+        ),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.14));
+
       mix-blend-mode: screen;
       opacity: .95;
       filter: blur(0.2px);
     }
 
-    /* “живые” слои — но очень деликатно, чтобы фон-картинка читалась */
+    /* “живые” слои */
     .bg-live{
       position: fixed;
       inset: 0;
@@ -116,9 +107,11 @@
           rgba(0,0,0,0) 3px,
           rgba(0,0,0,0) 7px
         );
-      opacity:.10;
+
+      /* ✅ FIX LAG: деликатнее + медленнее */
+      opacity:.06;
       mix-blend-mode: overlay;
-      animation: scanMove 2.8s linear infinite;
+      animation: scanMove 7s linear infinite;
     }
     @keyframes scanMove{
       0%   { transform: translateY(0); }
@@ -127,7 +120,10 @@
 
     .bg-live .particles{
       position:absolute; inset:0;
-      opacity:.28;
+
+      /* ✅ FIX LAG: меньше непрозрачность + медленнее */
+      opacity:.16;
+
       background-image:
         radial-gradient(circle at 20% 30%, rgba(255,255,255,.18) 0 1px, transparent 2px),
         radial-gradient(circle at 70% 20%, rgba(255,255,255,.12) 0 1px, transparent 2px),
@@ -135,8 +131,9 @@
         radial-gradient(circle at 88% 66%, rgba(255,255,255,.12) 0 1px, transparent 2px),
         radial-gradient(circle at 60% 52%, rgba(255,58,168,.16) 0 1px, transparent 2px),
         radial-gradient(circle at 30% 62%, rgba(46,249,255,.14) 0 1px, transparent 2px);
+
       background-size: 520px 520px, 680px 680px, 760px 760px, 900px 900px, 700px 700px, 820px 820px;
-      animation: particlesDrift 22s linear infinite;
+      animation: particlesDrift 45s linear infinite;
     }
     @keyframes particlesDrift{
       0%   { transform: translate3d(0,0,0); }
@@ -147,6 +144,11 @@
       position:absolute; inset:-2px;
       background: radial-gradient(circle at center, transparent 0 52%, rgba(0,0,0,.45) 78%, rgba(0,0,0,.78) 100%);
       opacity:.95;
+    }
+
+    /* ✅ FIX LAG: fixed background часто лагает на мобилках */
+    @media (max-width: 900px){
+      body{ background-attachment: scroll; }
     }
 
     #app{
@@ -204,6 +206,9 @@
       box-shadow:
         0 0 0 1px rgba(255,255,255,.05) inset,
         0 0 26px rgba(255,45,122,.18);
+      color: rgba(243,246,255,.90);
+      cursor:pointer;
+      border-radius: 12px;
     }
     .btn:hover{
       border-color: rgba(255,77,94,.55);
@@ -212,7 +217,6 @@
         0 0 34px rgba(255,45,122,.24),
         0 0 54px rgba(255,106,213,.16);
     }
-
     .btn-sm{ padding: 11px 18px; font-size: 14px; }
 
     .btn-outline{
@@ -223,6 +227,7 @@
       color: rgba(243,246,255,.88);
       cursor:pointer;
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
     }
     .btn-outline:hover{
@@ -235,22 +240,15 @@
     .leader-panel{
       position:relative;
       border-radius: 0;
-      padding: 0;              /* убираем “плашку” */
-      background: transparent; /* полностью прозрачный */
+      padding: 0;
+      background: transparent;
       border: none;
       box-shadow: none;
       backdrop-filter: none;
       overflow: visible;
     }
 
-
-    /* неоновая рамка по панели */
     .leader-panel::before{ display:none; content:none; }
-
-    .leader-panel-header{ margin-bottom: 14px; }
-    .leaders-wrapper{ margin-top: 10px; }
-    
-    @keyframes panelRun{ to { transform: rotate(360deg); } }
 
     .leader-panel-header{
       display:flex;
@@ -260,38 +258,64 @@
       margin-bottom: 14px;
       position:relative;
       z-index:1;
+      width: 100%;
     }
 
+    .leaders-wrapper{ margin-top: 10px; }
+
     .leader-tabs{
-      background: rgba(0,0,0,.08);
-      border: 1px solid rgba(255,255,255,.10);
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: stretch;
+      justify-content: center;
+
+      width: min(860px, 100%);
+      margin: 0 auto;
+
+      border-radius: 999px;
+      padding: 6px;
+
+      background: rgba(0,0,0,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+
       box-shadow:
         0 0 0 1px rgba(255,255,255,.05) inset,
         0 16px 46px rgba(0,0,0,.28),
         0 0 26px rgba(255,45,122,.10);
+
+      overflow: hidden;
     }
 
     .leader-tab{
+      flex: 1 1 0;
+      min-width: 0 !important;
+      white-space: nowrap;
+
       position:relative;
       border:0;
       background: transparent;
-      color: rgba(243,246,255,.72);
-      cursor:pointer;
-      padding: 14px 26px;
-      min-width: 320px;
       border-radius: 999px;
+
+      padding: 14px 18px;
       font-weight: 900;
       font-size: 16px;
       letter-spacing: .10em;
       text-transform: uppercase;
-      display:flex;
+
+      display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:12px;
+      gap:10px;
+
+      color: rgba(243,246,255,.78);
+      cursor:pointer;
       transition: transform .14s ease, color .14s ease, filter .14s ease;
       z-index:1;
     }
     .leader-tab span.icon{ font-size: 14px; opacity:.9; }
+
     .leader-tab:hover{
       transform: translateY(-1px);
       color: rgba(255,255,255,.94);
@@ -299,24 +323,33 @@
     }
 
     .leader-tab.active{
-      color:#fff;
-      text-shadow: 0 0 18px rgba(255,58,168,.22);
+      color: #fff;
+      text-shadow: 0 0 18px rgba(255,45,122,.22);
     }
+
     .leader-tab.active::before{
+      content:"";
+      position:absolute;
+      inset:-2px -10px -2px -2px;
+      border-radius: 999px;
       background: linear-gradient(90deg, rgba(255,45,122,.95), rgba(255,77,94,.85));
       box-shadow:
         0 0 30px rgba(255,45,122,.30),
         0 0 44px rgba(255,77,94,.18);
+      z-index:-2;
+      clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
     }
+
     .leader-tab.active::after{
       content:"";
       position:absolute;
       inset: 2px;
       border-radius: 999px;
-      background: rgba(0,0,0,.16);
+      background: rgba(0,0,0,.18);
       z-index:-1;
       clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .leader-date{
@@ -336,11 +369,7 @@
       z-index:1;
     }
 
-    /* ================= LEADER CARDS =================
-      - почти прозрачные
-      - видна неоновая рамка
-      - hover: сильнее glow + блик
-    ================================================== */
+    /* ================= LEADER CARDS ================= */
 
     .leader-card{
       position:relative;
@@ -350,8 +379,10 @@
       padding: 18px 24px;
       border-radius: var(--rL);
 
-      background: transparent;
-      backdrop-filter: blur(12px);
+      /* ✅ FIX LAG: вместо постоянного blur — лёгкая подложка */
+      background: rgba(0,0,0,.08);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
 
       border: 2px solid rgba(255,255,255,.10);
 
@@ -373,6 +404,10 @@
         background .18s ease,
         border-color .18s ease,
         filter .18s ease;
+
+      /* ✅ FIX LAG: изолируем перерисовку карточки */
+      contain: paint;
+      will-change: transform;
     }
 
     .leader-card::before{
@@ -380,7 +415,7 @@
       position:absolute;
       inset:-2px;
       border-radius: calc(var(--rL) + 2px);
-    
+
       background: linear-gradient(90deg,
         rgba(255,45,122,0) 0%,
         rgba(255,45,122,.95) 14%,
@@ -390,35 +425,37 @@
         rgba(255,45,122,.95) 88%,
         rgba(255,45,122,0) 100%
       );
-    
+
       background-size: 380% 100%;
       background-position: 0% 50%;
-    
+
       -webkit-mask:
         linear-gradient(#000 0 0) content-box,
         linear-gradient(#000 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
-    
-      padding: 3px;            /* ТОЛЩЕ */
+
+      padding: 3px;
       opacity: .98;
       filter: blur(.16px);
       pointer-events:none;
-    
-      animation: borderFlow 10s linear infinite; /* МЕДЛЕННЕЕ */
+
+      animation: borderFlow 10s linear infinite;
+
+      /* ✅ FIX LAG: по умолчанию НЕ анимируем (только при hover) */
+      animation-play-state: paused;
     }
+
+    .leader-card:hover::before{ animation-play-state: running; }
+
     @keyframes borderFlow{
       0%   { background-position:   0% 50%; }
       100% { background-position: 380% 50%; }
     }
-    
-    /* ещё чуть разные скорости по местам, но все плавные */
+
     .leader-card.rank-1::before{ animation-duration: 9s; }
     .leader-card.rank-2::before{ animation-duration: 11s; }
     .leader-card.rank-3::before{ animation-duration: 13s; }
-
-
-    @keyframes borderRun{ to { transform: rotate(360deg); } }
 
     .leader-card::after{
       content:"";
@@ -431,6 +468,11 @@
 
     .leader-card:hover{
       transform: translateY(-7px);
+
+      /* ✅ FIX LAG: blur включаем только на hover */
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
       background: rgba(0,0,0,.06);
       border-color: rgba(46,249,255,.22);
       box-shadow:
@@ -469,7 +511,6 @@
       100% { transform: translateX( 60%) rotate(10deg); }
     }
 
-
     /* Иконка места */
     .leader-icon{
       width: 58px;
@@ -482,7 +523,11 @@
 
       background: rgba(0,0,0,.03);
       border: 1px solid rgba(255,255,255,.08);
-      backdrop-filter: blur(10px);
+
+      /* ✅ FIX LAG: blur в мелких элементах можно оставить слабым, но лучше без */
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+
       box-shadow: 0 0 22px rgba(46,249,255,.10);
       flex-shrink:0;
     }
@@ -501,7 +546,11 @@
       color: rgba(255,255,255,.85);
       font-size: 26px;
       flex-shrink:0;
-      backdrop-filter: blur(10px);
+
+      /* ✅ FIX LAG: убираем постоянный blur */
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+
       box-shadow:
         0 0 0 1px rgba(255,255,255,.05) inset,
         0 0 22px rgba(255,58,168,.10);
@@ -523,7 +572,6 @@
       gap: 12px;
     }
 
-    /* Ник — чуть меньше */
     .leader-nick{
       font-size: 32px;
       font-weight: 900;
@@ -544,7 +592,6 @@
       text-shadow: 0 0 14px rgba(255,58,168,.12);
     }
 
-    /* Департамент — тоже прозрачный, с неоновой окантовкой */
     .dept-badge{
       display:inline-flex;
       align-items:center;
@@ -557,7 +604,10 @@
       text-transform: uppercase;
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.04);
-      backdrop-filter: blur(10px);
+
+      /* ✅ FIX LAG */
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
     }
     .dept-badge.lspd{ color:#28e07a; box-shadow: 0 0 18px rgba(40,224,122,.10); }
     .dept-badge.sfpd{ color:#2fc7ff; box-shadow: 0 0 18px rgba(47,199,255,.10); }
@@ -582,29 +632,28 @@
     .leader-score .value{
       font-size: 56px;
       letter-spacing: .02em;
-    
+
       background: linear-gradient(90deg, rgba(255,45,122,1), rgba(255,77,94,.98));
       -webkit-background-clip:text;
       background-clip:text;
       -webkit-text-fill-color: transparent;
-    
+
       filter:
         drop-shadow(0 0 14px rgba(255,45,122,.45))
         drop-shadow(0 0 26px rgba(255,77,94,.25));
     }
-    
+
     .leader-score .unit{
       font-size: 18px;
       font-weight: 900;
       letter-spacing: .10em;
       text-transform: uppercase;
-    
+
       color: rgba(255,106,213,.95);
       text-shadow:
         0 0 10px rgba(255,45,122,.30),
         0 0 18px rgba(255,106,213,.22);
     }
-
 
     .leader-place-label{
       font-size: 16px;
@@ -635,6 +684,7 @@
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.16);
       backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.06) inset,
         0 28px 80px rgba(0,0,0,.72);
@@ -672,6 +722,7 @@
       font-size: 14px;
       outline:none;
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
     .field input:focus, .field select:focus{
       border-color: rgba(46,249,255,.40);
@@ -694,6 +745,7 @@
       color: rgba(255,255,255,.85);
       position:relative;
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
     .edit-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
     .edit-avatar-preview::after{
@@ -711,6 +763,7 @@
       justify-content:center;
       font-size: 12px;
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     .drag-over{ box-shadow: 0 0 0 3px rgba(46,249,255,.35); }
@@ -730,6 +783,7 @@
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.06);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       box-shadow: 0 16px 40px rgba(0,0,0,.26);
       color: rgba(243,246,255,.78);
       text-shadow: 0 0 14px rgba(46,249,255,.08);
@@ -745,14 +799,13 @@
 
     /* ================= RESPONSIVE ================= */
     @media (max-width: 1100px){
-      .leader-tab{ min-width: 260px; }
       .leader-nick{ font-size: 28px; }
       .leader-score .value{ font-size: 50px; }
       .page-title{ font-size: 48px; }
       .leader-score-block{ min-width: 200px; }
     }
     @media (max-width: 820px){
-      .leader-tab{ min-width: 200px; font-size: 14px; }
+      .leader-tab{ font-size: 14px; }
       .page-title{ font-size: 40px; }
       .page-subtitle{ font-size: 16px; }
       .leader-score-block{ min-width: 180px; }
@@ -788,118 +841,23 @@
       .leader-score .unit{ font-size: 16px; }
       .leader-place-label{ font-size: 14px; }
       .leader-tabs{ width:100%; }
-      .leader-tab{ min-width: 0; flex:1; padding: 12px 12px; }
+      .leader-tab{ flex:1; padding: 12px 12px; letter-spacing: .08em; }
       .leader-nick{ font-size: 24px; }
       .leader-account{ font-size: 14px; }
     }
 
-    /* ===== FIX: табы снова нормальные (пилюля 2 кнопки в ряд) ===== */
-    
-    .leader-panel-header{
-      width: 100%;
-      align-items: center;
-    }
-    
-    .leader-tabs{
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: stretch;
-      justify-content: center;
-    
-      width: min(860px, 100%);
-      margin: 0 auto;
-    
-      border-radius: 999px;
-      padding: 6px;
-    
-      background: rgba(0,0,0,.10);
-      border: 1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(12px);
-    
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.05) inset,
-        0 16px 46px rgba(0,0,0,.28),
-        0 0 26px rgba(255,45,122,.10);
-    
-      overflow: hidden;
-    }
-    
-    .leader-tab{
-      flex: 1 1 0;
-      min-width: 0 !important;          /* КЛЮЧ: убирает ломание/переносы из-за min-width */
-      white-space: nowrap;
-    
-      border: 0;
-      background: transparent;
-      border-radius: 999px;
-    
-      padding: 14px 18px;
-      font-weight: 900;
-      font-size: 16px;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-    
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    
-      color: rgba(243,246,255,.78);
-      cursor: pointer;
-    
-      transition: transform .14s ease, color .14s ease, filter .14s ease;
-    }
-    
-    .leader-tab:hover{
-      transform: translateY(-1px);
-      color: rgba(255,255,255,.94);
-      filter: drop-shadow(0 0 12px rgba(255,45,122,.22));
-    }
-    
-    /* активная таба — яркая, как в рефе */
-    .leader-tab.active{
-      color: #fff;
-      text-shadow: 0 0 18px rgba(255,45,122,.22);
-    }
-    
-    .leader-tab.active::before{
-      content:"";
-      position:absolute;
-      inset:-2px -10px -2px -2px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(255,45,122,.95), rgba(255,77,94,.85));
-      box-shadow:
-        0 0 30px rgba(255,45,122,.30),
-        0 0 44px rgba(255,77,94,.18);
-      z-index:-2;
-      clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
-    }
-    
-    .leader-tab.active::after{
-      content:"";
-      position:absolute;
-      inset: 2px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.18);
-      z-index:-1;
-      clip-path: polygon(0% 0%, 92% 0%, 100% 50%, 92% 100%, 0% 100%, 0% 0%);
-      backdrop-filter: blur(12px);
-    }
-    
-    /* мобилка */
-    @media (max-width: 720px){
-      .leader-tab{
-        font-size: 14px;
-        padding: 12px 12px;
-        letter-spacing: .08em;
+    @media (prefers-reduced-motion: reduce){
+      .bg-live .scanlines,
+      .bg-live .particles,
+      .leader-card::before,
+      .leader-card .sheen{
+        animation: none !important;
       }
     }
-
   </style>
 </head>
 
 <body>
-  <!-- лёгкие эффекты поверх fon.png -->
   <div class="bg-live" aria-hidden="true">
     <div class="particles"></div>
     <div class="scanlines"></div>
@@ -1025,7 +983,6 @@
       const card = document.createElement("div");
       card.className = "leader-card rank-" + place;
 
-      // “блик” для hover (анимируется CSS)
       const sheen = document.createElement("div");
       sheen.className = "sheen";
       card.appendChild(sheen);
@@ -1551,17 +1508,13 @@
     const userTagEl = document.getElementById("user-tag");
 
     async function initPage() {
-      // чтобы сайт не падал, если этих функций реально нет в файле
       try { if (typeof loadThemeFromDB === "function") await loadThemeFromDB(); } catch(e){}
       try { if (typeof applyThemeBackground === "function") applyThemeBackground(); } catch(e){}
       try { if (typeof applyThemeToBlocks === "function") applyThemeToBlocks(); } catch(e){}
       try { if (typeof applySiteBranding === "function") applySiteBranding(); } catch(e){}
 
       currentUser = loadSession();
-      if (userTagEl) {
-        if (!currentUser) userTagEl.textContent = "";
-        else userTagEl.textContent = "";
-      }
+      if (userTagEl) userTagEl.textContent = "";
 
       if (editLeadersTopBtn) {
         editLeadersTopBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
