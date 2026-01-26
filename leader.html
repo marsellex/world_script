@@ -339,6 +339,45 @@
       z-index:1;
     }
 
+    /* ===== EMOJI STREAM (на весь блок) ===== */
+    .leader-card{
+      position: relative; /* важно */
+    }
+    
+    .emoji-layer{
+      position: absolute;
+      inset: 0;                 /* ВЕСЬ БЛОК */
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;               /* под контентом */
+    }
+    
+    /* контент карточки выше эмодзи */
+    .leader-card > :not(.emoji-layer):not(.sheen){
+      position: relative;
+      z-index: 2;
+    }
+    
+    .emoji{
+      position: absolute;
+      left: 0;
+      top: 110%;                /* старт снизу */
+      font-size: 22px;
+      opacity: .22;
+      filter: drop-shadow(0 0 10px rgba(255,45,122,.35));
+      will-change: transform, opacity;
+      animation-name: emojiUp;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+    
+    @keyframes emojiUp{
+      0%   { transform: translateY(0) scale(.95); opacity: .0; }
+      10%  { opacity: .22; }
+      100% { transform: translateY(-140%) scale(1.05); opacity: 0; }
+    }
+
+    
     /* ================= LEADER CARDS ================= */
 
     .leader-card{
@@ -1209,6 +1248,12 @@
       sheen.className = "sheen";
       card.appendChild(sheen);
 
+      // слой эмодзи (на весь блок)
+      const emojiLayer = document.createElement("div");
+      emojiLayer.className = "emoji-layer";
+      card.appendChild(emojiLayer);
+
+
       // рамка + эмодзи-слой
       injectBorderAndEmoji(card, place);
 
@@ -1319,8 +1364,74 @@
       card.appendChild(main);
       card.appendChild(scoreBlock);
 
+      // запускаем поток эмодзи только при наведении
+      card.addEventListener("mouseenter", () => startEmojiStream(card, place));
+      card.addEventListener("mouseleave", () => stopEmojiStream(card));
+
+
       return card;
     }
+
+    /* ===== EMOJI STREAM ===== */
+    const EMOJI_BY_PLACE = {
+      1: ["🏆","🏆","🏆","✨"],
+      2: ["🥈","🥈","🏅","✨"],
+      3: ["🥉","🥉","🎖️","✨"],
+    };
+    
+    function startEmojiStream(card, place){
+      const layer = card.querySelector(".emoji-layer");
+      if (!layer) return;
+    
+      // если уже запущено — не запускаем повторно
+      if (card._emojiTimer) return;
+    
+      const pool = EMOJI_BY_PLACE[place] || ["✨"];
+    
+      // сколько эмодзи в секунду (быстрее)
+      const perTick = place === 1 ? 4 : place === 2 ? 3 : 2;  // за тик
+      const tickMs  = 120; // чем меньше — тем чаще (быстрее поток)
+    
+      card._emojiTimer = setInterval(() => {
+        for (let i = 0; i < perTick; i++){
+          const el = document.createElement("div");
+          el.className = "emoji";
+          el.textContent = pool[(Math.random() * pool.length) | 0];
+    
+          // распределение по ВСЕЙ ширине блока
+          const x = Math.random() * 100; // %
+          el.style.left = x + "%";
+    
+          // скорость выше: 1.6–2.8 сек
+          const dur = 1.6 + Math.random() * 1.2;
+          el.style.animationDuration = dur + "s";
+    
+          // небольшая разница размеров
+          const fs = 18 + Math.random() * 14;
+          el.style.fontSize = fs + "px";
+    
+          // чуть разная прозрачность
+          el.style.opacity = (0.16 + Math.random() * 0.18).toFixed(2);
+    
+          layer.appendChild(el);
+    
+          // чистим после завершения анимации
+          el.addEventListener("animationend", () => el.remove());
+        }
+      }, tickMs);
+    }
+    
+    function stopEmojiStream(card){
+      if (card._emojiTimer){
+        clearInterval(card._emojiTimer);
+        card._emojiTimer = null;
+      }
+      // можно оставить уже летящие эмодзи (они сами удалятся), либо моментально очистить:
+      // const layer = card.querySelector(".emoji-layer");
+      // if (layer) layer.innerHTML = "";
+    }
+
+    
 
     async function loadLeaders(period = "day") {
       currentPeriod = period;
