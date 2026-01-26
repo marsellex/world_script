@@ -1810,11 +1810,11 @@
     window.addEventListener("load", initPage);
 
     /* ================= FALLING FX CANVAS ================= */
+/* ================= FALLING FX CANVAS (slow / 10% / mono red) ================= */
 (function initFallingFx(){
   const canvas = document.getElementById("fall-canvas");
   if (!canvas) return;
 
-  // если пользователь отключил анимации — не запускаем
   const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) return;
 
@@ -1834,197 +1834,216 @@
   resize();
   window.addEventListener("resize", resize);
 
-    // Элементы (можешь заменить на свои SVG/картинки, но эмодзи — быстро и красиво)
-    // 🔫 (пистолет), ▸ (пуля-замена), 🧷/| (можно заменить), 🛡️ (значок полиции), ⭐, 🏆, 🥈, 🥉
-    const ICONS = [
-      { t: "🔫", w: 1.00 },      // пистолет
-      { t: "▸",  w: 1.20 },      // “пуля” (аккуратная)
-      { t: "〣",  w: 0.70 },      // “автомат” стилизованный (можно заменить)
-      { t: "🛡️", w: 1.00 },      // значок полиции
-      { t: "⭐",  w: 1.10 },      // звезда
-      { t: "🏆", w: 1.10 },      // кубок 1
-      { t: "🥈", w: 1.00 },      // 2 место
-      { t: "🥉", w: 1.00 },      // 3 место
+  // ===== МОНОХРОМНЫЕ СИМВОЛЫ (не эмодзи) =====
+  // Можно менять на любые символы, которые тебе нравятся.
+  // Пуля / автомат / пистолет / полиция / звезда / кубки:
+  const ICONS = [
+    { t: "✦", w: 1.10 },   // звезда (стильно)
+    { t: "✶", w: 1.05 },   // звезда 2
+    { t: "★", w: 1.05 },   // звезда 3
+    { t: "✪", w: 1.00 },   // “значок”
+    { t: "✹", w: 0.95 },
+
+    { t: "▸", w: 1.15 },   // пуля (стрелка)
+    { t: "➤", w: 1.05 },   // пуля 2
+    { t: "⟡", w: 0.95 },
+
+    { t: "⌁", w: 1.05 },   // автомат (абстрактный символ)
+    { t: "⟞", w: 1.00 },   // оружейный стиль
+    { t: "⟝", w: 1.00 },
+
+    { t: "♛", w: 1.05 },   // “кубок” (как корона)
+    { t: "⚑", w: 1.00 },   // “кубок/флаг”
+    { t: "✺", w: 1.10 },   // “трофей” (солнышко)
+    { t: "Ⅱ", w: 1.10 },   // 2 место
+    { t: "Ⅲ", w: 1.10 },   // 3 место
+  ];
+
+  function rand(min, max){ return min + Math.random() * (max - min); }
+
+  function pickWeighted(){
+    // Чаще “звёзды/полиция/трофеи”, реже “пули/оружие”
+    const bag = [
+      ICONS[0], ICONS[1], ICONS[2], ICONS[3], ICONS[4], // звезды/значки
+      ICONS[0], ICONS[1], ICONS[2],
+      ICONS[11], ICONS[12], ICONS[13],                 // “кубки”
+      ICONS[14], ICONS[15],                             // II / III
+      ICONS[5], ICONS[6],                               // пули
+      ICONS[8], ICONS[9], ICONS[10],                    // “оружие”
+      ICONS[5],
     ];
-  
-    const drops = [];
-    const smoke = [];
-  
-    function rand(min, max){ return min + Math.random() * (max - min); }
-    function pickWeighted(){
-      // чуть чаще звезды/трофеи, чуть реже оружие
-      const bag = [
-        ICONS[4], ICONS[4], ICONS[4], // ⭐
-        ICONS[5], ICONS[5],           // 🏆
-        ICONS[6], ICONS[7],           // 🥈🥉
-        ICONS[3],                     // 🛡️
-        ICONS[0],                     // 🔫
-        ICONS[2],                     // 〣
-        ICONS[1], ICONS[1]            // ▸ “пули”
-      ];
-      return bag[(Math.random() * bag.length) | 0];
-    }
-  
-    function spawnDrop(){
-      const icon = pickWeighted();
-      const size = rand(18, 44) * icon.w;
-      const x = rand(0, W);
-      const y = rand(-H * 0.25, -40);
-      const vy = rand(0.55, 1.55) * (size / 26); // скорость падения
-      const vx = rand(-0.10, 0.10);
-      const rot = rand(-0.6, 0.6);
-      const vrot = rand(-0.010, 0.010);
-  
-      // часть исчезает “в воздухе”
-      const willVanish = Math.random() < 0.28;
-      const vanishY = willVanish ? rand(H * 0.25, H * 0.90) : null;
-  
-      drops.push({
-        t: icon.t,
-        x, y, vx, vy,
-        size,
-        rot, vrot,
-        a: 0.50,           // 50% прозрачность
-        life: 1,
-        willVanish,
-        vanishY,
-        vanishFade: 0
+    return bag[(Math.random() * bag.length) | 0];
+  }
+
+  const drops = [];
+  const smoke = [];
+  let spawnAcc = 0;
+
+  // Параметры (главные ручки)
+  const DROP_ALPHA = 0.10;                 // 10% прозрачность
+  const BASE_SPEED_MIN = 0.10;             // МЕДЛЕННЕЕ
+  const BASE_SPEED_MAX = 0.38;             // МЕДЛЕННЕЕ
+  const SMOKE_ALPHA_MIN = 0.02;            // дым тоже лёгкий
+  const SMOKE_ALPHA_MAX = 0.05;
+
+  function spawnDrop(){
+    const icon = pickWeighted();
+    const size = rand(16, 36) * icon.w;
+    const x = rand(0, W);
+    const y = rand(-H * 0.35, -40);
+
+    const vy = rand(BASE_SPEED_MIN, BASE_SPEED_MAX) * (size / 24);
+    const vx = rand(-0.035, 0.035);
+
+    const rot = rand(-0.7, 0.7);
+    const vrot = rand(-0.004, 0.004);
+
+    const willVanish = Math.random() < 0.30;
+    const vanishY = willVanish ? rand(H * 0.20, H * 0.90) : null;
+
+    drops.push({
+      t: icon.t,
+      x, y, vx, vy,
+      size,
+      rot, vrot,
+      a: DROP_ALPHA,
+      life: 1,
+      willVanish,
+      vanishY,
+      vanishFade: 0
+    });
+  }
+
+  function spawnSmoke(x, y, intensity = 1){
+    const n = Math.max(1, Math.round(rand(1, 2) * intensity));
+    for (let i = 0; i < n; i++){
+      smoke.push({
+        x: x + rand(-6, 6),
+        y: y + rand(8, 14),
+        vx: rand(-0.05, 0.05),
+        vy: rand(-0.08, -0.02),
+        r: rand(8, 18),
+        a: rand(SMOKE_ALPHA_MIN, SMOKE_ALPHA_MAX),
+        life: 1
       });
     }
-  
-    // сколько спавнить зависит от ширины (во весь сайт)
-    let spawnAcc = 0;
-  
-    function spawnSmoke(x, y, intensity = 1){
-      // маленький “дымок” (пухлые точки с блюром)
-      const n = Math.max(1, Math.round(rand(1, 2) * intensity));
-      for (let i = 0; i < n; i++){
-        smoke.push({
-          x: x + rand(-6, 6),
-          y: y + rand(8, 14),
-          vx: rand(-0.12, 0.12),
-          vy: rand(-0.18, -0.05),
-          r: rand(6, 14),
-          a: rand(0.10, 0.22),  // дым полупрозрачный
-          life: 1
-        });
-      }
+  }
+
+  function puff(x, y){
+    for (let i = 0; i < 8; i++){
+      smoke.push({
+        x: x + rand(-10, 10),
+        y: y + rand(-6, 6),
+        vx: rand(-0.12, 0.12),
+        vy: rand(-0.18, -0.05),
+        r: rand(14, 26),
+        a: rand(SMOKE_ALPHA_MIN, SMOKE_ALPHA_MAX + 0.02),
+        life: 1
+      });
     }
-  
-    function puff(x, y){
-      // красивый “пшик” при исчезновении
-      for (let i = 0; i < 10; i++){
-        smoke.push({
-          x: x + rand(-10, 10),
-          y: y + rand(-6, 6),
-          vx: rand(-0.30, 0.30),
-          vy: rand(-0.45, -0.10),
-          r: rand(10, 22),
-          a: rand(0.10, 0.26),
-          life: 1
-        });
-      }
+  }
+
+  function drawSmoke(p){
+    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+    g.addColorStop(0, `rgba(255, 45, 122, ${p.a})`);
+    g.addColorStop(0.7, `rgba(255, 45, 122, ${p.a * 0.30})`);
+    g.addColorStop(1, `rgba(0, 0, 0, 0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawDrop(d){
+    ctx.save();
+    ctx.translate(d.x, d.y);
+    ctx.rotate(d.rot);
+
+    // однотонный красный
+    ctx.globalAlpha = d.a * d.life;
+    ctx.font = `${Math.round(d.size)}px system-ui, "Segoe UI", sans-serif`;
+
+    // лёгкая неоновая подсветка (тоже красная)
+    ctx.shadowColor = "rgba(255,45,122,0.35)";
+    ctx.shadowBlur = 10;
+
+    ctx.fillStyle = "rgba(255,45,122,1)";
+    ctx.fillText(d.t, -d.size * 0.40, d.size * 0.35);
+
+    ctx.restore();
+  }
+
+  let last = performance.now();
+  function tick(now){
+    const dt = Math.min(40, now - last);
+    last = now;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Спавн: меньше плотность, чтобы не перегружать (и выглядело “медленно”)
+    const targetPerSec = Math.max(5, Math.round(W / 180)); // раньше было плотнее
+    spawnAcc += (dt / 1000) * targetPerSec;
+    while (spawnAcc >= 1){
+      spawnDrop();
+      spawnAcc -= 1;
     }
-  
-    function drawSmoke(p){
-      // дым рисуем кружком с мягкой серо-розовой подсветкой
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-      g.addColorStop(0, `rgba(255, 120, 160, ${p.a})`);
-      g.addColorStop(0.6, `rgba(255, 60, 120, ${p.a * 0.35})`);
-      g.addColorStop(1, `rgba(0, 0, 0, 0)`);
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  
-    function drawDrop(d){
-      ctx.save();
-      ctx.translate(d.x, d.y);
-      ctx.rotate(d.rot);
-  
-      ctx.globalAlpha = d.a * d.life;
-      ctx.font = `${Math.round(d.size)}px system-ui, "Segoe UI Emoji", "Apple Color Emoji"`;
-  
-      // лёгкая подсветка (неончик)
-      ctx.shadowColor = "rgba(255,45,122,0.45)";
-      ctx.shadowBlur = 14;
-  
-      ctx.fillText(d.t, -d.size * 0.42, d.size * 0.36);
-      ctx.restore();
-    }
-  
-    let last = performance.now();
-    function tick(now){
-      const dt = Math.min(32, now - last);
-      last = now;
-  
-      ctx.clearRect(0, 0, W, H);
-  
-      // спавн: ~ по ширине (чтобы было “во весь сайт”)
-      const targetPerSec = Math.max(10, Math.round(W / 60)); // шире экран => больше
-      spawnAcc += (dt / 1000) * targetPerSec;
-      while (spawnAcc >= 1){
-        spawnDrop();
-        spawnAcc -= 1;
+
+    // дым
+    for (let i = smoke.length - 1; i >= 0; i--){
+      const p = smoke[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.r += 0.010 * dt;
+      p.life -= 0.0012 * dt;
+      if (p.life <= 0){
+        smoke.splice(i, 1);
+        continue;
       }
-  
-      // дым
-      for (let i = smoke.length - 1; i >= 0; i--){
-        const p = smoke[i];
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.r += 0.015 * dt;
-        p.life -= 0.0009 * dt;
-        if (p.life <= 0){
-          smoke.splice(i, 1);
-          continue;
-        }
-        drawSmoke(p);
+      drawSmoke(p);
+    }
+
+    // элементы
+    for (let i = drops.length - 1; i >= 0; i--){
+      const d = drops[i];
+
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      d.rot += d.vrot * dt;
+
+      // лёгкий дымок реже
+      if (Math.random() < 0.55){
+        spawnSmoke(d.x, d.y, 1);
       }
-  
-      // элементы
-      for (let i = drops.length - 1; i >= 0; i--){
-        const d = drops[i];
-  
-        d.x += d.vx * dt;
-        d.y += d.vy * dt;
-        d.rot += d.vrot * dt;
-  
-        // шлейф дыма (снизу)
-        if (Math.random() < 0.85){
-          spawnSmoke(d.x, d.y, 1);
-        }
-  
-        // исчезновение “в воздухе”
-        if (d.willVanish && d.vanishY != null && d.y >= d.vanishY){
-          d.vanishFade += 0.0036 * dt;     // как быстро растворяется
-          d.life = Math.max(0, 1 - d.vanishFade);
-          if (d.life <= 0.02){
-            puff(d.x, d.y);
-            drops.splice(i, 1);
-            continue;
-          }
-        }
-  
-        // ушёл вниз — удаляем
-        if (d.y > H + 80){
+
+      // исчезновение “в воздухе”
+      if (d.willVanish && d.vanishY != null && d.y >= d.vanishY){
+        d.vanishFade += 0.0028 * dt;  // медленнее растворяется
+        d.life = Math.max(0, 1 - d.vanishFade);
+        if (d.life <= 0.02){
+          puff(d.x, d.y);
           drops.splice(i, 1);
           continue;
         }
-  
-        // зацикливание по краям (чтоб не “умирали” по бокам)
-        if (d.x < -40) d.x = W + 40;
-        if (d.x > W + 40) d.x = -40;
-  
-        drawDrop(d);
       }
-  
-      requestAnimationFrame(tick);
+
+      // ушёл вниз — удаляем
+      if (d.y > H + 80){
+        drops.splice(i, 1);
+        continue;
+      }
+
+      // зацикливание по краям
+      if (d.x < -40) d.x = W + 40;
+      if (d.x > W + 40) d.x = -40;
+
+      drawDrop(d);
     }
-  
+
     requestAnimationFrame(tick);
-  })();
+  }
+
+  requestAnimationFrame(tick);
+})();
 
     
   </script>
