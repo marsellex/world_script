@@ -11,7 +11,6 @@
     :root{
       --text:#f3f6ff;
 
-      /* главный акцент (розово-красный) */
       --accent1:#ff2d7a;
       --accent2:#ff4d5e;
       --accent3:#ff6ad5;
@@ -138,8 +137,6 @@
       position:relative;
       z-index:1;
     }
-
-    /* ================= HEADER ================= */
     .page-header{
       position:relative;
       display:flex;
@@ -175,7 +172,6 @@
       align-items:center;
     }
 
-    /* ================= BUTTONS ================= */
     .btn{
       border: 1px solid rgba(255,45,122,.45);
       background: rgba(0,0,0,.10);
@@ -195,7 +191,6 @@
     }
     .btn-sm{ padding: 11px 18px; font-size: 14px; }
 
-    /* ================= PANEL + TABS ================= */
     .leader-panel{ background: transparent; border: none; box-shadow: none; }
 
     .leader-panel-header{
@@ -314,7 +309,6 @@
       z-index:1;
     }
 
-    /* ================= DAY CARDS ================= */
 
     .leader-card{
       position:relative;
@@ -564,7 +558,6 @@
 
     .leader-empty{ font-size: 16px; color: rgba(243,246,255,.62); }
 
-    /* ================= WEEKLY SUMMARY (UPDATED) ================= */
 
     .week-summary{
       position: relative;
@@ -661,7 +654,7 @@
       gap:12px;
       margin-bottom: 12px;
       position:relative;
-      padding-right: 140px; /* место под “парящий” чип */
+      padding-right: 140px;
       min-height: 54px;
     }
 
@@ -687,7 +680,6 @@
       flex: 0 0 auto;
     }
 
-    /* ===== Парящий неоновый чип “общее АШ” ===== */
 
     .week-total-orbit{
       position:absolute;
@@ -697,7 +689,7 @@
       width: 124px;
       height: 56px;
 
-      pointer-events:none; /* чтобы hover срабатывал на блок */
+      pointer-events:none; 
       z-index: 2;
     }
 
@@ -729,7 +721,6 @@
       animation: chipHover 4.2s ease-in-out infinite;
     }
 
-    /* отдельный “ореол” */
     .week-total-chip::before{
       content:"";
       position:absolute;
@@ -743,7 +734,6 @@
       pointer-events:none;
     }
 
-    /* тонкая “бегущая” рамка на чипе (очень лёгкая) */
     .week-total-chip::after{
       content:"";
       position:absolute;
@@ -774,7 +764,6 @@
     }
     @keyframes chipBorderSpin{ to { transform: rotate(360deg); } }
 
-    /* движение по “малому кругу” + лёгкое парение */
     @keyframes chipHover{
       0%   { transform: translate(calc(-50% + 0px),   calc(-50% - 2px)); }
       25%  { transform: translate(calc(-50% + 6px),   calc(-50% + 2px)); }
@@ -845,7 +834,6 @@
       filter: drop-shadow(0 0 10px rgba(46,249,255,.12));
     }
 
-    /* НИК + ПЛАШКА ДЕПАРТАМЕНТА */
     .week-slot .name-line{
       display:flex;
       align-items:center;
@@ -930,7 +918,6 @@
       }
     }
 
-    /* ================= MODALS ================= */
     .modal-backdrop{
       position:fixed;
       inset:0;
@@ -973,8 +960,7 @@
     }
 
     @media (max-width: 720px){
-    
-      /* КНОПКИ ДНЯ / НЕДЕЛИ — СТОЛБИКОМ */
+  
       .leader-tabs{
         flex-direction: column !important;
         gap: 10px;
@@ -989,7 +975,6 @@
         letter-spacing: .08em;
       }
     
-      /* КАРТОЧКА ЛИДЕРА */
       .leader-card{
         position: relative;
         flex-direction: row;
@@ -997,8 +982,7 @@
         padding: 16px 14px;
         gap: 14px;
       }
-    
-      /* КУБОК СЛЕВА */
+
       .leader-icon{
         width: 46px;
         height: 46px;
@@ -1006,7 +990,6 @@
         flex-shrink: 0;
       }
     
-      /* ЦЕНТР: АВАТАР + НИК + АКК + ПД */
       .leader-main{
         flex: 1;
         align-items: center;
@@ -1040,7 +1023,6 @@
         padding: 6px 10px;
       }
     
-      /* АШ СПРАВА */
       .leader-score-block{
         align-items: flex-end;
         min-width: auto;
@@ -1056,7 +1038,6 @@
         font-size: 13px;
       }
     
-      /* 1 / 2 / 3 МЕСТО — ВЕРХНИЙ ПРАВЫЙ УГОЛ */
       .leader-place-label{
         position: absolute;
         top: 10px;
@@ -1121,11 +1102,10 @@
         <div class="user-tag" id="user-tag"></div>
       </div>
 
-      <!-- ✅ Модалка редактирования 3х лидеров -->
       <div id="leaders-bulk-modal" class="modal-backdrop">
         <div class="modal" style="max-width: 720px;">
-          <h3>Редактирование лидеров (LSPD / SFPD / LVPD)</h3>
-          <p>Меняются ник, аккаунт и аватар. Очки не трогаем.</p>
+          <h3>Редактирование лидеров</h3>
+          <p>Меняются ник, аккаунт и аватар</p>
       
           <div id="bulk-error" class="error-text" style="display:none;"></div>
           <div id="bulk-forms" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;"></div>
@@ -1162,7 +1142,6 @@
     </div>
   </div>
 
-  <!-- Модалка ошибки -->
   <div id="error-modal" class="modal-backdrop">
     <div class="modal">
       <h3>Ошибка</h3>
@@ -1181,7 +1160,6 @@
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    /* ===== СЕССИЯ ===== */
     let currentUser = null;
     function loadSession() {
       try { return JSON.parse(localStorage.getItem("pp_user")); }
@@ -1192,17 +1170,15 @@
       return role === "admin" || role === "creator";
     }
 
-    /* ===== ОШИБКИ ===== */
     const errorModal = document.getElementById("error-modal");
     const errorModalText = document.getElementById("error-modal-text");
     const errorModalClose = document.getElementById("error-modal-close");
     function showErrorModal(message) {
-      errorModalText.textContent = message || "Неизвестная ошибка.";
+      errorModalText.textContent = message || "Неизвестная ошибка";
       errorModal.classList.add("active");
     }
     if (errorModalClose) errorModalClose.onclick = () => errorModal.classList.remove("active");
 
-    /* ===== HELPERS WEEK ===== */
     function monthRuUpper(monthIndex) {
       const m = ["ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ","ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"];
       return m[monthIndex] || "";
@@ -1217,12 +1193,10 @@
       return `С ${s.getDate()} ${monthRuUpper(s.getMonth())} ${s.getFullYear()} по ${e.getDate()} ${monthRuUpper(e.getMonth())} ${e.getFullYear()}`;
     }
 
-    /* ===== UI / DATA ===== */
     const leadersWrapper = document.getElementById("leaders-wrapper");
     const dateEl = document.getElementById("leader-date");
     let currentPeriod = "day";
 
-    /* ===== DAY CARD ===== */
     function renderLeaderCard(place, row) {
       const card = document.createElement("div");
       card.className = "leader-card rank-" + place;
@@ -1335,8 +1309,8 @@
 
       if (error) {
         console.error(error);
-        leadersWrapper.textContent = "Ошибка загрузки рейтинга.";
-        showErrorModal("Ошибка загрузки данных по рейтингу дня (leaderinfo).");
+        leadersWrapper.textContent = "Ошибка загрузки рейтинга";
+        showErrorModal("Ошибка загрузки данных по рейтингу дня!");
         return;
       }
 
@@ -1357,7 +1331,6 @@
       });
     }
 
-    /* ===== WEEKLY SUMMARY (WITH FLOATING CHIP + DEPT BADGE) ===== */
 
     function deptClass(dept){
       const d = String(dept || "").trim().toUpperCase();
@@ -1449,15 +1422,6 @@
       if (!leadersWrapper) return;
       leadersWrapper.textContent = "Загрузка…";
 
-      /*
-        ОЖИДАЕМАЯ ТАБЛИЦА:
-        leader_weekly_summary:
-          week_start, week_end,
-          nick_1, dept_1, ash_1,
-          nick_2, dept_2, ash_2,
-          nick_3, dept_3, ash_3,
-          total_ash
-      */
       const { data, error } = await supabaseClient
         .from("leader_weekly_summary")
         .select("week_start, week_end, nick_1, dept_1, ash_1, nick_2, dept_2, ash_2, nick_3, dept_3, ash_3, total_ash")
@@ -1466,13 +1430,13 @@
 
       if (error) {
         console.error(error);
-        leadersWrapper.textContent = "Ошибка загрузки активности недели.";
-        showErrorModal("Ошибка загрузки таблицы leader_weekly_summary.");
+        leadersWrapper.textContent = "Ошибка загрузки активности недели!";
+        showErrorModal("Ошибка загрузки!");
         return;
       }
 
       if (!data || !data.length) {
-        leadersWrapper.textContent = "Пока нет данных по неделям.";
+        leadersWrapper.textContent = "Пока нет данных по неделям";
         return;
       }
 
@@ -1482,7 +1446,6 @@
       }
     }
 
-    /* ===== Навигация табов ===== */
     const tabDay = document.getElementById("tab-day");
     const tabWeek = document.getElementById("tab-week");
     if (tabDay && tabWeek) {
@@ -1498,7 +1461,6 @@
       });
     }
 
-    /* ===== BULK EDIT (LSPD / SFPD / LVPD) ===== */
     const editLeadersTopBtn = document.getElementById("edit-leaders-top");
     const bulkModal = document.getElementById("leaders-bulk-modal");
     const bulkFormsEl = document.getElementById("bulk-forms");
@@ -1667,7 +1629,6 @@
     if(bulkSaveBtn) bulkSaveBtn.onclick = saveBulk;
 
 
-    /* ===== INIT ===== */
     const userTagEl = document.getElementById("user-tag");
     async function initPage() {
       currentUser = loadSession();
