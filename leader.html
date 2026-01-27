@@ -971,6 +971,110 @@
         animation: none !important;
       }
     }
+
+    @media (max-width: 720px){
+    
+      body{ padding: 12px; }
+    
+      .leader-card{
+        display:grid;
+        grid-template-columns: 50px 62px 1fr;
+        grid-template-rows: auto auto auto;
+        column-gap: 10px;
+        row-gap: 10px;
+    
+        padding: 14px 14px;
+        gap: 0; /* важно: гасим gap:22px из desktop */
+      }
+    
+      .leader-icon{
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        font-size: 22px;
+    
+        grid-column: 1;
+        grid-row: 1;
+      }
+    
+      .leader-avatar{
+        width: 62px;
+        height: 62px;
+        border-radius: 16px;
+        font-size: 22px;
+    
+        grid-column: 2;
+        grid-row: 1;
+      }
+    
+      .leader-main{
+        grid-column: 3;
+        grid-row: 1;
+        min-width: 0;
+        gap: 8px;
+      }
+    
+      /* Ник + аккаунт на телефоне: ник сверху, аккаунт ниже */
+      .leader-name-row{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    
+      .leader-nick{
+        font-size: 22px;  /* было 32 */
+        line-height: 1.05;
+        max-width: 100%;
+      }
+    
+      .leader-account{
+        font-size: 13px;  /* было 16 */
+        opacity: .9;
+      }
+    
+      .dept-badge{
+        padding: 8px 12px; /* было 10 16 */
+        font-size: 12px;   /* было 14 */
+        letter-spacing: .08em;
+      }
+    
+      /* Блок очков уходит отдельной строкой на всю ширину */
+      .leader-score-block{
+        grid-column: 1 / -1;
+        grid-row: 2;
+    
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    
+        min-width: 0;      /* важно: убираем min-width:220px */
+        gap: 10px;
+      }
+    
+      .leader-score .value{
+        font-size: 40px; /* было 56 */
+        line-height: 1;
+      }
+    
+      .leader-score .unit{
+        font-size: 14px; /* было 18 */
+      }
+    
+      .leader-place-label{
+        font-size: 13px; /* было 16 */
+        white-space: nowrap;
+      }
+    }
+    @media (max-width: 380px){
+      .leader-card{
+        grid-template-columns: 46px 56px 1fr;
+        padding: 12px 12px;
+      }
+      .leader-nick{ font-size: 20px; }
+      .leader-score .value{ font-size: 36px; }
+    }
+
+    
   </style>
 </head>
 
