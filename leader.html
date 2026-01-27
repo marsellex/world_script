@@ -44,11 +44,9 @@
       background: url("fon.png") center / cover no-repeat fixed;
       position:relative;
 
-      /* ✅ FIX LAG: filter на body очень дорогой — убираем */
       filter: none;
     }
 
-    /* затемнение + лёгкая цветная дымка поверх картинки */
     body::before{
       content:"";
       position:fixed;
@@ -61,7 +59,6 @@
         radial-gradient(900px 520px at 10% 10%, rgba(255,58,168,.26), transparent 58%),
         radial-gradient(900px 520px at 90% 18%, rgba(46,249,255,.20), transparent 60%),
         linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,.22) 45%, rgba(0,0,0,.34) 100%);
-
       mix-blend-mode: normal;
     }
 
@@ -72,7 +69,6 @@
       pointer-events:none;
       z-index:-3;
 
-      /* ✅ FIX LAG: вместо filter на body — добавили лёгкий “контраст” оверлеем */
       background:
         radial-gradient(700px 420px at 18% 18%, rgba(255,58,168,.22), transparent 60%),
         radial-gradient(760px 520px at 82% 22%, rgba(46,249,255,.18), transparent 62%),
@@ -82,13 +78,11 @@
           rgba(124,58,237,.10) 100%
         ),
         linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.14));
-
       mix-blend-mode: screen;
       opacity: .95;
       filter: blur(0.2px);
     }
 
-    /* “живые” слои */
     .bg-live{
       position: fixed;
       inset: 0;
@@ -107,8 +101,6 @@
           rgba(0,0,0,0) 3px,
           rgba(0,0,0,0) 7px
         );
-
-      /* ✅ FIX LAG: деликатнее + медленнее */
       opacity:.06;
       mix-blend-mode: overlay;
       animation: scanMove 7s linear infinite;
@@ -120,10 +112,7 @@
 
     .bg-live .particles{
       position:absolute; inset:0;
-
-      /* ✅ FIX LAG: меньше непрозрачность + медленнее */
       opacity:.16;
-
       background-image:
         radial-gradient(circle at 20% 30%, rgba(255,255,255,.18) 0 1px, transparent 2px),
         radial-gradient(circle at 70% 20%, rgba(255,255,255,.12) 0 1px, transparent 2px),
@@ -131,7 +120,6 @@
         radial-gradient(circle at 88% 66%, rgba(255,255,255,.12) 0 1px, transparent 2px),
         radial-gradient(circle at 60% 52%, rgba(255,58,168,.16) 0 1px, transparent 2px),
         radial-gradient(circle at 30% 62%, rgba(46,249,255,.14) 0 1px, transparent 2px);
-
       background-size: 520px 520px, 680px 680px, 760px 760px, 900px 900px, 700px 700px, 820px 820px;
       animation: particlesDrift 45s linear infinite;
     }
@@ -146,7 +134,6 @@
       opacity:.95;
     }
 
-    /* ✅ FIX LAG: fixed background часто лагает на мобилках */
     @media (max-width: 900px){
       body{ background-attachment: scroll; }
     }
@@ -182,11 +169,6 @@
       text-shadow:
         0 0 20px rgba(255,58,168,.20),
         0 0 44px rgba(46,249,255,.12);
-    }
-    .page-subtitle{
-      font-size:20px;
-      color: rgba(243,246,255,.70);
-      text-shadow: 0 0 18px rgba(46,249,255,.10);
     }
     .user-tag{ font-size:12px; color: rgba(243,246,255,.60); margin-top:2px; }
 
@@ -247,7 +229,6 @@
       backdrop-filter: none;
       overflow: visible;
     }
-
     .leader-panel::before{ display:none; content:none; }
 
     .leader-panel-header{
@@ -369,7 +350,7 @@
       z-index:1;
     }
 
-    /* ================= LEADER CARDS ================= */
+    /* ================= LEADER CARDS (DAY) ================= */
 
     .leader-card{
       position:relative;
@@ -379,7 +360,6 @@
       padding: 18px 24px;
       border-radius: var(--rL);
 
-      /* ✅ FIX LAG: вместо постоянного blur — лёгкая подложка */
       background: rgba(0,0,0,.08);
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
@@ -405,7 +385,6 @@
         border-color .18s ease,
         filter .18s ease;
 
-      /* ✅ FIX LAG: изолируем перерисовку карточки */
       contain: paint;
       will-change: transform;
     }
@@ -441,8 +420,6 @@
       pointer-events:none;
 
       animation: borderFlow 10s linear infinite;
-
-      /* ✅ FIX LAG: по умолчанию НЕ анимируем (только при hover) */
       animation-play-state: paused;
     }
 
@@ -468,8 +445,6 @@
 
     .leader-card:hover{
       transform: translateY(-7px);
-
-      /* ✅ FIX LAG: blur включаем только на hover */
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
 
@@ -482,7 +457,6 @@
       filter: saturate(1.10) brightness(1.02);
     }
 
-    /* Блик при наведении */
     .leader-card .sheen{
       content:"";
       position:absolute;
@@ -511,7 +485,6 @@
       100% { transform: translateX( 60%) rotate(10deg); }
     }
 
-    /* Иконка места */
     .leader-icon{
       width: 58px;
       height: 58px;
@@ -524,7 +497,6 @@
       background: rgba(0,0,0,.03);
       border: 1px solid rgba(255,255,255,.08);
 
-      /* ✅ FIX LAG: blur в мелких элементах можно оставить слабым, но лучше без */
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
 
@@ -532,7 +504,6 @@
       flex-shrink:0;
     }
 
-    /* Аватар */
     .leader-avatar{
       width: 72px;
       height: 72px;
@@ -546,11 +517,8 @@
       color: rgba(255,255,255,.85);
       font-size: 26px;
       flex-shrink:0;
-
-      /* ✅ FIX LAG: убираем постоянный blur */
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-
       box-shadow:
         0 0 0 1px rgba(255,255,255,.05) inset,
         0 0 22px rgba(255,58,168,.10);
@@ -604,8 +572,6 @@
       text-transform: uppercase;
       border: 1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.04);
-
-      /* ✅ FIX LAG */
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
@@ -632,12 +598,10 @@
     .leader-score .value{
       font-size: 56px;
       letter-spacing: .02em;
-
       background: linear-gradient(90deg, rgba(255,45,122,1), rgba(255,77,94,.98));
       -webkit-background-clip:text;
       background-clip:text;
       -webkit-text-fill-color: transparent;
-
       filter:
         drop-shadow(0 0 14px rgba(255,45,122,.45))
         drop-shadow(0 0 26px rgba(255,77,94,.25));
@@ -648,7 +612,6 @@
       font-weight: 900;
       letter-spacing: .10em;
       text-transform: uppercase;
-
       color: rgba(255,106,213,.95);
       text-shadow:
         0 0 10px rgba(255,45,122,.30),
@@ -663,6 +626,226 @@
     }
 
     .leader-empty{ font-size: 16px; color: rgba(243,246,255,.62); }
+
+    /* ================= WEEKLY SUMMARY (NEW, DIFFERENT DESIGN) ================= */
+
+    .week-summary{
+      position: relative;
+      border-radius: 26px;
+      padding: 16px 18px 14px;
+      background: rgba(0,0,0,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+
+      box-shadow: 0 18px 70px rgba(0,0,0,.28);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
+      contain: paint;
+      will-change: transform;
+    }
+
+    /* неоновая рамка (другая, чем у day-карт) */
+    .week-summary::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 28px;
+
+      background: conic-gradient(
+        from 0deg,
+        rgba(255,45,122,0) 0deg,
+        rgba(255,45,122,.90) 55deg,
+        rgba(46,249,255,.85) 110deg,
+        rgba(168,85,247,.85) 165deg,
+        rgba(255,106,213,.85) 235deg,
+        rgba(255,77,94,.90) 300deg,
+        rgba(255,45,122,0) 360deg
+      );
+
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+
+      padding: 2px;
+      opacity: .70;
+      filter: blur(.25px);
+      pointer-events:none;
+
+      animation: weekBorderSpin 10s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .week-summary:hover::before{ animation-play-state: running; opacity:.92; }
+    @keyframes weekBorderSpin { to { transform: rotate(360deg); } }
+
+    .week-summary:hover{
+      transform: translateY(-5px);
+      border-color: rgba(46,249,255,.22);
+      background: rgba(0,0,0,.05);
+      box-shadow:
+        0 26px 88px rgba(0,0,0,.42),
+        0 0 40px rgba(255,45,122,.14),
+        0 0 46px rgba(46,249,255,.12);
+    }
+
+    .week-summary .sheen{
+      position:absolute;
+      inset:-60% -70%;
+      pointer-events:none;
+      background: linear-gradient(115deg,
+        transparent 0%,
+        rgba(255,255,255,.00) 35%,
+        rgba(255,255,255,.14) 45%,
+        rgba(255,45,122,.10) 52%,
+        rgba(46,249,255,.10) 58%,
+        rgba(255,255,255,.00) 70%,
+        transparent 100%
+      );
+      transform: translateX(-60%) rotate(10deg);
+      opacity: 0;
+      transition: opacity .16s ease;
+      mix-blend-mode: screen;
+    }
+    .week-summary:hover .sheen{
+      opacity: 1;
+      animation: weekSheen .8s ease-out 1;
+    }
+    @keyframes weekSheen{
+      0%   { transform: translateX(-60%) rotate(10deg); }
+      100% { transform: translateX( 60%) rotate(10deg); }
+    }
+
+    .week-summary-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom: 10px;
+    }
+
+    .week-summary-period{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(243,246,255,.78);
+      text-shadow: 0 0 14px rgba(46,249,255,.08);
+      line-height: 1.1;
+    }
+    .week-summary-period .dot{
+      width:8px;height:8px;border-radius:999px;
+      background: rgba(255,45,122,.95);
+      box-shadow: 0 0 14px rgba(255,45,122,.35);
+      flex: 0 0 auto;
+    }
+
+    .week-summary-total{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      font-weight: 900;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(243,246,255,.70);
+      white-space: nowrap;
+    }
+    .week-summary-total .num{
+      font-size: 26px;
+      letter-spacing: .02em;
+      background: linear-gradient(90deg, rgba(255,45,122,1), rgba(255,77,94,.98));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 14px rgba(255,45,122,.45)) drop-shadow(0 0 26px rgba(255,77,94,.25));
+    }
+
+    .week-top3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .week-slot{
+      position:relative;
+      padding: 12px 12px 10px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      box-shadow: 0 10px 34px rgba(0,0,0,.22);
+    }
+
+    .week-slot::after{
+      content:"";
+      position:absolute; inset:0;
+      pointer-events:none;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset;
+      opacity:.8;
+    }
+
+    .week-slot .rank{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom: 8px;
+      color: rgba(243,246,255,.80);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .week-slot .emoji{
+      font-size: 20px;
+      filter: drop-shadow(0 0 10px rgba(46,249,255,.12));
+    }
+
+    .week-slot .nick{
+      font-size: 20px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 0 14px rgba(46,249,255,.08);
+      margin-bottom: 6px;
+    }
+
+    .week-slot .ash{
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+      font-weight: 900;
+    }
+    .week-slot .ash .num{
+      font-size: 30px;
+      background: linear-gradient(90deg, rgba(255,45,122,1), rgba(255,77,94,.98));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px rgba(255,45,122,.35)) drop-shadow(0 0 22px rgba(255,77,94,.18));
+    }
+    .week-slot .ash .unit{
+      font-size: 13px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(255,106,213,.92);
+      text-shadow: 0 0 12px rgba(255,45,122,.20);
+    }
+
+    @media (max-width: 980px){
+      .week-top3{ grid-template-columns: 1fr; }
+      .week-summary-total .num{ font-size: 24px; }
+    }
 
     /* ================= MODALS ================= */
     .modal-backdrop{
@@ -710,147 +893,15 @@
       gap: 10px;
     }
 
-    .field{ margin-bottom: 10px; }
-    .field label{ display:block; font-size: 13px; margin-bottom: 4px; color: rgba(243,246,255,.78); }
-    .field input, .field select{
-      width:100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      font-size: 14px;
-      outline:none;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-    .field input:focus, .field select:focus{
-      border-color: rgba(46,249,255,.40);
-      box-shadow: 0 0 0 2px rgba(46,249,255,.12);
-    }
-
     .error-text{ font-size: 13px; color: #ff8585; margin-top: 6px; }
-
-    .edit-avatar-preview{
-      width: 92px;
-      height: 92px;
-      border-radius: 22px;
-      border: 2px dashed rgba(255,255,255,.22);
-      background: rgba(0,0,0,.14);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      cursor:pointer;
-      color: rgba(255,255,255,.85);
-      position:relative;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-    .edit-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
-    .edit-avatar-preview::after{
-      content:"✎";
-      position:absolute;
-      right:-2px;
-      bottom:-2px;
-      width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.18);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size: 12px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .drag-over{ box-shadow: 0 0 0 3px rgba(46,249,255,.35); }
-
-    .week-block{ margin-top: 14px; display:flex; flex-direction:column; gap: 14px; }
-
-    .week-period-badge{
-      display:inline-flex;
-      align-items:center;
-      width: fit-content;
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.06);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 16px 40px rgba(0,0,0,.26);
-      color: rgba(243,246,255,.78);
-      text-shadow: 0 0 14px rgba(46,249,255,.08);
-    }
-    .week-period-badge .dot{
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      margin-right: 10px;
-      background: rgba(255,58,168,.95);
-      box-shadow: 0 0 14px rgba(255,58,168,.35);
-    }
-
-    /* ================= RESPONSIVE ================= */
-    @media (max-width: 1100px){
-      .leader-nick{ font-size: 28px; }
-      .leader-score .value{ font-size: 50px; }
-      .page-title{ font-size: 48px; }
-      .leader-score-block{ min-width: 200px; }
-    }
-    @media (max-width: 820px){
-      .leader-tab{ font-size: 14px; }
-      .page-title{ font-size: 40px; }
-      .page-subtitle{ font-size: 16px; }
-      .leader-score-block{ min-width: 180px; }
-    }
-    @media (max-width: 720px){
-      body{ padding: 12px; }
-      .page-header{ justify-content:flex-start; }
-      .page-title-block{ text-align:left; align-items:flex-start; }
-      .page-title{ font-size: 34px; }
-      .page-subtitle{ font-size: 14px; }
-      .page-header-actions{ position: static; margin-left:auto; }
-
-      .leader-card{
-        display:grid;
-        grid-template-columns: 58px 72px 1fr;
-        grid-template-rows: auto auto auto;
-        column-gap: 12px;
-        row-gap: 10px;
-        padding: 14px 14px;
-      }
-      .leader-icon{ grid-column:1; grid-row:1; }
-      .leader-avatar{ grid-column:2; grid-row:1; }
-      .leader-main{ grid-column:3; grid-row:1; }
-      .leader-score-block{
-        grid-column: 1 / -1;
-        grid-row: 2;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        min-width: 0;
-      }
-      .leader-score .value{ font-size: 40px; }
-      .leader-score .unit{ font-size: 16px; }
-      .leader-place-label{ font-size: 14px; }
-      .leader-tabs{ width:100%; }
-      .leader-tab{ flex:1; padding: 12px 12px; letter-spacing: .08em; }
-      .leader-nick{ font-size: 24px; }
-      .leader-account{ font-size: 14px; }
-    }
 
     @media (prefers-reduced-motion: reduce){
       .bg-live .scanlines,
       .bg-live .particles,
       .leader-card::before,
-      .leader-card .sheen{
+      .leader-card .sheen,
+      .week-summary::before,
+      .week-summary .sheen{
         animation: none !important;
       }
     }
@@ -906,22 +957,6 @@
     </div>
   </div>
 
-  <!-- Модалка bulk-редактирования -->
-  <div id="leaders-bulk-modal" class="modal-backdrop">
-    <div class="modal" style="max-width: 720px;">
-      <h3>Редактирование лидеров (LSPD / SFPD / LVPD)</h3>
-      <p>Меняются ник, аккаунт и аватар. Очки не трогаем.</p>
-
-      <div id="bulk-error" class="error-text" style="display:none;"></div>
-      <div id="bulk-forms" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;"></div>
-
-      <div class="modal-footer">
-        <button class="btn-outline" id="bulk-cancel">Отмена</button>
-        <button class="btn" id="bulk-save">Сохранить</button>
-      </div>
-    </div>
-  </div>
-
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
@@ -935,13 +970,6 @@
     function loadSession() {
       try { return JSON.parse(localStorage.getItem("pp_user")); }
       catch { return null; }
-    }
-    function roleLabel(role) {
-      role = String(role || "").trim().toLowerCase();
-      if (role === "admin") return "Администратор";
-      if (role === "moderator") return "Модератор";
-      if (role === "creator") return "Редактор";
-      return "Офицер";
     }
     function canBulkEdit(user) {
       const role = String(user?.role || "").trim().toLowerCase();
@@ -978,6 +1006,7 @@
     const dateEl = document.getElementById("leader-date");
     let currentPeriod = "day";
 
+    /* ===== DAY CARD (как было) ===== */
     function renderLeaderCard(place, row) {
       const card = document.createElement("div");
       card.className = "leader-card rank-" + place;
@@ -1054,7 +1083,6 @@
         scoreBlock.appendChild(placeLabel);
       } else {
         avatar.textContent = "?";
-
         const emptyTitle = document.createElement("div");
         emptyTitle.className = "leader-empty";
         emptyTitle.textContent = "Лидер не назначен";
@@ -1141,77 +1169,98 @@
       });
     }
 
+    /* ===== WEEKLY (NEW) ===== */
+
+    function renderWeeklySummaryBlock(row){
+      const wrap = document.createElement("div");
+      wrap.className = "week-summary";
+
+      const sheen = document.createElement("div");
+      sheen.className = "sheen";
+      wrap.appendChild(sheen);
+
+      const head = document.createElement("div");
+      head.className = "week-summary-head";
+
+      const period = document.createElement("div");
+      period.className = "week-summary-period";
+      period.innerHTML = `<span class="dot"></span>${formatPeriodRu(row.week_start, row.week_end)}`;
+
+      const total = document.createElement("div");
+      total.className = "week-summary-total";
+      total.innerHTML = `ОБЩЕЕ <span class="num">${Number(row.total_ash || 0)}</span>`;
+
+      head.appendChild(period);
+      head.appendChild(total);
+      wrap.appendChild(head);
+
+      const top3 = document.createElement("div");
+      top3.className = "week-top3";
+
+      const slots = [
+        { place: 1, nick: row.nick_1, ash: row.ash_1 },
+        { place: 2, nick: row.nick_2, ash: row.ash_2 },
+        { place: 3, nick: row.nick_3, ash: row.ash_3 },
+      ];
+
+      for (const s of slots){
+        const slot = document.createElement("div");
+        slot.className = "week-slot";
+
+        const rank = document.createElement("div");
+        rank.className = "rank";
+        const emoji = s.place === 1 ? "🏆" : (s.place === 2 ? "🥈" : "🥉");
+        rank.innerHTML = `<span class="emoji">${emoji}</span><span>${s.place} место</span>`;
+
+        const nick = document.createElement("div");
+        nick.className = "nick";
+        nick.textContent = (s.nick || "—").trim() || "—";
+
+        const ash = document.createElement("div");
+        ash.className = "ash";
+        ash.innerHTML = `<span class="num">${Number(s.ash || 0)}</span><span class="unit">АШ</span>`;
+
+        slot.appendChild(rank);
+        slot.appendChild(nick);
+        slot.appendChild(ash);
+
+        top3.appendChild(slot);
+      }
+
+      wrap.appendChild(top3);
+      return wrap;
+    }
+
     async function loadWeeklyBlocks() {
       currentPeriod = "week";
       if (dateEl) dateEl.textContent = "";
-    
+
       if (!leadersWrapper) return;
       leadersWrapper.textContent = "Загрузка…";
-    
+
       const { data, error } = await supabaseClient
         .from("leader_weekly_summary")
         .select("week_start, week_end, nick_1, ash_1, nick_2, ash_2, nick_3, ash_3, total_ash")
-        .order("week_start", { ascending: false })
-        .limit(1);
-    
+        .order("week_start", { ascending: false }) /* свежие сверху */
+        .limit(8);
+
       if (error) {
         console.error(error);
         leadersWrapper.textContent = "Ошибка загрузки активности недели.";
         showErrorModal("Ошибка загрузки таблицы leader_weekly_summary.");
         return;
       }
-    
-      const row = data?.[0];
-      if (!row) {
+
+      if (!data || !data.length) {
         leadersWrapper.textContent = "Пока нет данных по неделям.";
         return;
       }
-    
-      leadersWrapper.innerHTML = "";
-    
-      const block = document.createElement("div");
-      block.className = "week-block";
-    
-      const badge = document.createElement("div");
-      badge.className = "week-period-badge";
-      badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(row.week_start, row.week_end)}`;
-      block.appendChild(badge);
-    
-      // Блок "Общее АШ"
-      const total = document.createElement("div");
-      total.style.display = "flex";
-      total.style.justifyContent = "flex-end";
-      total.style.marginTop = "4px";
-      total.style.marginBottom = "6px";
-      total.style.fontWeight = "900";
-      total.style.letterSpacing = ".08em";
-      total.style.textTransform = "uppercase";
-      total.style.color = "rgba(243,246,255,.78)";
-      total.style.textShadow = "0 0 14px rgba(255,45,122,.18)";
-    
-      total.innerHTML = `ОБЩЕЕ АШ: <span style="
-          margin-left:10px;
-          font-size:22px;
-          background: linear-gradient(90deg, rgba(255,45,122,1), rgba(255,77,94,.98));
-          -webkit-background-clip:text;
-          background-clip:text;
-          -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0 0 14px rgba(255,45,122,.45)) drop-shadow(0 0 26px rgba(255,77,94,.25));
-        ">${Number(row.total_ash || 0)}</span>`;
-      block.appendChild(total);
-    
-      // Рисуем 3 места
-      const slot1 = { nick: row.nick_1, points: Number(row.ash_1 || 0), department: "—", avatar_url: null, account_id: null };
-      const slot2 = { nick: row.nick_2, points: Number(row.ash_2 || 0), department: "—", avatar_url: null, account_id: null };
-      const slot3 = { nick: row.nick_3, points: Number(row.ash_3 || 0), department: "—", avatar_url: null, account_id: null };
-    
-      block.appendChild(renderLeaderCard(1, slot1));
-      block.appendChild(renderLeaderCard(2, slot2));
-      block.appendChild(renderLeaderCard(3, slot3));
-    
-      leadersWrapper.appendChild(block);
-    }
 
+      leadersWrapper.innerHTML = "";
+      for (const row of data) {
+        leadersWrapper.appendChild(renderWeeklySummaryBlock(row));
+      }
+    }
 
     /* ===== Навигация табов ===== */
     const tabDay = document.getElementById("tab-day");
@@ -1229,286 +1278,15 @@
       });
     }
 
-    /* ===== BULK EDIT (LSPD/SFPD/LVPD) ===== */
-    const editLeadersTopBtn = document.getElementById("edit-leaders-top");
-    const bulkModal = document.getElementById("leaders-bulk-modal");
-    const bulkFormsEl = document.getElementById("bulk-forms");
-    const bulkCancelBtn = document.getElementById("bulk-cancel");
-    const bulkSaveBtn = document.getElementById("bulk-save");
-    const bulkErrorEl = document.getElementById("bulk-error");
-
-    let bulkRows = [];
-    let bulkAvatarByDept = {};
-
-    function showBulkError(msg){
-      if(!bulkErrorEl) return;
-      bulkErrorEl.style.display = "block";
-      bulkErrorEl.textContent = msg || "Ошибка.";
-    }
-    function hideBulkError(){
-      if(!bulkErrorEl) return;
-      bulkErrorEl.style.display = "none";
-      bulkErrorEl.textContent = "";
-    }
-
-    function openBulkModal(){
-      if(!canBulkEdit(currentUser)){
-        showErrorModal("Кнопка доступна только admin и creator.");
-        return;
-      }
-      hideBulkError();
-      bulkModal.classList.add("active");
-    }
-    function closeBulkModal(){
-      bulkModal.classList.remove("active");
-      bulkRows = [];
-      bulkAvatarByDept = {};
-      if (bulkFormsEl) bulkFormsEl.innerHTML = "";
-      hideBulkError();
-    }
-
-    async function fetchLeadersForDepts(){
-      const { data, error } = await supabaseClient
-        .from("leaderinfo")
-        .select("id, department, nick, account_id, avatar_url")
-        .in("department", ["LSPD","SFPD","LVPD"]);
-
-      if (error) throw error;
-
-      const map = new Map((data || []).map(r => [String(r.department||"").trim().toUpperCase(), r]));
-      const depts = ["LSPD","SFPD","LVPD"];
-
-      return depts.map(d => {
-        const r = map.get(d);
-        return r ? {
-          id: r.id,
-          department: d,
-          nick: r.nick || "",
-          account_id: r.account_id || "",
-          avatar_url: r.avatar_url || null
-        } : {
-          id: null,
-          department: d,
-          nick: "",
-          account_id: "",
-          avatar_url: null
-        };
-      });
-    }
-
-    function createBulkCard(row){
-      const dept = row.department;
-
-      const wrap = document.createElement("div");
-      wrap.style.border = "1px solid rgba(255,255,255,.12)";
-      wrap.style.borderRadius = "18px";
-      wrap.style.padding = "14px";
-      wrap.style.background = "rgba(0,0,0,.10)";
-      wrap.style.backdropFilter = "blur(12px)";
-      wrap.style.display = "grid";
-      wrap.style.gridTemplateColumns = "120px 1fr";
-      wrap.style.gap = "14px";
-      wrap.style.alignItems = "start";
-
-      const left = document.createElement("div");
-      left.style.display = "flex";
-      left.style.flexDirection = "column";
-      left.style.gap = "10px";
-      left.style.alignItems = "center";
-
-      const badge = document.createElement("div");
-      badge.className = "dept-badge " + (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : "lvpd");
-      badge.textContent = dept;
-
-      const avatar = document.createElement("div");
-      avatar.className = "edit-avatar-preview";
-      avatar.style.margin = "0";
-      avatar.style.width = "92px";
-      avatar.style.height = "92px";
-
-      const fileInput = document.createElement("input");
-      fileInput.type = "file";
-      fileInput.accept = "image/*";
-      fileInput.style.display = "none";
-
-      const nickInput = document.createElement("input");
-      nickInput.type = "text";
-      nickInput.value = row.nick || "";
-      nickInput.placeholder = "Имя_Фамилия";
-
-      const accInput = document.createElement("input");
-      accInput.type = "text";
-      accInput.value = row.account_id || "";
-      accInput.placeholder = "3960680";
-
-      function setAvatarPreview(src){
-        avatar.innerHTML = "";
-        if(src){
-          const img = document.createElement("img");
-          img.src = src;
-          avatar.appendChild(img);
-        } else {
-          avatar.textContent = (nickInput.value?.trim()?.[0] || "?");
-        }
-      }
-
-      setAvatarPreview(row.avatar_url || null);
-
-      function handleFile(file){
-        const reader = new FileReader();
-        reader.onload = () => {
-          bulkAvatarByDept[dept] = reader.result;
-          setAvatarPreview(reader.result);
-        };
-        reader.onerror = () => showBulkError("Не удалось прочитать файл аватара для " + dept);
-        reader.readAsDataURL(file);
-      }
-
-      avatar.addEventListener("click", () => fileInput.click());
-      avatar.addEventListener("dragover", (e)=>{ e.preventDefault(); avatar.classList.add("drag-over"); });
-      avatar.addEventListener("dragleave", ()=> avatar.classList.remove("drag-over"));
-      avatar.addEventListener("drop", (e)=>{
-        e.preventDefault(); avatar.classList.remove("drag-over");
-        const f = e.dataTransfer.files?.[0];
-        if(f) handleFile(f);
-      });
-
-      fileInput.addEventListener("change", (e)=>{
-        const f = e.target.files?.[0];
-        if(f) handleFile(f);
-        fileInput.value = "";
-      });
-
-      nickInput.addEventListener("input", ()=>{
-        if(!bulkAvatarByDept[dept] && !row.avatar_url){
-          setAvatarPreview(null);
-        }
-      });
-
-      left.appendChild(badge);
-      left.appendChild(avatar);
-      left.appendChild(fileInput);
-
-      const right = document.createElement("div");
-
-      const nickField = document.createElement("div");
-      nickField.className = "field";
-      const nickLabel = document.createElement("label");
-      nickLabel.textContent = "Ник (" + dept + ")";
-      nickField.appendChild(nickLabel);
-      nickField.appendChild(nickInput);
-
-      const accField = document.createElement("div");
-      accField.className = "field";
-      const accLabel = document.createElement("label");
-      accLabel.textContent = "Номер аккаунта (" + dept + ")";
-      accField.appendChild(accLabel);
-      accField.appendChild(accInput);
-
-      right.appendChild(nickField);
-      right.appendChild(accField);
-
-      wrap.appendChild(left);
-      wrap.appendChild(right);
-
-      return { wrap, nickInput, accInput };
-    }
-
-    async function buildBulkModal(){
-      try{
-        hideBulkError();
-        bulkFormsEl.innerHTML = "Загрузка…";
-        bulkRows = await fetchLeadersForDepts();
-        bulkAvatarByDept = {};
-
-        bulkFormsEl.innerHTML = "";
-        bulkRows.forEach((row) => {
-          const ui = createBulkCard(row);
-          row._ui = ui;
-          bulkFormsEl.appendChild(ui.wrap);
-        });
-      }catch(e){
-        console.error(e);
-        showBulkError("Ошибка загрузки лидеров: " + (e?.message || e));
-        bulkFormsEl.innerHTML = "";
-      }
-    }
-
-    async function saveBulk(){
-      if(!canBulkEdit(currentUser)){
-        showBulkError("Нет прав.");
-        return;
-      }
-      hideBulkError();
-
-      for(const row of bulkRows){
-        const nick = row._ui.nickInput.value.trim();
-        const acc = row._ui.accInput.value.trim();
-        if(!row.id){
-          showBulkError(`В leaderinfo нет строки для департамента ${row.department}. Выполни SQL из сообщения (создать 3 записи).`);
-          return;
-        }
-        if(!nick || !acc){
-          showBulkError(`Заполни ник и аккаунт для ${row.department}.`);
-          return;
-        }
-      }
-
-      try{
-        for(const row of bulkRows){
-          const dept = row.department;
-          const payload = {
-            department: dept,
-            nick: row._ui.nickInput.value.trim(),
-            account_id: row._ui.accInput.value.trim(),
-            updated_at: new Date().toISOString(),
-          };
-          if (bulkAvatarByDept[dept]) payload.avatar_url = bulkAvatarByDept[dept];
-
-          const { error } = await supabaseClient
-            .from("leaderinfo")
-            .update(payload)
-            .eq("id", row.id);
-
-          if(error) throw error;
-        }
-
-        closeBulkModal();
-        await loadLeaders("day");
-      }catch(e){
-        console.error(e);
-        showBulkError("Ошибка сохранения: " + (e?.message || e));
-      }
-    }
-
-    if (editLeadersTopBtn) {
-      editLeadersTopBtn.addEventListener("click", async () => {
-        openBulkModal();
-        await buildBulkModal();
-      });
-    }
-    if (bulkCancelBtn) bulkCancelBtn.addEventListener("click", closeBulkModal);
-    if (bulkSaveBtn) bulkSaveBtn.addEventListener("click", saveBulk);
-
     /* ===== INIT ===== */
     const userTagEl = document.getElementById("user-tag");
-
     async function initPage() {
-      try { if (typeof loadThemeFromDB === "function") await loadThemeFromDB(); } catch(e){}
-      try { if (typeof applyThemeBackground === "function") applyThemeBackground(); } catch(e){}
-      try { if (typeof applyThemeToBlocks === "function") applyThemeToBlocks(); } catch(e){}
-      try { if (typeof applySiteBranding === "function") applySiteBranding(); } catch(e){}
-
       currentUser = loadSession();
       if (userTagEl) userTagEl.textContent = "";
-
-      if (editLeadersTopBtn) {
-        editLeadersTopBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
-      }
-
+      const editBtn = document.getElementById("edit-leaders-top");
+      if (editBtn) editBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
       await loadLeaders("day");
     }
-
     window.addEventListener("load", initPage);
   </script>
 </body>
