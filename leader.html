@@ -1118,6 +1118,114 @@
         font-size: 13px;
       }
     }
+
+    /* ================= MOBILE FIX: DAY CARDS LAYOUT ================= */
+    @media (max-width: 720px){
+    
+      /* карточка -> сетка: кубок | аватар | АШ */
+      .leader-card{
+        display: grid;
+        grid-template-columns: 64px 1fr 104px;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+          "icon avatar score"
+          "icon main   score";
+        column-gap: 12px;
+        row-gap: 10px;
+    
+        padding: 14px 14px;
+        align-items: center;
+      }
+    
+      /* кубок слева */
+      .leader-icon{
+        grid-area: icon;
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        font-size: 24px;
+        justify-self: start;
+        align-self: center;
+      }
+    
+      /* аватар по центру */
+      .leader-avatar{
+        grid-area: avatar;
+        width: 68px;
+        height: 68px;
+        border-radius: 16px;
+        justify-self: center;
+        align-self: center;
+      }
+    
+      /* блок очков справа */
+      .leader-score-block{
+        grid-area: score;
+        min-width: 0;
+        align-items: flex-end;
+        justify-self: end;
+        align-self: center;
+        gap: 6px;
+      }
+    
+      /* цифра АШ поменьше, чтобы не разъезжалось */
+      .leader-score .value{
+        font-size: 38px;
+        line-height: 1;
+      }
+      .leader-score .unit{
+        font-size: 14px;
+      }
+      .leader-place-label{
+        font-size: 13px;
+        white-space: nowrap;
+        opacity: .85;
+      }
+    
+      /* главный блок текста под аватаром */
+      .leader-main{
+        grid-area: main;
+        min-width: 0;
+        justify-self: center;
+        align-self: start;
+    
+        text-align: center;
+        gap: 8px;
+      }
+    
+      /* ник / аккаунт делаем колонкой и по центру */
+      .leader-name-row{
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+    
+      .leader-nick{
+        font-size: 22px;
+        line-height: 1.1;
+        max-width: 220px;
+      }
+    
+      .leader-account{
+        font-size: 13px;
+        opacity: .9;
+      }
+    
+      /* департамент тоже по центру и чуть компактнее */
+      .dept-badge{
+        margin: 0 auto;
+        padding: 8px 12px;
+        font-size: 12px;
+        letter-spacing: .08em;
+      }
+    
+      /* чтобы “блик” не мешал на маленьких экранах */
+      .leader-card .sheen{
+        display: none;
+      }
+    }
+
     
         
   </style>
