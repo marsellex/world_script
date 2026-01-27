@@ -1144,87 +1144,74 @@
     async function loadWeeklyBlocks() {
       currentPeriod = "week";
       if (dateEl) dateEl.textContent = "";
-
+    
       if (!leadersWrapper) return;
       leadersWrapper.textContent = "Загрузка…";
-
+    
       const { data, error } = await supabaseClient
-        .from("leaderinfo_week")
-        .select(`
-          week_start,
-          week_end,
-          place,
-          points_week,
-          leader:leader_id (
-            id,
-            nick,
-            account_id,
-            avatar_url,
-            department
-          )
-        `)
+        .from("leader_weekly_summary")
+        .select("week_start, week_end, nick_1, ash_1, nick_2, ash_2, nick_3, ash_3, total_ash")
         .order("week_start", { ascending: false })
-        .order("place", { ascending: true })
-        .limit(30);
-
+        .limit(1);
+    
       if (error) {
         console.error(error);
         leadersWrapper.textContent = "Ошибка загрузки активности недели.";
-        showErrorModal("Ошибка загрузки таблицы leaderinfo_week.");
+        showErrorModal("Ошибка загрузки таблицы leader_weekly_summary.");
         return;
       }
-
-      const rows = data || [];
-      if (!rows.length) {
+    
+      const row = data?.[0];
+      if (!row) {
         leadersWrapper.textContent = "Пока нет данных по неделям.";
         return;
       }
-
-      const byWeek = new Map();
-      for (const r of rows) {
-        const key = r.week_start;
-        if (!byWeek.has(key)) {
-          byWeek.set(key, {
-            week_start: r.week_start,
-            week_end: r.week_end,
-            places: new Map(),
-          });
-        }
-        byWeek.get(key).places.set(Number(r.place), r);
-      }
-
+    
       leadersWrapper.innerHTML = "";
-
-      for (const [, w] of byWeek) {
-        const block = document.createElement("div");
-        block.className = "week-block";
-
-        const badge = document.createElement("div");
-        badge.className = "week-period-badge";
-        badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(w.week_start, w.week_end)}`;
-        block.appendChild(badge);
-
-        for (let place = 1; place <= 3; place++) {
-          const item = w.places.get(place);
-          if (item && item.leader) {
-            const leader = item.leader;
-            const row = {
-              id: leader.id,
-              nick: leader.nick,
-              account_id: leader.account_id,
-              avatar_url: leader.avatar_url,
-              department: leader.department,
-              points: Number(item.points_week || 0),
-            };
-            block.appendChild(renderLeaderCard(place, row));
-          } else {
-            block.appendChild(renderLeaderCard(place, null));
-          }
-        }
-
-        leadersWrapper.appendChild(block);
-      }
+    
+      const block = document.createElement("div");
+      block.className = "week-block";
+    
+      const badge = document.createElement("div");
+      badge.className = "week-period-badge";
+      badge.innerHTML = `<span class="dot"></span>${formatPeriodRu(row.week_start, row.week_end)}`;
+      block.appendChild(badge);
+    
+      // Блок "Общее АШ"
+      const total = document.createElement("div");
+      total.style.display = "flex";
+      total.style.justifyContent = "flex-end";
+      total.style.marginTop = "4px";
+      total.style.marginBottom = "6px";
+      total.style.fontWeight = "900";
+      total.style.letterSpacing = ".08em";
+      total.style.textTransform = "uppercase";
+      total.style.color = "rgba(243,246,255,.78)";
+      total.style.textShadow = "0 0 14px rgba(255,45,122,.18)";
+    
+      total.innerHTML = `ОБЩЕЕ АШ: <span style="
+          margin-left:10px;
+          font-size:22px;
+          background: linear-gradient(90deg, rgba(255,45,122,1), rgba(255,77,94,.98));
+          -webkit-background-clip:text;
+          background-clip:text;
+          -webkit-text-fill-color: transparent;
+          filter: drop-shadow(0 0 14px rgba(255,45,122,.45)) drop-shadow(0 0 26px rgba(255,77,94,.25));
+        ">${Number(row.total_ash || 0)}</span>`;
+      block.appendChild(total);
+    
+      // Рисуем 3 места
+      const slot1 = { nick: row.nick_1, points: Number(row.ash_1 || 0), department: "—", avatar_url: null, account_id: null };
+      const slot2 = { nick: row.nick_2, points: Number(row.ash_2 || 0), department: "—", avatar_url: null, account_id: null };
+      const slot3 = { nick: row.nick_3, points: Number(row.ash_3 || 0), department: "—", avatar_url: null, account_id: null };
+    
+      block.appendChild(renderLeaderCard(1, slot1));
+      block.appendChild(renderLeaderCard(2, slot2));
+      block.appendChild(renderLeaderCard(3, slot3));
+    
+      leadersWrapper.appendChild(block);
     }
+
 
     /* ===== Навигация табов ===== */
     const tabDay = document.getElementById("tab-day");
