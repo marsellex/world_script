@@ -1074,7 +1074,52 @@
       .leader-score .value{ font-size: 36px; }
     }
 
+    /* ================= MOBILE FIX: TABS (DAY/WEEK) ================= */
+    @media (max-width: 720px){
     
+      /* контейнер табов делаем колонкой */
+      .leader-tabs{
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+    
+        width: 100%;
+        border-radius: 18px;     /* вместо “капсулы” */
+        padding: 8px;
+        gap: 8px;                /* чтобы не сливались */
+      }
+    
+      /* каждая кнопка на всю ширину */
+      .leader-tab{
+        flex: 0 0 auto;
+        width: 100%;
+        padding: 12px 14px;      /* компактнее */
+        font-size: 14px;
+        letter-spacing: .06em;
+    
+        border-radius: 14px;
+      }
+    
+      /* чтобы активная плашка нормально смотрелась вертикально */
+      .leader-tab.active::before{
+        inset: -2px;
+        border-radius: 14px;
+        clip-path: none;         /* убираем “стрелку”, она на мобиле выглядит криво */
+      }
+    
+      .leader-tab.active::after{
+        inset: 2px;
+        border-radius: 12px;
+        clip-path: none;
+      }
+    
+      /* сердечко чуть меньше */
+      .leader-tab span.icon{
+        font-size: 13px;
+      }
+    }
+    
+        
   </style>
 </head>
 
