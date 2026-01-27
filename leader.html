@@ -974,259 +974,100 @@
 
     @media (max-width: 720px){
     
-      body{ padding: 12px; }
-    
-      .leader-card{
-        display:grid;
-        grid-template-columns: 50px 62px 1fr;
-        grid-template-rows: auto auto auto;
-        column-gap: 10px;
-        row-gap: 10px;
-    
-        padding: 14px 14px;
-        gap: 0; /* важно: гасим gap:22px из desktop */
-      }
-    
-      .leader-icon{
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
-        font-size: 22px;
-    
-        grid-column: 1;
-        grid-row: 1;
-      }
-    
-      .leader-avatar{
-        width: 62px;
-        height: 62px;
-        border-radius: 16px;
-        font-size: 22px;
-    
-        grid-column: 2;
-        grid-row: 1;
-      }
-    
-      .leader-main{
-        grid-column: 3;
-        grid-row: 1;
-        min-width: 0;
-        gap: 8px;
-      }
-    
-      /* Ник + аккаунт на телефоне: ник сверху, аккаунт ниже */
-      .leader-name-row{
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
-    
-      .leader-nick{
-        font-size: 22px;  /* было 32 */
-        line-height: 1.05;
-        max-width: 100%;
-      }
-    
-      .leader-account{
-        font-size: 13px;  /* было 16 */
-        opacity: .9;
-      }
-    
-      .dept-badge{
-        padding: 8px 12px; /* было 10 16 */
-        font-size: 12px;   /* было 14 */
-        letter-spacing: .08em;
-      }
-    
-      /* Блок очков уходит отдельной строкой на всю ширину */
-      .leader-score-block{
-        grid-column: 1 / -1;
-        grid-row: 2;
-    
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-    
-        min-width: 0;      /* важно: убираем min-width:220px */
-        gap: 10px;
-      }
-    
-      .leader-score .value{
-        font-size: 40px; /* было 56 */
-        line-height: 1;
-      }
-    
-      .leader-score .unit{
-        font-size: 14px; /* было 18 */
-      }
-    
-      .leader-place-label{
-        font-size: 13px; /* было 16 */
-        white-space: nowrap;
-      }
-    }
-    @media (max-width: 380px){
-      .leader-card{
-        grid-template-columns: 46px 56px 1fr;
-        padding: 12px 12px;
-      }
-      .leader-nick{ font-size: 20px; }
-      .leader-score .value{ font-size: 36px; }
-    }
-
-    /* ================= MOBILE FIX: TABS (DAY/WEEK) ================= */
-    @media (max-width: 720px){
-    
-      /* контейнер табов делаем колонкой */
+      /* КНОПКИ ДНЯ / НЕДЕЛИ — СТОЛБИКОМ */
       .leader-tabs{
         flex-direction: column !important;
-        align-items: stretch !important;
-        justify-content: flex-start !important;
-    
-        width: 100%;
-        border-radius: 18px;     /* вместо “капсулы” */
-        padding: 8px;
-        gap: 8px;                /* чтобы не сливались */
+        gap: 10px;
+        padding: 10px;
+        border-radius: 22px;
       }
     
-      /* каждая кнопка на всю ширину */
       .leader-tab{
-        flex: 0 0 auto;
         width: 100%;
-        padding: 12px 14px;      /* компактнее */
         font-size: 14px;
-        letter-spacing: .06em;
-    
-        border-radius: 14px;
+        padding: 14px 16px;
+        letter-spacing: .08em;
       }
     
-      /* чтобы активная плашка нормально смотрелась вертикально */
-      .leader-tab.active::before{
-        inset: -2px;
-        border-radius: 14px;
-        clip-path: none;         /* убираем “стрелку”, она на мобиле выглядит криво */
-      }
-    
-      .leader-tab.active::after{
-        inset: 2px;
-        border-radius: 12px;
-        clip-path: none;
-      }
-    
-      /* сердечко чуть меньше */
-      .leader-tab span.icon{
-        font-size: 13px;
-      }
-    }
-
-    /* ================= MOBILE FIX: DAY CARDS LAYOUT ================= */
-    @media (max-width: 720px){
-    
-      /* карточка -> сетка: кубок | аватар | АШ */
+      /* КАРТОЧКА ЛИДЕРА */
       .leader-card{
-        display: grid;
-        grid-template-columns: 64px 1fr 104px;
-        grid-template-rows: auto auto;
-        grid-template-areas:
-          "icon avatar score"
-          "icon main   score";
-        column-gap: 12px;
-        row-gap: 10px;
-    
-        padding: 14px 14px;
+        position: relative;
+        flex-direction: row;
         align-items: center;
+        padding: 16px 14px;
+        gap: 14px;
       }
     
-      /* кубок слева */
+      /* КУБОК СЛЕВА */
       .leader-icon{
-        grid-area: icon;
-        width: 54px;
-        height: 54px;
-        border-radius: 14px;
-        font-size: 24px;
-        justify-self: start;
-        align-self: center;
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+        flex-shrink: 0;
       }
     
-      /* аватар по центру */
-      .leader-avatar{
-        grid-area: avatar;
-        width: 68px;
-        height: 68px;
-        border-radius: 16px;
-        justify-self: center;
-        align-self: center;
-      }
-    
-      /* блок очков справа */
-      .leader-score-block{
-        grid-area: score;
-        min-width: 0;
-        align-items: flex-end;
-        justify-self: end;
-        align-self: center;
-        gap: 6px;
-      }
-    
-      /* цифра АШ поменьше, чтобы не разъезжалось */
-      .leader-score .value{
-        font-size: 38px;
-        line-height: 1;
-      }
-      .leader-score .unit{
-        font-size: 14px;
-      }
-      .leader-place-label{
-        font-size: 13px;
-        white-space: nowrap;
-        opacity: .85;
-      }
-    
-      /* главный блок текста под аватаром */
+      /* ЦЕНТР: АВАТАР + НИК + АКК + ПД */
       .leader-main{
-        grid-area: main;
-        min-width: 0;
-        justify-self: center;
-        align-self: start;
-    
+        flex: 1;
+        align-items: center;
         text-align: center;
-        gap: 8px;
+        gap: 6px;
+        transform: translateX(6px);
       }
     
-      /* ник / аккаунт делаем колонкой и по центру */
+      .leader-avatar{
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 4px;
+        transform: translateX(6px);
+      }
+    
       .leader-name-row{
-        flex-direction: column;
-        align-items: center;
         justify-content: center;
-        gap: 4px;
+        gap: 6px;
       }
     
       .leader-nick{
         font-size: 22px;
-        line-height: 1.1;
-        max-width: 220px;
       }
     
       .leader-account{
         font-size: 13px;
+      }
+    
+      .dept-badge{
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+    
+      /* АШ СПРАВА */
+      .leader-score-block{
+        align-items: flex-end;
+        min-width: auto;
+        padding-top: 12px;
+        margin-right: -6px;
+      }
+    
+      .leader-score .value{
+        font-size: 42px;
+      }
+    
+      .leader-score .unit{
+        font-size: 13px;
+      }
+    
+      /* 1 / 2 / 3 МЕСТО — ВЕРХНИЙ ПРАВЫЙ УГОЛ */
+      .leader-place-label{
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        font-size: 12px;
+        letter-spacing: .08em;
         opacity: .9;
       }
     
-      /* департамент тоже по центру и чуть компактнее */
-      .dept-badge{
-        margin: 0 auto;
-        padding: 8px 12px;
-        font-size: 12px;
-        letter-spacing: .08em;
-      }
-    
-      /* чтобы “блик” не мешал на маленьких экранах */
-      .leader-card .sheen{
-        display: none;
-      }
     }
 
-    
         
   </style>
 </head>
