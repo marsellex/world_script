@@ -1082,7 +1082,88 @@
     }
     .edit-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
     .drag-over{ outline: 3px solid rgba(46,249,255,.6); }
+
+    .reactions-panel{
+      margin-top: 18px;
+      border-radius: 22px;
+      padding: 14px 14px 12px;
     
+      background: rgba(0,0,0,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 14px 54px rgba(0,0,0,.22);
+      overflow: hidden;
+    }
+    
+    .reactions-title{
+      font-weight: 900;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(243,246,255,.78);
+      margin-bottom: 12px;
+      text-shadow: 0 0 14px rgba(46,249,255,.08);
+    }
+    
+    .reactions-grid{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    
+    .reaction-btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+    
+      padding: 12px 12px;
+      border-radius: 16px;
+    
+      background: rgba(0,0,0,.10);
+      border: 1px solid rgba(255,255,255,.12);
+    
+      color: rgba(243,246,255,.88);
+      cursor: pointer;
+    
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+    }
+    
+    .reaction-btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,77,94,.40);
+      box-shadow: 0 0 22px rgba(255,45,122,.14);
+    }
+    
+    .reaction-btn.active{
+      border-color: rgba(255,45,122,.55);
+      box-shadow:
+        0 0 22px rgba(255,45,122,.18),
+        0 0 26px rgba(46,249,255,.10);
+    }
+    
+    .reaction-emoji{ font-size: 18px; }
+    .reaction-label{ font-weight: 900; letter-spacing: .06em; text-transform: uppercase; font-size: 12px; opacity: .92; }
+    .reaction-count{
+      margin-left: 2px;
+      min-width: 28px;
+      text-align:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,45,122,.10);
+      border: 1px solid rgba(255,45,122,.18);
+      font-weight: 900;
+    }
+    
+    .reactions-hint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(243,246,255,.62);
+    }
+    
+    @media (max-width: 900px){
+      .reactions-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    
+        
 
         
   </style>
@@ -1139,6 +1220,40 @@
       </div>
 
       <div class="leaders-wrapper" id="leaders-wrapper">Загрузка…</div>
+
+      <div class="reactions-panel" id="reactions-panel">
+      <div class="reactions-title">Реакции</div>
+    
+      <div class="reactions-grid">
+        <button class="reaction-btn" data-reaction="like" type="button">
+          <span class="reaction-emoji">👍</span>
+          <span class="reaction-label">Класс</span>
+          <span class="reaction-count" id="rc-like">0</span>
+        </button>
+    
+        <button class="reaction-btn" data-reaction="dislike" type="button">
+          <span class="reaction-emoji">👎</span>
+          <span class="reaction-label">Дизлайк</span>
+          <span class="reaction-count" id="rc-dislike">0</span>
+        </button>
+    
+        <button class="reaction-btn" data-reaction="ura" type="button">
+          <span class="reaction-emoji">🎉</span>
+          <span class="reaction-label">Ура</span>
+          <span class="reaction-count" id="rc-ura">0</span>
+        </button>
+    
+        <button class="reaction-btn" data-reaction="govno" type="button">
+          <span class="reaction-emoji">💩</span>
+          <span class="reaction-label">Говно</span>
+          <span class="reaction-count" id="rc-govno">0</span>
+        </button>
+      </div>
+    
+      <div class="reactions-hint" id="reactions-hint"></div>
+    </div>
+
+      
     </div>
   </div>
 
@@ -1628,6 +1743,154 @@
     if(bulkCancelBtn) bulkCancelBtn.onclick = closeBulkModal;
     if(bulkSaveBtn) bulkSaveBtn.onclick = saveBulk;
 
+    /* ================= REACTIONS ================= */
+    const REACTIONS_PAGE_KEY = "leaders_pd"; // уникальный ключ этой страницы
+    
+    function getOrCreateAnonId(){
+      const k = "pp_anon_id";
+      let v = localStorage.getItem(k);
+      if(!v){
+        v = (crypto?.randomUUID?.() || (Date.now() + "-" + Math.random().toString(16).slice(2)));
+        localStorage.setItem(k, v);
+      }
+      return v;
+    }
+    
+    function getUserKey(){
+      // пытаемся взять стабильный идентификатор пользователя из сессии
+      // (подстрой под свою структуру pp_user, если знаешь точные поля)
+      return (
+        currentUser?.id ||
+        currentUser?.account_id ||
+        currentUser?.accountId ||
+        currentUser?.login ||
+        currentUser?.nick ||
+        getOrCreateAnonId()
+      ).toString();
+    }
+    
+    function setReactionButtonsActive(activeReaction){
+      document.querySelectorAll(".reaction-btn").forEach(btn => {
+        const r = btn.getAttribute("data-reaction");
+        btn.classList.toggle("active", r === activeReaction);
+      });
+    }
+    
+    function setCountsFromMap(map){
+      const safe = (x) => (Number.isFinite(x) ? x : 0);
+      document.getElementById("rc-like").textContent = safe(map.like);
+      document.getElementById("rc-dislike").textContent = safe(map.dislike);
+      document.getElementById("rc-ura").textContent = safe(map.ura);
+      document.getElementById("rc-govno").textContent = safe(map.govno);
+    }
+    
+    async function refreshReactionCounts(){
+      // читаем view public.page_reaction_counts
+      const { data, error } = await supabaseClient
+        .from("page_reaction_counts")
+        .select("reaction,cnt")
+        .eq("page", REACTIONS_PAGE_KEY);
+    
+      if(error){
+        console.error("counts error:", error);
+        return;
+      }
+    
+      const map = { like:0, dislike:0, ura:0, govno:0 };
+      (data || []).forEach(row => {
+        map[row.reaction] = Number(row.cnt || 0);
+      });
+    
+      setCountsFromMap(map);
+    }
+    
+    async function fetchMyReaction(){
+      const userKey = getUserKey();
+      const { data, error } = await supabaseClient
+        .from("page_reactions")
+        .select("reaction")
+        .eq("page", REACTIONS_PAGE_KEY)
+        .eq("user_key", userKey)
+        .maybeSingle();
+    
+      if(error){
+        console.error("my reaction error:", error);
+        return null;
+      }
+      return data?.reaction || null;
+    }
+    
+    async function setMyReaction(nextReaction){
+      const userKey = getUserKey();
+    
+      // toggle: если нажали ту же — удаляем реакцию
+      const current = await fetchMyReaction();
+      const hint = document.getElementById("reactions-hint");
+    
+      if(current === nextReaction){
+        const { error } = await supabaseClient
+          .from("page_reactions")
+          .delete()
+          .eq("page", REACTIONS_PAGE_KEY)
+          .eq("user_key", userKey);
+    
+        if(error){
+          console.error("delete reaction error:", error);
+          if(hint) hint.textContent = "Не удалось убрать реакцию.";
+          return;
+        }
+    
+        setReactionButtonsActive(null);
+        if(hint) hint.textContent = "Реакция убрана.";
+        await refreshReactionCounts();
+        return;
+      }
+    
+      // upsert: 1 реакция на пользователя
+      const { error } = await supabaseClient
+        .from("page_reactions")
+        .upsert(
+          {
+            page: REACTIONS_PAGE_KEY,
+            user_key: userKey,
+            reaction: nextReaction,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "page,user_key" }
+        );
+    
+      if(error){
+        console.error("upsert reaction error:", error);
+        if(hint) hint.textContent = "Не удалось поставить реакцию.";
+        return;
+      }
+    
+      setReactionButtonsActive(nextReaction);
+      if(hint) hint.textContent = "Реакция сохранена.";
+      await refreshReactionCounts();
+    }
+    
+    function bindReactionButtons(){
+      document.querySelectorAll(".reaction-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const r = btn.getAttribute("data-reaction");
+          await setMyReaction(r);
+        });
+      });
+    }
+    
+    async function initReactions(){
+      bindReactionButtons();
+    
+      // 1) счётчики
+      await refreshReactionCounts();
+    
+      // 2) моя реакция (подсветить)
+      const my = await fetchMyReaction();
+      setReactionButtonsActive(my);
+    }
+
+
 
     const userTagEl = document.getElementById("user-tag");
     async function initPage() {
@@ -1636,6 +1899,7 @@
       const editBtn = document.getElementById("edit-leaders-top");
       if (editBtn) editBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
       await loadLeaders("day");
+      await initReactions();
     }
     window.addEventListener("load", initPage);
   </script>
