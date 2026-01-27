@@ -1068,6 +1068,41 @@
     
     }
 
+    .btn-outline{
+      border: 1px solid rgba(255,255,255,.22);
+      background: transparent;
+      color: rgba(243,246,255,.9);
+      cursor:pointer;
+      border-radius: 12px;
+      padding: 11px 18px;
+      font-size: 14px;
+    }
+    .btn-outline:hover{ border-color: rgba(255,77,94,.55); }
+    
+    .field{ margin-bottom: 8px; }
+    .field label{ display:block; font-size:13px; margin-bottom:3px; color: rgba(243,246,255,.75); }
+    .field input{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.20);
+      color: rgba(243,246,255,.92);
+    }
+    .error-text{ font-size:12px; color:#ff7b7b; margin-top: 6px; }
+    
+    .edit-avatar-preview{
+      width: 92px; height: 92px;
+      border-radius: 18px;
+      border: 2px dashed rgba(255,255,255,.25);
+      background: rgba(0,0,0,.20);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden; cursor:pointer;
+    }
+    .edit-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
+    .drag-over{ outline: 3px solid rgba(46,249,255,.6); }
+    
+
         
   </style>
 </head>
@@ -1085,6 +1120,23 @@
         <div class="page-title">ТОП ЛИДЕРОВ PD</div>
         <div class="user-tag" id="user-tag"></div>
       </div>
+
+      <!-- ✅ Модалка редактирования 3х лидеров -->
+      <div id="leaders-bulk-modal" class="modal-backdrop">
+        <div class="modal" style="max-width: 720px;">
+          <h3>Редактирование лидеров (LSPD / SFPD / LVPD)</h3>
+          <p>Меняются ник, аккаунт и аватар. Очки не трогаем.</p>
+      
+          <div id="bulk-error" class="error-text" style="display:none;"></div>
+          <div id="bulk-forms" style="display:flex; flex-direction:column; gap:12px; margin-top:12px;"></div>
+      
+          <div class="modal-footer">
+            <button class="btn-outline btn-sm" id="bulk-cancel">Отмена</button>
+            <button class="btn btn-sm" id="bulk-save">Сохранить</button>
+          </div>
+        </div>
+      </div>
+
 
       <div class="page-header-actions">
         <button class="btn btn-sm" id="edit-leaders-top" style="display:none;">Редактировать лидеров</button>
@@ -1445,6 +1497,175 @@
         };
       });
     }
+
+    /* ===== BULK EDIT (LSPD / SFPD / LVPD) ===== */
+    const editLeadersTopBtn = document.getElementById("edit-leaders-top");
+    const bulkModal = document.getElementById("leaders-bulk-modal");
+    const bulkFormsEl = document.getElementById("bulk-forms");
+    const bulkCancelBtn = document.getElementById("bulk-cancel");
+    const bulkSaveBtn = document.getElementById("bulk-save");
+    const bulkErrorEl = document.getElementById("bulk-error");
+    
+    let bulkRows = [];
+    let bulkAvatarByDept = {};
+    
+    function showBulkError(msg){
+      if(!bulkErrorEl) return;
+      bulkErrorEl.style.display = "block";
+      bulkErrorEl.textContent = msg || "Ошибка.";
+    }
+    function hideBulkError(){
+      if(!bulkErrorEl) return;
+      bulkErrorEl.style.display = "none";
+      bulkErrorEl.textContent = "";
+    }
+    
+    function openBulkModal(){
+      if(!canBulkEdit(currentUser)){
+        showErrorModal("Недостаточно прав.");
+        return;
+      }
+      hideBulkError();
+      bulkModal.classList.add("active");
+    }
+    
+    function closeBulkModal(){
+      bulkModal.classList.remove("active");
+      bulkRows = [];
+      bulkAvatarByDept = {};
+      if (bulkFormsEl) bulkFormsEl.innerHTML = "";
+      hideBulkError();
+    }
+    
+    async function fetchLeadersForDepts(){
+      const { data, error } = await supabaseClient
+        .from("leaderinfo")
+        .select("id, department, nick, account_id, avatar_url")
+        .in("department", ["LSPD","SFPD","LVPD"]);
+    
+      if (error) throw error;
+    
+      const map = new Map((data || []).map(r => [r.department, r]));
+      return ["LSPD","SFPD","LVPD"].map(d => {
+        const r = map.get(d);
+        return r ? r : { id:null, department:d, nick:"", account_id:"", avatar_url:null };
+      });
+    }
+    
+    function createBulkCard(row){
+      const wrap = document.createElement("div");
+      wrap.style.border = "1px solid rgba(255,255,255,.12)";
+      wrap.style.borderRadius = "14px";
+      wrap.style.padding = "12px";
+      wrap.style.display = "grid";
+      wrap.style.gridTemplateColumns = "100px 1fr";
+      wrap.style.gap = "12px";
+    
+      const avatar = document.createElement("div");
+      avatar.className = "edit-avatar-preview";
+      avatar.textContent = row.nick?.[0] || "?";
+    
+      if(row.avatar_url){
+        avatar.innerHTML = `<img src="${row.avatar_url}">`;
+      }
+    
+      const fileInput = document.createElement("input");
+      fileInput.type = "file";
+      fileInput.accept = "image/*";
+      fileInput.style.display = "none";
+    
+      avatar.onclick = () => fileInput.click();
+      fileInput.onchange = e => {
+        const f = e.target.files[0];
+        if(!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          bulkAvatarByDept[row.department] = reader.result;
+          avatar.innerHTML = `<img src="${reader.result}">`;
+        };
+        reader.readAsDataURL(f);
+      };
+    
+      const nickInput = document.createElement("input");
+      nickInput.value = row.nick || "";
+      const accInput = document.createElement("input");
+      accInput.value = row.account_id || "";
+    
+      const right = document.createElement("div");
+      right.innerHTML = `
+        <div class="field"><label>${row.department} ник</label></div>
+        <div class="field"><label>${row.department} аккаунт</label></div>
+      `;
+      right.children[0].appendChild(nickInput);
+      right.children[1].appendChild(accInput);
+    
+      wrap.appendChild(avatar);
+      wrap.appendChild(fileInput);
+      wrap.appendChild(right);
+    
+      return { wrap, nickInput, accInput };
+    }
+    
+    async function buildBulkModal(){
+      bulkFormsEl.innerHTML = "Загрузка…";
+      bulkRows = await fetchLeadersForDepts();
+      bulkFormsEl.innerHTML = "";
+    
+      bulkRows.forEach(row => {
+        const ui = createBulkCard(row);
+        row._ui = ui;
+        bulkFormsEl.appendChild(ui.wrap);
+      });
+    }
+    
+    async function saveBulk(){
+      hideBulkError();
+    
+      for(const row of bulkRows){
+        if(!row.id){
+          showBulkError(`Нет записи leaderinfo для ${row.department}`);
+          return;
+        }
+        if(!row._ui.nickInput.value || !row._ui.accInput.value){
+          showBulkError(`Заполни все поля (${row.department})`);
+          return;
+        }
+      }
+    
+      for(const row of bulkRows){
+        const payload = {
+          nick: row._ui.nickInput.value.trim(),
+          account_id: row._ui.accInput.value.trim(),
+          updated_at: new Date().toISOString()
+        };
+        if(bulkAvatarByDept[row.department]){
+          payload.avatar_url = bulkAvatarByDept[row.department];
+        }
+    
+        const { error } = await supabaseClient
+          .from("leaderinfo")
+          .update(payload)
+          .eq("id", row.id);
+    
+        if(error){
+          showBulkError(error.message);
+          return;
+        }
+      }
+    
+      closeBulkModal();
+      currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders("day");
+    }
+    
+    if(editLeadersTopBtn){
+      editLeadersTopBtn.onclick = async () => {
+        openBulkModal();
+        await buildBulkModal();
+      };
+    }
+    if(bulkCancelBtn) bulkCancelBtn.onclick = closeBulkModal;
+    if(bulkSaveBtn) bulkSaveBtn.onclick = saveBulk;
+
 
     /* ===== INIT ===== */
     const userTagEl = document.getElementById("user-tag");
