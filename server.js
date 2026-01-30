@@ -162,5 +162,40 @@ app.post("/api/reactions/set", async (req, res) => {
   res.json({ ok: true });
 });
 
+app.post("/api/ash/set", requireAdmin, async (req, res) => {
+  const { nick, ash, field = "points_day" } = req.body || {};
+  if (!nick || !field) return res.status(400).send("Bad request");
+
+  const reset = String(ash).toLowerCase() === "x";
+  const addVal = reset ? 0 : Number(ash);
+
+  if (!reset && (!Number.isFinite(addVal) || addVal < 0)) {
+    return res.status(400).send("Bad ash");
+  }
+
+  // 1) получить текущее значение
+  const { data: row, error: e1 } = await sb
+    .from("leaderinfo")
+    .select(`id, ${field}`)
+    .eq("nick", nick)
+    .maybeSingle();
+
+  if (e1) return res.status(500).send(e1.message);
+  if (!row) return res.status(404).send("Nick not found");
+
+  const oldVal = Number(row[field] || 0);
+  const newVal = reset ? 0 : oldVal + addVal;
+
+  // 2) обновить
+  const { error: e2 } = await sb
+    .from("leaderinfo")
+    .update({ [field]: newVal, updated_at: new Date().toISOString() })
+    .eq("id", row.id);
+
+  if (e2) return res.status(500).send(e2.message);
+  res.json({ ok: true, nick, field, oldVal, newVal });
+});
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("API listening on", PORT));
