@@ -1262,13 +1262,7 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
-    const SUPABASE_URL = "https://qjbhflpoelgusfhymipi.supabase.co";
-    const SUPABASE_ANON_KEY =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYmhmbHBvZWxndXNmaHltaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4NzEzODMsImV4cCI6MjA4MDQ0NzM4M30.OUBE062cKr4p4KpKlZlWIYCmqCBpXK43tQq9m-laDfg";
-
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     function loadSession() {
@@ -1279,6 +1273,26 @@
       const role = String(user?.role || "").trim().toLowerCase();
       return role === "admin" || role === "creator";
     }
+
+    const API_BASE = "/api"; 
+
+    async function apiGet(path) {
+      const r = await fetch(API_BASE + path, { credentials: "include" });
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+    
+    async function apiPost(path, body) {
+      const r = await fetch(API_BASE + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+
 
     const errorModal = document.getElementById("error-modal");
     const errorModalText = document.getElementById("error-modal-text");
@@ -1399,7 +1413,7 @@
 
     async function loadLeaders(period = "day") {
       currentPeriod = period;
-
+    
       if (dateEl) {
         const now = new Date();
         const dd = String(now.getDate()).padStart(2, "0");
@@ -1407,38 +1421,22 @@
         const yyyy = now.getFullYear();
         dateEl.textContent = `${dd}.${mm}.${yyyy}`;
       }
-
+    
       if (!leadersWrapper) return;
       leadersWrapper.textContent = "Загрузка…";
-
-      const { data, error } = await supabaseClient
-        .from("leaderinfo")
-        .select("id, nick, account_id, avatar_url, department, points_day")
-        .order("points_day", { ascending: false })
-        .limit(3);
-
-      if (error) {
-        console.error(error);
+    
+      try {
+        // ожидаем: [{id,nick,account_id,avatar_url,department,points}]
+        const rows = await apiGet("/leaders/day?limit=3");
+    
+        const slots = [0,1,2].map((i) => rows?.[i] || null);
+        leadersWrapper.innerHTML = "";
+        slots.forEach((row, idx) => leadersWrapper.appendChild(renderLeaderCard(idx + 1, row)));
+      } catch (e) {
+        console.error(e);
         leadersWrapper.textContent = "Ошибка загрузки рейтинга";
         showErrorModal("Ошибка загрузки данных по рейтингу дня!");
-        return;
       }
-
-      const rows = (data || []).map((r) => ({
-        id: r.id,
-        nick: (r.nick || "").trim(),
-        account_id: r.account_id || null,
-        avatar_url: r.avatar_url || null,
-        department: r.department || null,
-        points: Number(r.points_day || 0),
-      }));
-
-      const slots = [0,1,2].map((i) => rows[i] || null);
-
-      leadersWrapper.innerHTML = "";
-      slots.forEach((row, idx) => {
-        leadersWrapper.appendChild(renderLeaderCard(idx + 1, row));
-      });
     }
 
 
@@ -1528,33 +1526,28 @@
     async function loadWeeklyBlocks() {
       currentPeriod = "week";
       if (dateEl) dateEl.textContent = "";
-
+    
       if (!leadersWrapper) return;
       leadersWrapper.textContent = "Загрузка…";
-
-      const { data, error } = await supabaseClient
-        .from("leader_weekly_summary")
-        .select("week_start, week_end, nick_1, dept_1, ash_1, nick_2, dept_2, ash_2, nick_3, dept_3, ash_3, total_ash")
-        .order("week_start", { ascending: false })
-        .limit(8);
-
-      if (error) {
-        console.error(error);
+    
+      try {
+        // ожидаем массив строк из leader_weekly_summary
+        const data = await apiGet("/leaders/week?limit=8");
+    
+        if (!data || !data.length) {
+          leadersWrapper.textContent = "Пока нет данных по неделям";
+          return;
+        }
+    
+        leadersWrapper.innerHTML = "";
+        for (const row of data) leadersWrapper.appendChild(renderWeeklySummaryBlock(row));
+      } catch (e) {
+        console.error(e);
         leadersWrapper.textContent = "Ошибка загрузки активности недели!";
         showErrorModal("Ошибка загрузки!");
-        return;
-      }
-
-      if (!data || !data.length) {
-        leadersWrapper.textContent = "Пока нет данных по неделям";
-        return;
-      }
-
-      leadersWrapper.innerHTML = "";
-      for (const row of data) {
-        leadersWrapper.appendChild(renderWeeklySummaryBlock(row));
       }
     }
+
 
     const tabDay = document.getElementById("tab-day");
     const tabWeek = document.getElementById("tab-week");
@@ -1610,19 +1603,10 @@
     }
     
     async function fetchLeadersForDepts(){
-      const { data, error } = await supabaseClient
-        .from("leaderinfo")
-        .select("id, department, nick, account_id, avatar_url")
-        .in("department", ["LSPD","SFPD","LVPD"]);
-    
-      if (error) throw error;
-    
-      const map = new Map((data || []).map(r => [r.department, r]));
-      return ["LSPD","SFPD","LVPD"].map(d => {
-        const r = map.get(d);
-        return r ? r : { id:null, department:d, nick:"", account_id:"", avatar_url:null };
-      });
+      // ожидаем: [{id, department, nick, account_id, avatar_url}]
+      return apiGet("/leaders/by-depts?depts=LSPD,SFPD,LVPD");
     }
+
     
     function createBulkCard(row){
       const wrap = document.createElement("div");
@@ -1694,40 +1678,28 @@
       hideBulkError();
     
       for(const row of bulkRows){
-        if(!row.id){
-          showBulkError(`Нет записи leaderinfo для ${row.department}`);
-          return;
-        }
-        if(!row._ui.nickInput.value || !row._ui.accInput.value){
-          showBulkError(`Заполни все поля (${row.department})`);
-          return;
-        }
+        if(!row.id) return showBulkError(`Нет записи leaderinfo для ${row.department}`);
+        if(!row._ui.nickInput.value || !row._ui.accInput.value) return showBulkError(`Заполни все поля (${row.department})`);
       }
     
-      for(const row of bulkRows){
-        const payload = {
-          nick: row._ui.nickInput.value.trim(),
-          account_id: row._ui.accInput.value.trim(),
-          updated_at: new Date().toISOString()
-        };
-        if(bulkAvatarByDept[row.department]){
-          payload.avatar_url = bulkAvatarByDept[row.department];
-        }
+      const rows = bulkRows.map(row => ({
+        id: row.id,
+        department: row.department,
+        nick: row._ui.nickInput.value.trim(),
+        account_id: row._ui.accInput.value.trim(),
+        avatar_base64: bulkAvatarByDept[row.department] || null
+      }));
     
-        const { error } = await supabaseClient
-          .from("leaderinfo")
-          .update(payload)
-          .eq("id", row.id);
-    
-        if(error){
-          showBulkError(error.message);
-          return;
-        }
+      try {
+        await apiPost("/leaders/bulk", { rows });
+        closeBulkModal();
+        currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders("day");
+      } catch (e) {
+        console.error(e);
+        showBulkError(String(e.message || e));
       }
-    
-      closeBulkModal();
-      currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders("day");
     }
+
     
     if(editLeadersTopBtn){
       editLeadersTopBtn.onclick = async () => {
@@ -1780,90 +1752,65 @@
     }
     
     async function refreshReactionCounts(){
-      // читаем view public.page_reaction_counts
-      const { data, error } = await supabaseClient
-        .from("page_reaction_counts")
-        .select("reaction,cnt")
-        .eq("page", REACTIONS_PAGE_KEY);
-    
-      if(error){
-        console.error("counts error:", error);
-        return;
+      try {
+        const data = await apiGet(`/reactions/counts?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}`);
+        // ожидаем: [{reaction:"like", cnt:123}, ...]
+        const map = { like:0, dislike:0, ura:0, govno:0 };
+        (data || []).forEach(row => { map[row.reaction] = Number(row.cnt || 0); });
+        setCountsFromMap(map);
+      } catch (e) {
+        console.error("counts error:", e);
       }
-    
-      const map = { like:0, dislike:0, ura:0, govno:0 };
-      (data || []).forEach(row => {
-        map[row.reaction] = Number(row.cnt || 0);
-      });
-    
-      setCountsFromMap(map);
     }
+
     
     async function fetchMyReaction(){
-      const userKey = getUserKey();
-      const { data, error } = await supabaseClient
-        .from("page_reactions")
-        .select("reaction")
-        .eq("page", REACTIONS_PAGE_KEY)
-        .eq("user_key", userKey)
-        .maybeSingle();
-    
-      if(error){
-        console.error("my reaction error:", error);
+      try {
+        const userKey = getUserKey();
+        const data = await apiGet(`/reactions/my?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}&user_key=${encodeURIComponent(userKey)}`);
+        return data?.reaction || null; // ожидаем {reaction:"like"} или {}
+      } catch (e) {
+        console.error("my reaction error:", e);
         return null;
       }
-      return data?.reaction || null;
     }
+
     
     async function setMyReaction(nextReaction){
       const userKey = getUserKey();
-    
-      // toggle: если нажали ту же — удаляем реакцию
-      const current = await fetchMyReaction();
       const hint = document.getElementById("reactions-hint");
     
-      if(current === nextReaction){
-        const { error } = await supabaseClient
-          .from("page_reactions")
-          .delete()
-          .eq("page", REACTIONS_PAGE_KEY)
-          .eq("user_key", userKey);
+      try {
+        const current = await fetchMyReaction();
     
-        if(error){
-          console.error("delete reaction error:", error);
-          if(hint) hint.textContent = "Не удалось убрать реакцию.";
+        // toggle: если нажали ту же — удаляем
+        if (current === nextReaction) {
+          await apiPost("/reactions/set", {
+            page: REACTIONS_PAGE_KEY,
+            user_key: userKey,
+            reaction: null
+          });
+          setReactionButtonsActive(null);
+          if (hint) hint.textContent = "Реакция убрана.";
+          await refreshReactionCounts();
           return;
         }
     
-        setReactionButtonsActive(null);
-        if(hint) hint.textContent = "Реакция убрана.";
+        await apiPost("/reactions/set", {
+          page: REACTIONS_PAGE_KEY,
+          user_key: userKey,
+          reaction: nextReaction
+        });
+    
+        setReactionButtonsActive(nextReaction);
+        if (hint) hint.textContent = "Реакция сохранена.";
         await refreshReactionCounts();
-        return;
+      } catch (e) {
+        console.error("reaction set error:", e);
+        if (hint) hint.textContent = "Не удалось поставить реакцию.";
       }
-    
-      // upsert: 1 реакция на пользователя
-      const { error } = await supabaseClient
-        .from("page_reactions")
-        .upsert(
-          {
-            page: REACTIONS_PAGE_KEY,
-            user_key: userKey,
-            reaction: nextReaction,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "page,user_key" }
-        );
-    
-      if(error){
-        console.error("upsert reaction error:", error);
-        if(hint) hint.textContent = "Не удалось поставить реакцию.";
-        return;
-      }
-    
-      setReactionButtonsActive(nextReaction);
-      if(hint) hint.textContent = "Реакция сохранена.";
-      await refreshReactionCounts();
     }
+
     
     function bindReactionButtons(){
       document.querySelectorAll(".reaction-btn").forEach(btn => {
