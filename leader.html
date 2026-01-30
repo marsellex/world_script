@@ -1274,7 +1274,7 @@
       return role === "admin" || role === "creator";
     }
 
-    const API_BASE = "https://world-script-api.onrender.com"; 
+    const API_BASE = "https://world-script-api.onrender.com/api"; 
 
     async function apiGet(path) {
       const r = await fetch(API_BASE + path, { credentials: "include" });
