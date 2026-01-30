@@ -1,6 +1,10 @@
 import express from "express";
 import { createClient } from "@supabase/supabase-js";
 
+app.get("/", (req, res) => res.send("API is alive ✅"));
+app.get("/health", (req, res) => res.json({ ok: true }));
+
+
 const app = express();
 app.use(express.json({ limit: "10mb" })); // для base64 аватаров
 
