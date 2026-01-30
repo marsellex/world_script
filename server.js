@@ -4,25 +4,27 @@ import cors from "cors";
 
 const app = express();
 
+const ALLOWED_ORIGINS = new Set([
+  "https://world-script.onrender.com",
+  "https://marsellex.github.io",
+]);
+
 app.use(
   cors({
-    origin: [
-      "https://world-script.onrender.com",
-      "https://marsellex.github.io",
-    ],
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true); // curl/postman
+      return cb(null, ALLOWED_ORIGINS.has(origin));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Accept", "x-admin-token"],
   })
 );
 
 app.use(express.json({ limit: "10mb" }));
 
-app.get("/", (req, res) => {
-  res.send("API is alive ✅");
-});
-
-app.get("/health", (req, res) => {
-  res.json({ ok: true });
-});
+app.get("/", (req, res) => res.send("API is alive ✅"));
+app.get("/health", (req, res) => res.json({ ok: true }));
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -41,44 +43,11 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-app.post("/api/ash/set", requireAdmin, async (req, res) => {
-  const { nick, ash, field = "points_day" } = req.body || {};
-  const n = String(nick || "").trim();
-  const f = String(field || "").trim();
-  if (!n || !f) return res.status(400).send("Bad request");
-
-  const reset = String(ash).trim().toLowerCase() === "x";
-  const addVal = reset ? 0 : Number(ash);
-
-  if (!reset && (!Number.isFinite(addVal) || addVal < 0)) {
-    return res.status(400).send("Bad ash");
-  }
-
-  const { data: row, error: e1 } = await sb
-    .from("leaderinfo")
-    .select(`id, ${f}`)
-    .eq("nick", n)
-    .maybeSingle();
-
-  if (e1) return res.status(500).send(e1.message);
-  if (!row) return res.status(404).send("Nick not found");
-
-  const oldVal = Number(row[f] || 0);
-  const newVal = reset ? 0 : oldVal + addVal;
-
-  const { error: e2 } = await sb
-    .from("leaderinfo")
-    .update({ [f]: newVal, updated_at: new Date().toISOString() })
-    .eq("id", row.id);
-
-  if (e2) return res.status(500).send(e2.message);
-
-  res.json({ ok: true, nick: n, field: f, oldVal, newVal });
-});
-
+const ALLOWED_ASH_FIELDS = new Set(["points_day"]);
 
 app.get("/api/leaders/day", async (req, res) => {
   const limit = Math.min(Number(req.query.limit || 3), 10);
+
   const { data, error } = await sb
     .from("leaderinfo")
     .select("id,nick,account_id,avatar_url,department,points_day")
@@ -101,6 +70,7 @@ app.get("/api/leaders/day", async (req, res) => {
 
 app.get("/api/leaders/week", async (req, res) => {
   const limit = Math.min(Number(req.query.limit || 8), 30);
+
   const { data, error } = await sb
     .from("leader_weekly_summary")
     .select(
@@ -127,7 +97,10 @@ app.get("/api/leaders/by-depts", async (req, res) => {
   if (error) return res.status(500).send(error.message);
 
   const map = new Map((data || []).map((r) => [r.department, r]));
-  const ordered = depts.map((d) => map.get(d) || { id: null, department: d, nick: "", account_id: "", avatar_url: null });
+  const ordered = depts.map(
+    (d) => map.get(d) || { id: null, department: d, nick: "", account_id: "", avatar_url: null }
+  );
+
   res.json(ordered);
 });
 
@@ -150,12 +123,47 @@ app.post("/api/leaders/bulk", requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
+app.post("/api/ash/set", requireAdmin, async (req, res) => {
+  const nick = String(req.body?.nick || "").trim();
+  const field = String(req.body?.field || "points_day").trim();
+  const ashRaw = req.body?.ash;
+
+  if (!nick) return res.status(400).send("Bad request");
+  if (!ALLOWED_ASH_FIELDS.has(field)) return res.status(400).send("Bad field");
+
+  const isReset = String(ashRaw ?? "").trim().toLowerCase() === "x";
+  const addVal = isReset ? 0 : Number(ashRaw);
+
+  if (!isReset && (!Number.isFinite(addVal) || addVal < 0)) {
+    return res.status(400).send("Bad ash");
+  }
+
+  const { data: rows, error: e1 } = await sb
+    .from("leaderinfo")
+    .select(`id,${field}`)
+    .eq("nick", nick)
+    .limit(1);
+
+  if (e1) return res.status(500).send(e1.message);
+  if (!rows || !rows.length) return res.status(404).send("Nick not found");
+
+  const row = rows[0];
+  const oldVal = Number(row[field] || 0);
+  const newVal = isReset ? 0 : oldVal + addVal;
+
+  const { error: e2 } = await sb
+    .from("leaderinfo")
+    .update({ [field]: newVal, updated_at: new Date().toISOString() })
+    .eq("id", row.id);
+
+  if (e2) return res.status(500).send(e2.message);
+
+  res.json({ ok: true, nick, field, old: oldVal, now: newVal });
+});
+
 app.get("/api/reactions/counts", async (req, res) => {
   const page = String(req.query.page || "");
-  const { data, error } = await sb
-    .from("page_reaction_counts")
-    .select("reaction,cnt")
-    .eq("page", page);
+  const { data, error } = await sb.from("page_reaction_counts").select("reaction,cnt").eq("page", page);
 
   if (error) return res.status(500).send(error.message);
   res.json(data || []);
@@ -164,6 +172,7 @@ app.get("/api/reactions/counts", async (req, res) => {
 app.get("/api/reactions/my", async (req, res) => {
   const page = String(req.query.page || "");
   const user_key = String(req.query.user_key || "");
+
   const { data, error } = await sb
     .from("page_reactions")
     .select("reaction")
@@ -176,28 +185,26 @@ app.get("/api/reactions/my", async (req, res) => {
 });
 
 app.post("/api/reactions/set", async (req, res) => {
-  const { page, user_key, reaction } = req.body || {};
+  const page = String(req.body?.page || "");
+  const user_key = String(req.body?.user_key || "");
+  const reaction = req.body?.reaction ?? null;
+
   if (!page || !user_key) return res.status(400).send("Bad request");
 
   if (reaction === null) {
-    const { error } = await sb
-      .from("page_reactions")
-      .delete()
-      .eq("page", page)
-      .eq("user_key", user_key);
+    const { error } = await sb.from("page_reactions").delete().eq("page", page).eq("user_key", user_key);
     if (error) return res.status(500).send(error.message);
     return res.json({ ok: true });
   }
 
   const { error } = await sb.from("page_reactions").upsert(
-    { page, user_key, reaction, updated_at: new Date().toISOString() },
+    { page, user_key, reaction: String(reaction), updated_at: new Date().toISOString() },
     { onConflict: "page,user_key" }
   );
 
   if (error) return res.status(500).send(error.message);
   res.json({ ok: true });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("API listening on", PORT));
