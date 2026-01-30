@@ -45,6 +45,45 @@ function requireAdmin(req, res, next) {
 
 const ALLOWED_ASH_FIELDS = new Set(["points_day"]);
 
+app.post("/api/ash/set", requireAdmin, async (req, res) => {
+  const nick = String(req.body?.nick || "").trim();
+  const ashRaw = String(req.body?.ash ?? "").trim();
+  const field = String(req.body?.field || "points_day").trim();
+
+  if (!nick) return res.status(400).send("Bad request: nick");
+  if (field !== "points_day") return res.status(400).send("Bad request: field");
+
+  const { data: row, error: e1 } = await sb
+    .from("leaderinfo")
+    .select(`id,${field}`)
+    .eq("nick", nick)
+    .maybeSingle();
+
+  if (e1) return res.status(500).send(e1.message);
+  if (!row?.id) return res.status(404).send("Nick not found");
+
+  let newVal = 0;
+
+  if (ashRaw === "X" || ashRaw === "x") {
+    newVal = 0;
+  } else {
+    const addVal = Number(ashRaw);
+    if (!Number.isFinite(addVal) || addVal < 0) return res.status(400).send("Bad request: ash");
+    const oldVal = Number(row[field] || 0);
+    newVal = oldVal + addVal;
+  }
+
+  const { error: e2 } = await sb
+    .from("leaderinfo")
+    .update({ [field]: newVal, updated_at: new Date().toISOString() })
+    .eq("id", row.id);
+
+  if (e2) return res.status(500).send(e2.message);
+
+  res.json({ ok: true, nick, field, value: newVal });
+});
+
+
 app.get("/api/leaders/day", async (req, res) => {
   const limit = Math.min(Number(req.query.limit || 3), 10);
 
@@ -123,43 +162,6 @@ app.post("/api/leaders/bulk", requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
-app.post("/api/ash/set", requireAdmin, async (req, res) => {
-  const nick = String(req.body?.nick || "").trim();
-  const field = String(req.body?.field || "points_day").trim();
-  const ashRaw = req.body?.ash;
-
-  if (!nick) return res.status(400).send("Bad request");
-  if (!ALLOWED_ASH_FIELDS.has(field)) return res.status(400).send("Bad field");
-
-  const isReset = String(ashRaw ?? "").trim().toLowerCase() === "x";
-  const addVal = isReset ? 0 : Number(ashRaw);
-
-  if (!isReset && (!Number.isFinite(addVal) || addVal < 0)) {
-    return res.status(400).send("Bad ash");
-  }
-
-  const { data: rows, error: e1 } = await sb
-    .from("leaderinfo")
-    .select(`id,${field}`)
-    .eq("nick", nick)
-    .limit(1);
-
-  if (e1) return res.status(500).send(e1.message);
-  if (!rows || !rows.length) return res.status(404).send("Nick not found");
-
-  const row = rows[0];
-  const oldVal = Number(row[field] || 0);
-  const newVal = isReset ? 0 : oldVal + addVal;
-
-  const { error: e2 } = await sb
-    .from("leaderinfo")
-    .update({ [field]: newVal, updated_at: new Date().toISOString() })
-    .eq("id", row.id);
-
-  if (e2) return res.status(500).send(e2.message);
-
-  res.json({ ok: true, nick, field, old: oldVal, now: newVal });
-});
 
 app.get("/api/reactions/counts", async (req, res) => {
   const page = String(req.query.page || "");
