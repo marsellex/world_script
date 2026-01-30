@@ -83,6 +83,14 @@ app.post("/api/ash/set", requireAdmin, async (req, res) => {
   res.json({ ok: true, nick, field, value: newVal });
 });
 
+app.get("/api/debug/env", (req, res) => {
+  res.json({
+    supabaseUrl: process.env.SUPABASE_URL,
+    hasServiceKey: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+  });
+});
+
+
 
 app.get("/api/leaders/day", async (req, res) => {
   const limit = Math.min(Number(req.query.limit || 3), 10);
