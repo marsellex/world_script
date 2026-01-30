@@ -41,6 +41,42 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+app.post("/api/ash/set", requireAdmin, async (req, res) => {
+  const { nick, ash, field = "points_day" } = req.body || {};
+  const n = String(nick || "").trim();
+  const f = String(field || "").trim();
+  if (!n || !f) return res.status(400).send("Bad request");
+
+  const reset = String(ash).trim().toLowerCase() === "x";
+  const addVal = reset ? 0 : Number(ash);
+
+  if (!reset && (!Number.isFinite(addVal) || addVal < 0)) {
+    return res.status(400).send("Bad ash");
+  }
+
+  const { data: row, error: e1 } = await sb
+    .from("leaderinfo")
+    .select(`id, ${f}`)
+    .eq("nick", n)
+    .maybeSingle();
+
+  if (e1) return res.status(500).send(e1.message);
+  if (!row) return res.status(404).send("Nick not found");
+
+  const oldVal = Number(row[f] || 0);
+  const newVal = reset ? 0 : oldVal + addVal;
+
+  const { error: e2 } = await sb
+    .from("leaderinfo")
+    .update({ [f]: newVal, updated_at: new Date().toISOString() })
+    .eq("id", row.id);
+
+  if (e2) return res.status(500).send(e2.message);
+
+  res.json({ ok: true, nick: n, field: f, oldVal, newVal });
+});
+
+
 app.get("/api/leaders/day", async (req, res) => {
   const limit = Math.min(Number(req.query.limit || 3), 10);
   const { data, error } = await sb
@@ -160,40 +196,6 @@ app.post("/api/reactions/set", async (req, res) => {
 
   if (error) return res.status(500).send(error.message);
   res.json({ ok: true });
-});
-
-app.post("/api/ash/set", requireAdmin, async (req, res) => {
-  const { nick, ash, field = "points_day" } = req.body || {};
-  if (!nick || !field) return res.status(400).send("Bad request");
-
-  const reset = String(ash).toLowerCase() === "x";
-  const addVal = reset ? 0 : Number(ash);
-
-  if (!reset && (!Number.isFinite(addVal) || addVal < 0)) {
-    return res.status(400).send("Bad ash");
-  }
-
-  // 1) получить текущее значение
-  const { data: row, error: e1 } = await sb
-    .from("leaderinfo")
-    .select(`id, ${field}`)
-    .eq("nick", nick)
-    .maybeSingle();
-
-  if (e1) return res.status(500).send(e1.message);
-  if (!row) return res.status(404).send("Nick not found");
-
-  const oldVal = Number(row[field] || 0);
-  const newVal = reset ? 0 : oldVal + addVal;
-
-  // 2) обновить
-  const { error: e2 } = await sb
-    .from("leaderinfo")
-    .update({ [field]: newVal, updated_at: new Date().toISOString() })
-    .eq("id", row.id);
-
-  if (e2) return res.status(500).send(e2.message);
-  res.json({ ok: true, nick, field, oldVal, newVal });
 });
 
 
