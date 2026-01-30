@@ -1,9 +1,5 @@
 import express from "express";
 import { createClient } from "@supabase/supabase-js";
-
-app.get("/", (req, res) => res.send("API is alive ✅"));
-app.get("/health", (req, res) => res.json({ ok: true }));
-
 import cors from "cors";
 
 app.use(cors({
@@ -12,6 +8,15 @@ app.use(cors({
     "https://marsellex.github.io",            // если github pages
   ],
 }));
+
+app.get("/", (req, res) => {
+  res.send("API is alive ✅");
+});
+
+app.get("/health", (req, res) => {
+  res.json({ ok: true });
+});
+
 
 
 const app = express();
