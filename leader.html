@@ -1287,11 +1287,13 @@
       const r = await fetch(API_BASE + path, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...extraHeaders },
+        credentials: "include",
         body: JSON.stringify(body),
       });
       if (!r.ok) throw new Error(await r.text());
       return r.json();
     }
+
 
 
 
@@ -1412,15 +1414,6 @@
       return card;
     }
 
-    function getAdminToken() {
-      let t = localStorage.getItem("pp_admin_token") || "";
-      if (!t) {
-        t = prompt("Введите ADMIN_TOKEN для редактирования лидеров:") || "";
-        t = t.trim();
-        if (t) localStorage.setItem("pp_admin_token", t);
-      }
-      return t;
-    }
 
 
     async function loadLeaders(period = "day") {
@@ -1722,8 +1715,9 @@
       }));
     
       try {
-        const token = getAdminToken();
-        await apiPost("/leaders/bulk", { rows }, { "x-admin-token": token });
+
+        const actorNick = String(currentUser?.nick || "").trim();
+        await apiPost("/leaders/bulk", { rows, actor_nick: actorNick });
         closeBulkModal();
         currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders("day");
       } catch (e) {
@@ -1869,18 +1863,29 @@
     const userTagEl = document.getElementById("user-tag");
     async function initPage() {
       currentUser = loadSession();
+      if (userTagEl) userTagEl.textContent = "";
     
-      // 1) роль из БД
-      const role = await fetchRoleFromDb();
-      currentUser = { ...(currentUser || {}), role };
-    
-      // 2) показать/скрыть кнопку
       const editBtn = document.getElementById("edit-leaders-top");
-      if (editBtn) editBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
+      if (editBtn) editBtn.style.display = "none";
+    
+      // 1) узнаём ник текущего пользователя
+      const myNick = String(currentUser?.nick || "").trim();
+    
+      // 2) спрашиваем у сервера: можно ли редактировать
+      if (editBtn && myNick) {
+        try {
+          const r = await apiGet(`/users/can-edit?nick=${encodeURIComponent(myNick)}`);
+          if (r?.ok) editBtn.style.display = "inline-flex";
+        } catch (e) {
+          console.error("can-edit error:", e);
+          // если упало — просто не показываем кнопку
+        }
+      }
     
       await loadLeaders("day");
       await initReactions();
     }
+
 
     window.addEventListener("load", initPage);
   </script>
