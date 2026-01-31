@@ -76,6 +76,112 @@ function requireAdmin(req, res, next) {
 
 const ALLOWED_ASH_FIELDS = new Set(["points_day"]);
 
+app.post("/api/rollover", requireAdmin, async (req, res) => {
+  const closeWeek = !!req.body?.close_week;
+
+  // 1) читаем всех
+  const { data: leaders, error: e1 } = await sb
+    .from("leaderinfo")
+    .select("id,nick,department,points_day,points_week");
+
+  if (e1) return res.status(500).send(e1.message);
+
+  const safeNum = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+
+  // 2) готовим апдейты (копим неделю и сбрасываем день)
+  const updates = (leaders || []).map((r) => {
+    const day = safeNum(r.points_day);
+    const week = safeNum(r.points_week);
+    return {
+      id: r.id,
+      points_week: week + day,
+      points_day: 0,
+      updated_at: new Date().toISOString(),
+    };
+  });
+
+  // апсерт по id (обновит нужные поля)
+  const { error: e2 } = await sb
+    .from("leaderinfo")
+    .upsert(updates, { onConflict: "id" });
+
+  if (e2) return res.status(500).send(e2.message);
+
+  // 3) если нужно — закрываем неделю
+  if (closeWeek) {
+    // перечитываем уже обновлённые points_week
+    const { data: leaders2, error: e3 } = await sb
+      .from("leaderinfo")
+      .select("nick,department,points_week");
+
+    if (e3) return res.status(500).send(e3.message);
+
+    const sorted = (leaders2 || [])
+      .map((r) => ({
+        nick: (r.nick || "").trim(),
+        dept: (r.department || "").trim(),
+        ash: safeNum(r.points_week),
+      }))
+      .sort((a, b) => b.ash - a.ash);
+
+    const top1 = sorted[0] || {};
+    const top2 = sorted[1] || {};
+    const top3 = sorted[2] || {};
+
+    const total = sorted.reduce((s, r) => s + safeNum(r.ash), 0);
+
+    // week_start — понедельник (Postgres/ISO), но мы тут сделаем в JS по UTC.
+    // Лучше: держать всё в UTC и на фронте/отображении форматировать.
+    // Если хочешь по МСК — скажи, я дам вариант.
+    const now = new Date();
+    const day = now.getUTCDay(); // Sunday=0
+    const diffToMonday = (day + 6) % 7; // сколько дней назад был понедельник
+    const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    monday.setUTCDate(monday.getUTCDate() - diffToMonday);
+
+    // мы закрываем "предыдущую" неделю в момент понедельника 00:00
+    const weekStart = new Date(monday);
+    weekStart.setUTCDate(weekStart.getUTCDate() - 7);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+
+    const isoDate = (d) => d.toISOString().slice(0, 10);
+
+    const payload = {
+      week_start: isoDate(weekStart),
+      week_end: isoDate(weekEnd),
+
+      nick_1: top1.nick || null,
+      dept_1: top1.dept || null,
+      ash_1: safeNum(top1.ash),
+
+      nick_2: top2.nick || null,
+      dept_2: top2.dept || null,
+      ash_2: safeNum(top2.ash),
+
+      nick_3: top3.nick || null,
+      dept_3: top3.dept || null,
+      ash_3: safeNum(top3.ash),
+
+      total_ash: total,
+    };
+
+    const { error: e4 } = await sb.from("leader_weekly_summary").insert(payload);
+    if (e4) return res.status(500).send(e4.message);
+
+    // сброс points_week
+    const { error: e5 } = await sb
+      .from("leaderinfo")
+      .update({ points_week: 0, updated_at: new Date().toISOString() })
+      .neq("id", "00000000-0000-0000-0000-000000000000"); // трюк: обновить всех
+
+    if (e5) return res.status(500).send(e5.message);
+  }
+
+  res.json({ ok: true, close_week: closeWeek });
+});
+
+
 app.post("/api/ash/set", requireAdmin, async (req, res) => {
   const nick = String(req.body?.nick || "").trim();
   const ashRaw = String(req.body?.ash ?? "").trim();
