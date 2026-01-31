@@ -90,6 +90,23 @@ app.get("/api/debug/env", (req, res) => {
   });
 });
 
+app.get("/api/users/role", async (req, res) => {
+  const accountId = String(req.query.account_id || "").trim();
+  if (!accountId) return res.status(400).send("Bad request: account_id");
+
+  const { data, error } = await sb
+    .from("users") // <-- проверь что таблица реально так называется: public.users
+    .select("role")
+    .eq("account_id", accountId)
+    .maybeSingle();
+
+  if (error) return res.status(500).send(error.message);
+
+  // если пользователя нет в таблице — считаем роль обычной
+  res.json({ role: (data?.role || "user").toString() });
+});
+
+
 
 
 app.get("/api/leaders/day", async (req, res) => {
