@@ -1274,6 +1274,7 @@
       return role === "admin" || role === "creator";
     }
 
+
     const API_BASE = "https://world-script-api.onrender.com/api"; 
 
     async function apiGet(path) {
@@ -1612,6 +1613,25 @@
       if (bulkFormsEl) bulkFormsEl.innerHTML = "";
       hideBulkError();
     }
+
+    async function fetchRoleFromDb() {
+      const accountId =
+        currentUser?.account_id ||
+        currentUser?.accountId ||
+        currentUser?.login ||
+        "";
+    
+      if (!accountId) return "user";
+    
+      try {
+        const data = await apiGet(`/users/role?account_id=${encodeURIComponent(accountId)}`);
+        return (data?.role || "user").toString().toLowerCase();
+      } catch (e) {
+        console.error("role fetch failed:", e);
+        return "user";
+      }
+    }
+
     
     async function fetchLeadersForDepts(){
       // ожидаем: [{id, department, nick, account_id, avatar_url}]
@@ -1849,12 +1869,19 @@
     const userTagEl = document.getElementById("user-tag");
     async function initPage() {
       currentUser = loadSession();
-      if (userTagEl) userTagEl.textContent = "";
+    
+      // 1) роль из БД
+      const role = await fetchRoleFromDb();
+      currentUser = { ...(currentUser || {}), role };
+    
+      // 2) показать/скрыть кнопку
       const editBtn = document.getElementById("edit-leaders-top");
       if (editBtn) editBtn.style.display = canBulkEdit(currentUser) ? "inline-flex" : "none";
+    
       await loadLeaders("day");
       await initReactions();
     }
+
     window.addEventListener("load", initPage);
   </script>
 </body>
