@@ -35,6 +35,37 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 
 const sb = createClient(SUPABASE_URL, SERVICE_KEY);
 
+async function isEditorNick(nick) {
+  const n = String(nick || "").trim();
+  if (!n) return { ok: false, reason: "no_nick" };
+
+  const { data, error } = await sb
+    .from("users")
+    .select("role")
+    .eq("nick", n)
+    .maybeSingle();
+
+  if (error) return { ok: false, reason: error.message };
+
+  const role = String(data?.role || "").trim().toLowerCase();
+  const allowed = role === "admin" || role === "creator";
+  return { ok: allowed, role };
+}
+
+async function requireEditor(req, res, next) {
+  const nick =
+    req.body?.actor_nick ||
+    req.query?.actor_nick ||
+    req.headers["x-actor-nick"];
+
+  const r = await isEditorNick(nick);
+  if (!r.ok) return res.status(403).send("Forbidden");
+  req._actorNick = String(nick || "").trim();
+  req._actorRole = r.role;
+  next();
+}
+
+
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN;
 
 function requireAdmin(req, res, next) {
@@ -82,6 +113,15 @@ app.post("/api/ash/set", requireAdmin, async (req, res) => {
 
   res.json({ ok: true, nick, field, value: newVal });
 });
+
+app.get("/api/users/can-edit", async (req, res) => {
+  const nick = String(req.query.nick || "").trim();
+  const r = await isEditorNick(nick);
+
+  // не палим лишнее, но для отладки роль полезна
+  res.json({ ok: r.ok, role: r.role || null });
+});
+
 
 app.get("/api/debug/env", (req, res) => {
   res.json({
@@ -168,10 +208,12 @@ app.get("/api/leaders/by-depts", async (req, res) => {
   res.json(ordered);
 });
 
-app.post("/api/leaders/bulk", requireAdmin, async (req, res) => {
+app.post("/api/leaders/bulk", requireEditor, async (req, res) => {
   const rows = req.body?.rows || [];
+  if (!Array.isArray(rows) || !rows.length) return res.status(400).send("Bad request: rows");
+
   for (const r of rows) {
-    if (!r.id || !r.nick || !r.account_id) return res.status(400).send("Bad request");
+    if (!r.id || !r.nick || !r.account_id) return res.status(400).send("Bad request: row");
 
     const payload = {
       nick: String(r.nick).trim(),
@@ -184,8 +226,10 @@ app.post("/api/leaders/bulk", requireAdmin, async (req, res) => {
     const { error } = await sb.from("leaderinfo").update(payload).eq("id", r.id);
     if (error) return res.status(500).send(error.message);
   }
+
   res.json({ ok: true });
 });
+
 
 
 app.get("/api/reactions/counts", async (req, res) => {
