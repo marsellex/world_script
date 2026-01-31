@@ -1282,16 +1282,16 @@
       return r.json();
     }
     
-    async function apiPost(path, body) {
+    async function apiPost(path, body, extraHeaders = {}) {
       const r = await fetch(API_BASE + path, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: { "Content-Type": "application/json", ...extraHeaders },
         body: JSON.stringify(body),
       });
       if (!r.ok) throw new Error(await r.text());
       return r.json();
     }
+
 
 
     const errorModal = document.getElementById("error-modal");
@@ -1410,6 +1410,17 @@
 
       return card;
     }
+
+    function getAdminToken() {
+      let t = localStorage.getItem("pp_admin_token") || "";
+      if (!t) {
+        t = prompt("Введите ADMIN_TOKEN для редактирования лидеров:") || "";
+        t = t.trim();
+        if (t) localStorage.setItem("pp_admin_token", t);
+      }
+      return t;
+    }
+
 
     async function loadLeaders(period = "day") {
       currentPeriod = period;
@@ -1691,7 +1702,8 @@
       }));
     
       try {
-        await apiPost("/leaders/bulk", { rows });
+        const token = getAdminToken();
+        await apiPost("/leaders/bulk", { rows }, { "x-admin-token": token });
         closeBulkModal();
         currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders("day");
       } catch (e) {
