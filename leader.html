@@ -1241,6 +1241,167 @@
       }
     
     }
+
+    /* ================= Dept podium (weekly) ================= */
+
+    .dept-podium{
+      width: min(860px, 100%);
+      margin: 6px auto 0;
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 10px 2px;
+    }
+    
+    .dept-orb{
+      position: relative;
+      height: 104px;
+      border-radius: 999px;
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      overflow:hidden;
+    
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(46,249,255,.14);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.05) inset,
+        0 18px 54px rgba(0,0,0,.34),
+        0 0 22px rgba(46,249,255,.08),
+        0 0 22px rgba(255,45,122,.06);
+    
+      transform: translateZ(0);
+      will-change: transform, filter;
+      transition: transform .18s ease, box-shadow .20s ease, border-color .20s ease, filter .20s ease;
+    }
+    
+    .dept-orb::before{
+      content:"";
+      position:absolute;
+      inset:-3px;
+      border-radius: 999px;
+      background: conic-gradient(
+        from 0deg,
+        rgba(46,249,255,0) 0deg,
+        rgba(46,249,255,.85) 80deg,
+        rgba(255,45,122,.88) 160deg,
+        rgba(168,85,247,.72) 240deg,
+        rgba(255,45,122,.86) 320deg,
+        rgba(46,249,255,0) 360deg
+      );
+      opacity: .40;
+    
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    
+      filter: blur(.20px);
+      pointer-events:none;
+    
+      animation: deptSpin 9s linear infinite;
+      animation-play-state: paused;
+    }
+    
+    @keyframes deptSpin{ to { transform: rotate(360deg); } }
+    
+    .dept-orb .dept-sheen{
+      position:absolute;
+      inset:-60% -70%;
+      pointer-events:none;
+      background: linear-gradient(115deg,
+        transparent 0%,
+        rgba(255,255,255,.00) 34%,
+        rgba(255,255,255,.14) 44%,
+        rgba(46,249,255,.10) 52%,
+        rgba(255,45,122,.10) 58%,
+        rgba(255,255,255,.00) 70%,
+        transparent 100%
+      );
+      transform: translateX(-60%) rotate(10deg);
+      opacity: 0;
+      transition: opacity .16s ease;
+      mix-blend-mode: screen;
+    }
+    
+    .dept-orb:hover{
+      transform: translateY(-4px) scale(1.03);
+      border-color: rgba(255,45,122,.28);
+      box-shadow:
+        0 26px 90px rgba(0,0,0,.56),
+        0 0 42px rgba(46,249,255,.16),
+        0 0 52px rgba(255,45,122,.16),
+        0 0 48px rgba(168,85,247,.12);
+      filter: saturate(1.12) brightness(1.03);
+    }
+    .dept-orb:hover::before{ animation-play-state: running; opacity: .90; }
+    .dept-orb:hover .dept-sheen{
+      opacity: 1;
+      animation: deptSheen .8s ease-out 1;
+    }
+    @keyframes deptSheen{
+      0%   { transform: translateX(-60%) rotate(10deg); }
+      100% { transform: translateX( 60%) rotate(10deg); }
+    }
+    
+    .dept-place{
+      position:absolute;
+      top: 10px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(243,246,255,.68);
+      text-shadow: 0 0 14px rgba(46,249,255,.08);
+    }
+    
+    .dept-name{
+      font-size: 30px;
+      font-weight: 1000;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      line-height: 1.0;
+    
+      background: linear-gradient(90deg, rgba(46,249,255,1), rgba(255,45,122,.98), rgba(168,85,247,.92));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color: transparent;
+    
+      filter:
+        drop-shadow(0 0 12px rgba(46,249,255,.20))
+        drop-shadow(0 0 18px rgba(255,45,122,.12));
+    
+      transform: translateZ(0);
+      animation: deptTextFloat 3.8s ease-in-out infinite;
+    }
+    
+    @keyframes deptTextFloat{
+      0%   { transform: translateY(0px);   letter-spacing: .08em; }
+      50%  { transform: translateY(-2px);  letter-spacing: .10em; }
+      100% { transform: translateY(0px);   letter-spacing: .08em; }
+    }
+    
+    /* sizes: 1st bigger, 2nd/3rd smaller */
+    .dept-orb.p1{ height: 120px; }
+    .dept-orb.p1 .dept-name{ font-size: 34px; }
+    .dept-orb.p2, .dept-orb.p3{ height: 102px; }
+    .dept-orb.p2 .dept-name, .dept-orb.p3 .dept-name{ font-size: 28px; }
+    
+    @media (max-width: 720px){
+      .dept-podium{
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 6px 10px 0;
+      }
+      .dept-orb, .dept-orb.p1{ height: 104px; }
+      .dept-orb .dept-name, .dept-orb.p1 .dept-name{ font-size: 30px; }
+    }
+
        
   </style>
 </head>
@@ -1293,6 +1454,7 @@
           </button>
         </div>
         <div class="leader-date" id="leader-date"></div>
+        <div class="dept-podium" id="dept-podium" style="display:none;"></div>
       </div>
 
       <div class="leaders-wrapper" id="leaders-wrapper">Загрузка…</div>
@@ -1371,6 +1533,109 @@
     const leadersWrapper = document.getElementById("leaders-wrapper");
     const dateEl = document.getElementById("leader-date");
     let currentPeriod = "day";
+
+    const deptPodiumEl = document.getElementById("dept-podium");
+    
+    function toISODateOnly(x){
+      const s = String(x || "").trim();
+      return s ? s.slice(0, 10) : "0000-00-00";
+    }
+    
+    function sortWeeksDesc(rows){
+      return (rows || []).slice().sort((a, b) => {
+        const ae = toISODateOnly(a?.week_end || a?.week_start);
+        const be = toISODateOnly(b?.week_end || b?.week_start);
+        if (be > ae) return 1;
+        if (be < ae) return -1;
+        return 0;
+      });
+    }
+    
+    function pickNum(row, ...keys){
+      for (const k of keys){
+        if (row && row[k] != null && row[k] !== ""){
+          const v = Number(row[k]);
+          if (Number.isFinite(v)) return v;
+        }
+      }
+      return null;
+    }
+    
+    function sumDeptAshFromRow(row){
+      // 1) Пытаемся взять totals по департаментам (идеальный вариант)
+      const lspd = pickNum(row, "lspd_ash", "ash_lspd", "total_lspd", "lspd_total", "lspd");
+      const sfpd = pickNum(row, "sfpd_ash", "ash_sfpd", "total_sfpd", "sfpd_total", "sfpd");
+      const lvpd = pickNum(row, "lvpd_ash", "ash_lvpd", "total_lvpd", "lvpd_total", "lvpd");
+    
+      if (lspd !== null || sfpd !== null || lvpd !== null){
+        return { LSPD: lspd ?? 0, SFPD: sfpd ?? 0, LVPD: lvpd ?? 0, _source: "totals" };
+      }
+    
+      // 2) fallback: если в таблице нет totals — считаем по top3 (dept_1..3 + ash_1..3)
+      const acc = { LSPD: 0, SFPD: 0, LVPD: 0, _source: "top3_fallback" };
+    
+      const put = (dept, ash) => {
+        const d = String(dept || "").trim().toUpperCase();
+        if (d !== "LSPD" && d !== "SFPD" && d !== "LVPD") return;
+        const v = Number(ash || 0);
+        acc[d] += (Number.isFinite(v) ? v : 0);
+      };
+    
+      put(row?.dept_1, row?.ash_1);
+      put(row?.dept_2, row?.ash_2);
+      put(row?.dept_3, row?.ash_3);
+    
+      return acc;
+    }
+    
+    function rankDeptsFromLast3Weeks(rows){
+      const sorted = sortWeeksDesc(rows);
+      const last3 = sorted.slice(0, 3);
+    
+      const total = { LSPD: 0, SFPD: 0, LVPD: 0 };
+      for (const row of last3){
+        const s = sumDeptAshFromRow(row);
+        total.LSPD += Number(s.LSPD || 0);
+        total.SFPD += Number(s.SFPD || 0);
+        total.LVPD += Number(s.LVPD || 0);
+      }
+    
+      return [
+        { dept: "LSPD", val: total.LSPD },
+        { dept: "SFPD", val: total.SFPD },
+        { dept: "LVPD", val: total.LVPD },
+      ].sort((a,b) => b.val - a.val);
+    }
+    
+    function renderDeptPodium(list){
+      if(!deptPodiumEl) return;
+    
+      const d1 = list?.[0] || { dept:"—" };
+      const d2 = list?.[1] || { dept:"—" };
+      const d3 = list?.[2] || { dept:"—" };
+    
+      deptPodiumEl.innerHTML = `
+        <div class="dept-orb p2" title="2 место по сумме АШ за последние 3 недели">
+          <div class="dept-place">2 МЕСТО</div>
+          <div class="dept-sheen"></div>
+          <div class="dept-name">${d2.dept}</div>
+        </div>
+    
+        <div class="dept-orb p1" title="1 место по сумме АШ за последние 3 недели">
+          <div class="dept-place">1 МЕСТО</div>
+          <div class="dept-sheen"></div>
+          <div class="dept-name">${d1.dept}</div>
+        </div>
+    
+        <div class="dept-orb p3" title="3 место по сумме АШ за последние 3 недели">
+          <div class="dept-place">3 МЕСТО</div>
+          <div class="dept-sheen"></div>
+          <div class="dept-name">${d3.dept}</div>
+        </div>
+      `;
+    }
+
+    
 
     function renderLeaderCard(place, row) {
       const card = document.createElement("div");
@@ -1466,6 +1731,7 @@
 
     async function loadLeaders(period = "day") {
       currentPeriod = period;
+      if (deptPodiumEl) deptPodiumEl.style.display = "none";
     
       if (dateEl) {
         const now = new Date();
@@ -1586,12 +1852,19 @@
       try {
         // ожидаем массив строк из leader_weekly_summary
         const data = await apiGet("/leaders/week?limit=8");
-    
+
+        // показываем кружки департаментов (топ-3 по сумме АШ за последние 3 недели)
+        if (deptPodiumEl) {
+          deptPodiumEl.style.display = "grid";
+          const ranked = rankDeptsFromLast3Weeks(data || []);
+          renderDeptPodium(ranked);
+        }
+        
         if (!data || !data.length) {
           leadersWrapper.textContent = "Пока нет данных по неделям";
           return;
         }
-    
+        
         leadersWrapper.innerHTML = "";
         for (const row of data) leadersWrapper.appendChild(renderWeeklySummaryBlock(row));
       } catch (e) {
