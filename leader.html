@@ -2038,7 +2038,7 @@
       try {
 
         const actorNick = String(currentUser?.nick || "").trim();
-        await apiPost("/leaders/bulk", { rows, actor_nick: actorNick });
+        await apiPost("/leaders/bulk", { rows });
         closeBulkModal();
         currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders("day");
       } catch (e) {
