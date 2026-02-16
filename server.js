@@ -314,7 +314,7 @@ app.get("/api/leaders/by-depts", async (req, res) => {
   res.json(ordered);
 });
 
-app.post("/api/leaders/bulk", requireEditor, async (req, res) => {
+app.post("/api/leaders/bulk", requireAdmin, async (req, res) => {
   const rows = req.body?.rows || [];
   if (!Array.isArray(rows) || !rows.length) return res.status(400).send("Bad request: rows");
 
