@@ -14,24 +14,22 @@
       --accent2:#2ef9ff;
       --accent3:#a855f7;
       --accent4:#ff4d5e;
-
       --bg0:#06070f;
       --glass: rgba(8, 10, 24, .55);
       --glass2: rgba(0,0,0,.22);
-
       --b1: rgba(255,255,255,.10);
       --b2: rgba(255,255,255,.16);
       --ring: rgba(46,249,255,.42);
-
       --shadow-s: 0 10px 32px rgba(0,0,0,.28);
       --shadow-m: 0 18px 64px rgba(0,0,0,.44);
       --shadow-l: 0 28px 96px rgba(0,0,0,.62);
-
       --rXL: 30px;
       --rL: 24px;
-
-      --ease: cubic-bezier(.22, 1, .36, 1);
-      --ease2: cubic-bezier(.16, 1, .3, 1);
+      --ease: cubic-bezier(.2,.9,.1,1);
+      --ease2: cubic-bezier(.16,1,.3,1);
+      --dur-quick: 240ms;
+      --dur: 520ms;
+      --dur-slow: 820ms;
     }
 
     *{
@@ -42,6 +40,8 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    html{ scroll-behavior: smooth; }
+
     body{
       min-height:100vh;
       color:var(--text);
@@ -50,7 +50,6 @@
       align-items:flex-start;
       padding:22px;
       overflow-x:hidden;
-
       background: url("fon.png") center / cover no-repeat fixed;
       background-color: var(--bg0);
       position:relative;
@@ -114,8 +113,8 @@
       animation: scanMove 7.5s linear infinite;
     }
     @keyframes scanMove{
-      0%   { transform: translateY(0); }
-      100% { transform: translateY(18px); }
+      0%{ transform: translateY(0); }
+      100%{ transform: translateY(18px); }
     }
 
     .bg-live .particles{
@@ -132,8 +131,8 @@
       animation: particlesDrift 52s linear infinite;
     }
     @keyframes particlesDrift{
-      0%   { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(-3%, 2%, 0); }
+      0%{ transform: translate3d(0,0,0); }
+      100%{ transform: translate3d(-3%, 2%, 0); }
     }
 
     .bg-live .vignette{
@@ -169,6 +168,7 @@
       align-items:center;
       gap:8px;
       padding: 8px 12px;
+      transform: translateZ(0);
     }
 
     .page-title{
@@ -179,12 +179,60 @@
         0 0 16px rgba(255,45,122,.22),
         0 0 34px rgba(46,249,255,.14),
         0 0 52px rgba(168,85,247,.10);
+      position:relative;
+      transform: translateZ(0);
+      user-select:none;
+      transition: filter var(--dur) var(--ease), transform var(--dur) var(--ease);
+    }
+
+    .page-title.glitching{
+      filter: drop-shadow(0 0 18px rgba(46,249,255,.14)) drop-shadow(0 0 22px rgba(255,45,122,.14));
+      transform: translateY(-1px);
+    }
+
+    .page-title::before,
+    .page-title::after{
+      content: attr(data-text);
+      position:absolute;
+      left:0; top:0;
+      width:100%;
+      opacity:0;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      filter: blur(.35px);
+      transform: translateZ(0);
+    }
+    .page-title.glitching::before{
+      opacity:.65;
+      color: rgba(46,249,255,.95);
+      transform: translate3d(-1.5px, 0, 0);
+      animation: glitchA 320ms var(--ease2) 1;
+    }
+    .page-title.glitching::after{
+      opacity:.55;
+      color: rgba(255,45,122,.95);
+      transform: translate3d(1.5px, 0, 0);
+      animation: glitchB 320ms var(--ease2) 1;
+    }
+    @keyframes glitchA{
+      0%{ clip-path: inset(0 0 70% 0); }
+      35%{ clip-path: inset(20% 0 40% 0); }
+      70%{ clip-path: inset(55% 0 12% 0); }
+      100%{ clip-path: inset(0 0 0 0); }
+    }
+    @keyframes glitchB{
+      0%{ clip-path: inset(70% 0 0 0); }
+      35%{ clip-path: inset(35% 0 30% 0); }
+      70%{ clip-path: inset(10% 0 60% 0); }
+      100%{ clip-path: inset(0 0 0 0); }
     }
 
     .user-tag{
       font-size:12px;
       color: rgba(243,246,255,.62);
       margin-top:2px;
+      opacity: .95;
+      transition: opacity var(--dur) var(--ease);
     }
 
     .page-header-actions{
@@ -206,7 +254,8 @@
       color: rgba(243,246,255,.92);
       cursor:pointer;
       border-radius: 12px;
-      transition: transform .32s var(--ease), box-shadow .38s var(--ease), border-color .38s var(--ease), background .38s var(--ease), filter .38s var(--ease);
+      transition: transform var(--dur-quick) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+      will-change: transform;
     }
     .btn:hover{
       transform: translateY(-1px);
@@ -228,7 +277,8 @@
       border-radius: 12px;
       padding: 11px 18px;
       font-size: 14px;
-      transition: transform .32s var(--ease), box-shadow .38s var(--ease), border-color .38s var(--ease), background .38s var(--ease), filter .38s var(--ease);
+      transition: transform var(--dur-quick) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+      will-change: transform;
     }
     .btn-outline:hover{
       transform: translateY(-1px);
@@ -252,12 +302,24 @@
       gap:12px;
       margin-bottom: 14px;
       position:relative;
-      z-index:1;
+      z-index:2;
       width: 100%;
     }
 
+    .leader-panel-header.sticky{
+      position: sticky;
+      top: 10px;
+      padding: 10px 10px 12px;
+      border-radius: 22px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 18px 54px rgba(0,0,0,.26);
+    }
+
     .leader-tabs{
-      display: flex !important;
+      display:flex !important;
       flex-direction: row !important;
       align-items: stretch;
       justify-content: center;
@@ -275,6 +337,7 @@
         0 0 28px rgba(46,249,255,.10),
         0 0 26px rgba(255,45,122,.08);
       overflow: hidden;
+      transform: translateZ(0);
     }
 
     .leader-tab{
@@ -296,8 +359,9 @@
       gap:10px;
       color: rgba(243,246,255,.74);
       cursor:pointer;
-      transition: transform .34s var(--ease), color .34s var(--ease), filter .34s var(--ease);
+      transition: transform var(--dur-quick) var(--ease), color var(--dur) var(--ease), filter var(--dur) var(--ease);
       z-index:1;
+      will-change: transform;
     }
     .leader-tab:hover{
       transform: translateY(-1px);
@@ -305,6 +369,7 @@
       filter: drop-shadow(0 0 14px rgba(46,249,255,.18));
     }
     .leader-tab:active{ transform: translateY(0px) scale(.99); }
+
     .leader-tab.active{
       color: #fff;
       text-shadow:
@@ -321,7 +386,6 @@
         0 0 34px rgba(46,249,255,.18),
         0 0 44px rgba(255,45,122,.16);
       z-index:-2;
-      transition: opacity .34s var(--ease);
     }
     .leader-tab.active::after{
       content:"";
@@ -332,7 +396,6 @@
       z-index:-1;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      transition: opacity .34s var(--ease);
     }
 
     .leader-date{
@@ -341,6 +404,39 @@
       color: rgba(243,246,255,.74);
       margin-top: 4px;
       text-shadow: 0 0 18px rgba(46,249,255,.10);
+      transform: translateZ(0);
+    }
+
+    .crossfade{
+      position:relative;
+      display:inline-block;
+      min-height: 1em;
+    }
+    .crossfade .cf-out{
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+      transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), filter var(--dur) var(--ease);
+    }
+    .crossfade.is-swapping .cf-out{
+      opacity: 0;
+      transform: translateY(-4px);
+      filter: blur(2px);
+    }
+    .crossfade .cf-in{
+      position:absolute;
+      left:0; right:0;
+      top:0;
+      opacity: 0;
+      transform: translateY(6px);
+      filter: blur(3px);
+      transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), filter var(--dur) var(--ease);
+      pointer-events:none;
+    }
+    .crossfade.is-swapping .cf-in{
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
     }
 
     .leaders-wrapper{
@@ -350,8 +446,42 @@
       gap:18px;
       position:relative;
       z-index:1;
-      transform-origin: 50% 30%;
+      transform: translateZ(0);
+      will-change: transform, opacity, filter;
     }
+
+    .leaders-wrapper.swap{
+      animation-duration: var(--dur-slow);
+      animation-timing-function: var(--ease2);
+      animation-fill-mode: both;
+    }
+
+    @keyframes swapA{
+      0%{ opacity:0; transform: translateY(12px); filter: blur(8px); }
+      100%{ opacity:1; transform: translateY(0); filter: blur(0); }
+    }
+    @keyframes swapB{
+      0%{ opacity:0; transform: translateX(18px) scale(.98); filter: blur(8px); }
+      100%{ opacity:1; transform: translateX(0) scale(1); filter: blur(0); }
+    }
+    @keyframes swapC{
+      0%{ opacity:0; transform: perspective(900px) rotateX(16deg) translateY(12px); filter: blur(10px); }
+      100%{ opacity:1; transform: perspective(900px) rotateX(0deg) translateY(0); filter: blur(0); }
+    }
+    @keyframes swapD{
+      0%{ opacity:0; transform: translateY(8px) scale(.96); clip-path: inset(0 0 100% 0); filter: blur(8px); }
+      100%{ opacity:1; transform: translateY(0) scale(1); clip-path: inset(0 0 0 0); filter: blur(0); }
+    }
+    @keyframes swapE{
+      0%{ opacity:0; transform: translateY(10px); filter: blur(9px) saturate(1.25); }
+      60%{ opacity:1; transform: translateY(-2px); filter: blur(0) saturate(1.1); }
+      100%{ opacity:1; transform: translateY(0); filter: blur(0) saturate(1); }
+    }
+    .leaders-wrapper.v1{ animation-name: swapA; }
+    .leaders-wrapper.v2{ animation-name: swapB; }
+    .leaders-wrapper.v3{ animation-name: swapC; }
+    .leaders-wrapper.v4{ animation-name: swapD; }
+    .leaders-wrapper.v5{ animation-name: swapE; }
 
     .leader-card{
       position:relative;
@@ -373,11 +503,11 @@
         0% 0%
       );
       transition:
-        transform .42s var(--ease),
-        box-shadow .52s var(--ease),
-        background .52s var(--ease),
-        border-color .52s var(--ease),
-        filter .52s var(--ease);
+        transform var(--dur) var(--ease),
+        box-shadow var(--dur) var(--ease),
+        background var(--dur) var(--ease),
+        border-color var(--dur) var(--ease),
+        filter var(--dur) var(--ease);
       contain: paint;
       will-change: transform;
     }
@@ -409,12 +539,11 @@
       animation: borderFlow 11s linear infinite;
       animation-play-state: paused;
     }
-
     .leader-card:hover::before{ animation-play-state: running; }
 
     @keyframes borderFlow{
-      0%   { background-position:   0% 50%; }
-      100% { background-position: 380% 50%; }
+      0%{ background-position:   0% 50%; }
+      100%{ background-position: 380% 50%; }
     }
 
     .leader-card:hover{
@@ -430,7 +559,6 @@
         0 0 52px rgba(168,85,247,.12);
       filter: saturate(1.08) brightness(1.02);
     }
-    .leader-card:active{ transform: translateY(-2px) scale(.995); }
 
     .leader-card .sheen{
       position:absolute;
@@ -447,16 +575,16 @@
       );
       transform: translateX(-60%) rotate(10deg);
       opacity: 0;
-      transition: opacity .28s var(--ease);
+      transition: opacity var(--dur) var(--ease);
       mix-blend-mode: screen;
     }
     .leader-card:hover .sheen{
       opacity: 1;
-      animation: sheenSweep .95s var(--ease2) 1;
+      animation: sheenSweep .75s var(--ease2) 1;
     }
     @keyframes sheenSweep{
-      0%   { transform: translateX(-60%) rotate(10deg); }
-      100% { transform: translateX( 60%) rotate(10deg); }
+      0%{ transform: translateX(-60%) rotate(10deg); }
+      100%{ transform: translateX( 60%) rotate(10deg); }
     }
 
     .leader-icon{
@@ -578,8 +706,7 @@
       letter-spacing: .10em;
       text-transform: uppercase;
       color: rgba(243,246,255,.74);
-      text-shadow:
-        0 0 10px rgba(46,249,255,.16);
+      text-shadow: 0 0 10px rgba(46,249,255,.16);
     }
 
     .leader-place-label{
@@ -601,7 +728,7 @@
       box-shadow: 0 18px 70px rgba(0,0,0,.38);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      transition: transform .42s var(--ease), box-shadow .52s var(--ease), border-color .52s var(--ease), background .52s var(--ease), filter .52s var(--ease);
+      transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease), filter var(--dur) var(--ease);
       contain: paint;
       will-change: transform;
     }
@@ -633,7 +760,7 @@
       animation-play-state: paused;
     }
     .week-summary:hover::before{ animation-play-state: running; opacity:.90; }
-    @keyframes weekBorderSpin { to { transform: rotate(360deg); } }
+    @keyframes weekBorderSpin{ to { transform: rotate(360deg); } }
 
     .week-summary:hover{
       transform: translateY(-4px);
@@ -643,9 +770,8 @@
         0 26px 90px rgba(0,0,0,.56),
         0 0 40px rgba(46,249,255,.14),
         0 0 46px rgba(255,45,122,.14);
-      filter: saturate(1.06) brightness(1.02);
+      filter: saturate(1.06) brightness(1.01);
     }
-    .week-summary:active{ transform: translateY(-1px) scale(.997); }
 
     .week-summary .sheen{
       position:absolute;
@@ -662,16 +788,16 @@
       );
       transform: translateX(-60%) rotate(10deg);
       opacity: 0;
-      transition: opacity .28s var(--ease);
+      transition: opacity var(--dur) var(--ease);
       mix-blend-mode: screen;
     }
     .week-summary:hover .sheen{
       opacity: 1;
-      animation: weekSheen 1.0s var(--ease2) 1;
+      animation: weekSheen .8s var(--ease2) 1;
     }
     @keyframes weekSheen{
-      0%   { transform: translateX(-60%) rotate(10deg); }
-      100% { transform: translateX( 60%) rotate(10deg); }
+      0%{ transform: translateX(-60%) rotate(10deg); }
+      100%{ transform: translateX( 60%) rotate(10deg); }
     }
 
     .week-summary-head{
@@ -681,8 +807,8 @@
       gap:12px;
       margin-bottom: 12px;
       position:relative;
-      padding-right: 140px;
-      min-height: 54px;
+      padding-right: 160px;
+      min-height: 60px;
     }
 
     .week-summary-period{
@@ -707,11 +833,54 @@
       flex: 0 0 auto;
     }
 
+    .week-meta{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    .meta-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      box-shadow: 0 0 16px rgba(46,249,255,.06);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(243,246,255,.72);
+      white-space: nowrap;
+      transform: translateZ(0);
+    }
+
+    .meta-chip strong{
+      font-weight: 1000;
+      color: rgba(243,246,255,.92);
+      letter-spacing: .02em;
+    }
+
+    .trend-up{
+      color: rgba(46,249,255,.92);
+      text-shadow: 0 0 14px rgba(46,249,255,.12);
+    }
+    .trend-down{
+      color: rgba(255,45,122,.92);
+      text-shadow: 0 0 14px rgba(255,45,122,.12);
+    }
+    .trend-flat{
+      color: rgba(243,246,255,.72);
+      text-shadow: 0 0 14px rgba(255,255,255,.06);
+    }
+
     .week-total-orbit{
       position:absolute;
       top: 4px;
       right: 10px;
-      width: 124px;
+      width: 150px;
       height: 56px;
       pointer-events:none;
       z-index: 2;
@@ -779,11 +948,11 @@
     @keyframes chipBorderSpin{ to { transform: rotate(360deg); } }
 
     @keyframes chipHover{
-      0%   { transform: translate(calc(-50% + 0px),   calc(-50% - 2px)); }
-      25%  { transform: translate(calc(-50% + 6px),   calc(-50% + 2px)); }
-      50%  { transform: translate(calc(-50% + 0px),   calc(-50% + 6px)); }
-      75%  { transform: translate(calc(-50% - 6px),   calc(-50% + 2px)); }
-      100% { transform: translate(calc(-50% + 0px),   calc(-50% - 2px)); }
+      0%{ transform: translate(calc(-50% + 0px),   calc(-50% - 2px)); }
+      25%{ transform: translate(calc(-50% + 6px),  calc(-50% + 2px)); }
+      50%{ transform: translate(calc(-50% + 0px),  calc(-50% + 6px)); }
+      75%{ transform: translate(calc(-50% - 6px),  calc(-50% + 2px)); }
+      100%{ transform: translate(calc(-50% + 0px), calc(-50% - 2px)); }
     }
 
     .week-total-chip .label{
@@ -823,7 +992,8 @@
       border: 1px solid rgba(255,255,255,.10);
       overflow:hidden;
       box-shadow: 0 10px 34px rgba(0,0,0,.24);
-      transition: transform .42s var(--ease), box-shadow .52s var(--ease), border-color .52s var(--ease), filter .52s var(--ease);
+      transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease), opacity var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+      will-change: transform, opacity, filter;
     }
     .week-slot::after{
       content:"";
@@ -832,13 +1002,17 @@
       box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset;
       opacity:.8;
     }
-    .week-slot:hover{
-      transform: translateY(-3px);
-      border-color: rgba(46,249,255,.20);
-      box-shadow: 0 20px 58px rgba(0,0,0,.32);
-      filter: saturate(1.05);
+
+    .week-slot.dimmed{
+      opacity: .42;
+      filter: blur(.25px) saturate(.85);
+      transform: scale(.985);
     }
-    .week-slot:active{ transform: translateY(-1px) scale(.997); }
+    .week-slot.hit{
+      border-color: rgba(46,249,255,.22);
+      box-shadow: 0 12px 46px rgba(0,0,0,.32), 0 0 28px rgba(46,249,255,.12);
+      filter: saturate(1.08) brightness(1.02);
+    }
 
     .week-slot .rank{
       display:flex;
@@ -919,30 +1093,6 @@
       text-shadow: 0 0 12px rgba(46,249,255,.10);
     }
 
-    @media (max-width: 980px){
-      .week-top3{ grid-template-columns: 1fr; }
-      .week-summary-head{ padding-right: 0; }
-      .week-total-orbit{
-        position: static;
-        width: auto;
-        height: auto;
-        margin-left: auto;
-      }
-      .week-total-chip{
-        position: relative;
-        left: auto; top: auto;
-        transform: none;
-        animation: chipHoverMobile 4.2s ease-in-out infinite;
-      }
-      @keyframes chipHoverMobile{
-        0%   { transform: translate(0px, -2px); }
-        25%  { transform: translate(6px,  2px); }
-        50%  { transform: translate(0px,  6px); }
-        75%  { transform: translate(-6px, 2px); }
-        100% { transform: translate(0px, -2px); }
-      }
-    }
-
     .modal-backdrop{
       position:fixed;
       inset:0;
@@ -999,7 +1149,7 @@
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.22);
       color: rgba(243,246,255,.92);
-      transition: border-color .34s var(--ease), box-shadow .34s var(--ease), background .34s var(--ease);
+      transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
     }
     .field input:focus-visible{
       border-color: rgba(46,249,255,.32);
@@ -1015,14 +1165,13 @@
       background: rgba(0,0,0,.22);
       display:flex; align-items:center; justify-content:center;
       overflow:hidden; cursor:pointer;
-      transition: transform .34s var(--ease), border-color .34s var(--ease), box-shadow .34s var(--ease);
+      transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
     }
     .edit-avatar-preview:hover{
-      transform: translateY(-2px);
-      border-color: rgba(46,249,255,.28);
-      box-shadow: 0 0 22px rgba(46,249,255,.12);
+      transform: translateY(-1px);
+      border-color: rgba(46,249,255,.34);
+      box-shadow: 0 0 26px rgba(46,249,255,.10);
     }
-    .edit-avatar-preview:active{ transform: translateY(-1px) scale(.995); }
     .edit-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
     .drag-over{ outline: 3px solid rgba(46,249,255,.6); }
 
@@ -1064,14 +1213,15 @@
       border: 1px solid rgba(255,255,255,.12);
       color: rgba(243,246,255,.90);
       cursor: pointer;
-      transition: transform .34s var(--ease), box-shadow .42s var(--ease), border-color .42s var(--ease), background .42s var(--ease);
+      transition: transform var(--dur-quick) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+      will-change: transform;
     }
-
     .reaction-btn:hover{
       transform: translateY(-1px);
       border-color: rgba(46,249,255,.22);
       box-shadow: 0 0 22px rgba(46,249,255,.10);
     }
+    .reaction-btn:active{ transform: translateY(0px) scale(.99); }
 
     .reaction-btn.active{
       border-color: rgba(255,45,122,.42);
@@ -1079,8 +1229,6 @@
         0 0 22px rgba(255,45,122,.14),
         0 0 26px rgba(46,249,255,.10);
     }
-
-    .reaction-btn:active{ transform: translateY(0px) scale(.99); }
 
     .reaction-emoji{ font-size: 18px; }
     .reaction-label{
@@ -1107,115 +1255,6 @@
       color: rgba(243,246,255,.64);
     }
 
-    @media (max-width: 900px){
-      .reactions-grid{ grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .bg-live .scanlines,
-      .bg-live .particles,
-      .leader-card::before,
-      .leader-card .sheen,
-      .week-summary::before,
-      .week-summary .sheen,
-      .week-total-chip,
-      .week-total-chip::after{
-        animation: none !important;
-      }
-      *{
-        transition: none !important;
-        scroll-behavior: auto !important;
-      }
-    }
-
-    @media (max-width: 720px){
-      .leader-tabs{
-        flex-direction: column !important;
-        gap: 10px;
-        padding: 10px;
-        border-radius: 22px;
-      }
-
-      .leader-tab{
-        width: 100%;
-        font-size: 14px;
-        padding: 14px 16px;
-        letter-spacing: .08em;
-      }
-
-      .leader-card{
-        position: relative;
-        flex-direction: row;
-        align-items: center;
-        padding: 16px 14px;
-        gap: 14px;
-      }
-
-      .leader-icon{
-        width: 46px;
-        height: 46px;
-        font-size: 22px;
-        flex-shrink: 0;
-      }
-
-      .leader-main{
-        flex: 1;
-        align-items: center;
-        text-align: center;
-        gap: 6px;
-        transform: translateX(6px);
-      }
-
-      .leader-avatar{
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 4px;
-        transform: translateX(6px);
-      }
-
-      .leader-name-row{
-        justify-content: center;
-        gap: 6px;
-      }
-
-      .leader-nick{
-        font-size: 22px;
-      }
-
-      .leader-account{
-        font-size: 13px;
-      }
-
-      .dept-badge{
-        font-size: 11px;
-        padding: 6px 10px;
-      }
-
-      .leader-score-block{
-        align-items: flex-end;
-        min-width: auto;
-        padding-top: 12px;
-        margin-right: -6px;
-      }
-
-      .leader-score .value{
-        font-size: 42px;
-      }
-
-      .leader-score .unit{
-        font-size: 13px;
-      }
-
-      .leader-place-label{
-        position: absolute;
-        top: 10px;
-        right: 12px;
-        font-size: 12px;
-        letter-spacing: .08em;
-        opacity: .9;
-      }
-    }
-
     .dept-podium{
       width: min(860px, 100%);
       margin: 6px auto 0;
@@ -1224,7 +1263,6 @@
       align-items: center;
       gap: 14px;
       padding: 10px 10px 2px;
-      transform-origin: 50% 30%;
     }
 
     .dept-orb{
@@ -1246,7 +1284,9 @@
         0 0 22px rgba(255,45,122,.06);
       transform: translateZ(0);
       will-change: transform, filter;
-      transition: transform .46s var(--ease), box-shadow .58s var(--ease), border-color .58s var(--ease), filter .58s var(--ease);
+      transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease), filter var(--dur) var(--ease), opacity var(--dur) var(--ease);
+      cursor: pointer;
+      user-select:none;
     }
 
     .dept-orb::before{
@@ -1293,7 +1333,7 @@
       );
       transform: translateX(-60%) rotate(10deg);
       opacity: 0;
-      transition: opacity .28s var(--ease);
+      transition: opacity var(--dur) var(--ease);
       mix-blend-mode: screen;
     }
 
@@ -1307,15 +1347,30 @@
         0 0 48px rgba(168,85,247,.12);
       filter: saturate(1.12) brightness(1.03);
     }
-    .dept-orb:active{ transform: translateY(-2px) scale(1.01); }
     .dept-orb:hover::before{ animation-play-state: running; opacity: .90; }
     .dept-orb:hover .dept-sheen{
       opacity: 1;
-      animation: deptSheen 1.0s var(--ease2) 1;
+      animation: deptSheen .8s var(--ease2) 1;
     }
     @keyframes deptSheen{
-      0%   { transform: translateX(-60%) rotate(10deg); }
-      100% { transform: translateX( 60%) rotate(10deg); }
+      0%{ transform: translateX(-60%) rotate(10deg); }
+      100%{ transform: translateX( 60%) rotate(10deg); }
+    }
+
+    .dept-orb.selected{
+      border-color: rgba(46,249,255,.34);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06) inset,
+        0 26px 90px rgba(0,0,0,.56),
+        0 0 54px rgba(46,249,255,.18),
+        0 0 44px rgba(168,85,247,.12);
+      filter: saturate(1.15) brightness(1.04);
+    }
+
+    .dept-orb.dimmed{
+      opacity: .45;
+      filter: saturate(.85) brightness(.92);
+      transform: scale(.99);
     }
 
     .dept-place{
@@ -1347,9 +1402,19 @@
     }
 
     @keyframes deptTextFloat{
-      0%   { transform: translateY(0px);   letter-spacing: .08em; }
-      50%  { transform: translateY(-2px);  letter-spacing: .10em; }
-      100% { transform: translateY(0px);   letter-spacing: .08em; }
+      0%{ transform: translateY(0px); letter-spacing: .08em; }
+      50%{ transform: translateY(-2px); letter-spacing: .10em; }
+      100%{ transform: translateY(0px); letter-spacing: .08em; }
+    }
+
+    .dept-sub{
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: rgba(243,246,255,.68);
+      text-shadow: 0 0 14px rgba(46,249,255,.06);
+      opacity: .95;
     }
 
     .dept-orb.p1{ height: 120px; }
@@ -1357,84 +1422,404 @@
     .dept-orb.p2, .dept-orb.p3{ height: 102px; }
     .dept-orb.p2 .dept-name, .dept-orb.p3 .dept-name{ font-size: 28px; }
 
-    @media (max-width: 720px){
-      .dept-podium{
-        grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 6px 10px 0;
+    .empty-state{
+      width: 100%;
+      border-radius: 24px;
+      padding: 22px 18px;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 18px 70px rgba(0,0,0,.30);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 14px;
+      text-align:left;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow:hidden;
+    }
+
+    .empty-icon{
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(46,249,255,.16);
+      box-shadow: 0 0 22px rgba(46,249,255,.10);
+      font-size: 22px;
+      flex: 0 0 auto;
+    }
+
+    .empty-text{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 0;
+    }
+
+    .empty-title{
+      font-weight: 1000;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(243,246,255,.88);
+      text-shadow: 0 0 14px rgba(46,249,255,.10);
+      font-size: 13px;
+    }
+
+    .empty-sub{
+      color: rgba(243,246,255,.62);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .skeleton{
+      position:relative;
+      overflow:hidden;
+      border-radius: var(--rL);
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 18px 70px rgba(0,0,0,.30);
+    }
+    .skeleton::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,.08) 28%,
+        rgba(46,249,255,.10) 45%,
+        rgba(255,45,122,.08) 62%,
+        rgba(255,255,255,0) 100%
+      );
+      transform: translateX(-60%);
+      animation: shimmer 1.25s var(--ease2) infinite;
+      opacity: .85;
+    }
+    @keyframes shimmer{
+      0%{ transform: translateX(-60%); }
+      100%{ transform: translateX(60%); }
+    }
+    .sk-card{
+      height: 110px;
+      clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 26px),
+        calc(100% - 26px) 100%,
+        0% 100%,
+        0% 0%
+      );
+    }
+    .sk-week{
+      height: 230px;
+      border-radius: 26px;
+    }
+
+    .toast-host{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 1000;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      pointer-events:none;
+      width: min(420px, calc(100vw - 32px));
+    }
+
+    .toast{
+      pointer-events:auto;
+      border-radius: 18px;
+      padding: 12px 12px;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06) inset,
+        0 20px 70px rgba(0,0,0,.60),
+        0 0 34px rgba(46,249,255,.10),
+        0 0 34px rgba(255,45,122,.08);
+      transform: translateY(10px);
+      opacity: 0;
+      animation: toastIn 520ms var(--ease2) forwards;
+    }
+    @keyframes toastIn{
+      to{ opacity: 1; transform: translateY(0); }
+    }
+    .toast.out{
+      animation: toastOut 420ms var(--ease2) forwards;
+    }
+    @keyframes toastOut{
+      to{ opacity: 0; transform: translateY(10px); filter: blur(3px); }
+    }
+
+    .toast-ico{
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(46,249,255,.16);
+      box-shadow: 0 0 22px rgba(46,249,255,.10);
+      font-size: 18px;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+
+    .toast-body{
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+    .toast-title{
+      font-weight: 1000;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(243,246,255,.88);
+    }
+    .toast-text{
+      font-size: 13px;
+      color: rgba(243,246,255,.70);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .toast-close{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.10);
+      color: rgba(243,246,255,.85);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      transition: transform var(--dur-quick) var(--ease), border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+      flex: 0 0 auto;
+      margin-left: 6px;
+    }
+    .toast-close:hover{
+      transform: translateY(-1px);
+      border-color: rgba(46,249,255,.22);
+      box-shadow: 0 0 18px rgba(46,249,255,.08);
+    }
+    .toast-close:active{ transform: translateY(0) scale(.99); }
+
+    .cursor-glow{
+      position: fixed;
+      width: 240px;
+      height: 240px;
+      border-radius: 999px;
+      pointer-events:none;
+      z-index: -1;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at center,
+        rgba(46,249,255,.16) 0%,
+        rgba(255,45,122,.10) 38%,
+        rgba(168,85,247,.08) 58%,
+        rgba(0,0,0,0) 70%
+      );
+      filter: blur(2px);
+      mix-blend-mode: screen;
+      opacity: 0;
+      transition: opacity var(--dur) var(--ease);
+    }
+
+    body.cursor-on .cursor-glow{ opacity: .85; }
+
+    .num-anim{
+      display:inline-block;
+      will-change: filter, transform;
+    }
+    .num-anim.swap{
+      animation: numSwap 520ms var(--ease2) 1;
+    }
+    @keyframes numSwap{
+      0%{ opacity:.0; transform: translateY(8px); filter: blur(6px); }
+      55%{ opacity:1; transform: translateY(-2px); filter: blur(0); }
+      100%{ opacity:1; transform: translateY(0); filter: blur(0); }
+    }
+
+    @media (max-width: 980px){
+      .week-top3{ grid-template-columns: 1fr; }
+      .week-summary-head{ padding-right: 0; }
+      .week-total-orbit{
+        position: static;
+        width: auto;
+        height: auto;
+        margin-left: auto;
+        pointer-events:none;
       }
-      .dept-orb, .dept-orb.p1{ height: 104px; }
+      .week-total-chip{
+        position: relative;
+        left: auto; top: auto;
+        transform: none;
+      }
+      @keyframes chipHover{
+        0%{ transform: translate(0px, -2px); }
+        25%{ transform: translate(6px,  2px); }
+        50%{ transform: translate(0px,  6px); }
+        75%{ transform: translate(-6px, 2px); }
+        100%{ transform: translate(0px, -2px); }
+      }
+    }
+
+    @media (max-width: 900px){
+      .reactions-grid{ grid-template-columns: repeat(2, 1fr); }
+      .toast-host{
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+      }
+    }
+
+    @media (max-width: 720px){
+      .leader-tabs{
+        flex-direction: column !important;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 22px;
+      }
+      .leader-tab{
+        width: 100%;
+        font-size: 14px;
+        padding: 14px 16px;
+        letter-spacing: .08em;
+      }
+      .leader-card{
+        position: relative;
+        flex-direction: row;
+        align-items: center;
+        padding: 16px 14px;
+        gap: 14px;
+      }
+      .leader-icon{
+        width: 46px;
+        height: 46px;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      .leader-main{
+        flex: 1;
+        align-items: center;
+        text-align: center;
+        gap: 6px;
+        transform: translateX(6px);
+      }
+      .leader-avatar{
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 4px;
+        transform: translateX(6px);
+      }
+      .leader-name-row{
+        justify-content: center;
+        gap: 6px;
+      }
+      .leader-nick{ font-size: 22px; }
+      .leader-account{ font-size: 13px; }
+      .dept-badge{
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+      .leader-score-block{
+        align-items: flex-end;
+        min-width: auto;
+        padding-top: 12px;
+        margin-right: -6px;
+      }
+      .leader-score .value{ font-size: 42px; }
+      .leader-score .unit{ font-size: 13px; }
+      .leader-place-label{
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        font-size: 12px;
+        letter-spacing: .08em;
+        opacity: .9;
+      }
+
+      .dept-podium{
+        display:flex;
+        gap: 10px;
+        padding: 6px 2px 0;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+      .dept-podium::-webkit-scrollbar{ height: 0; }
+      .dept-orb{
+        flex: 0 0 78%;
+        scroll-snap-align: center;
+      }
+      .dept-orb.p1, .dept-orb.p2, .dept-orb.p3{ height: 104px; }
       .dept-orb .dept-name, .dept-orb.p1 .dept-name{ font-size: 30px; }
+      .dept-orb.p1 .dept-name{ font-size: 30px; }
+
+      .leader-panel-header.sticky{
+        top: 8px;
+        padding: 10px 10px 10px;
+      }
     }
 
-    .swap-out, .swap-in{
-      will-change: transform, opacity, filter;
-      transform-origin: 50% 30%;
+    @media (max-width: 720px){
+      .leader-card:hover{
+        transform: translateY(-3px);
+        box-shadow:
+          0 20px 70px rgba(0,0,0,.44),
+          0 0 28px rgba(46,249,255,.12),
+          0 0 36px rgba(255,45,122,.12);
+      }
+      .week-summary{
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
     }
 
-    .fx1.swap-out{ animation: fx1Out .34s var(--ease) both; }
-    .fx1.swap-in{ animation: fx1In .56s var(--ease) both; }
-
-    .fx2.swap-out{ animation: fx2Out .34s var(--ease) both; }
-    .fx2.swap-in{ animation: fx2In .60s var(--ease) both; }
-
-    .fx3.swap-out{ animation: fx3Out .36s var(--ease) both; }
-    .fx3.swap-in{ animation: fx3In .64s var(--ease) both; }
-
-    .fx4.swap-out{ animation: fx4Out .36s var(--ease) both; }
-    .fx4.swap-in{ animation: fx4In .70s var(--ease) both; }
-
-    .fx5.swap-out{ animation: fx5Out .34s var(--ease) both; }
-    .fx5.swap-in{ animation: fx5In .66s var(--ease) both; }
-
-    @keyframes fx1Out{
-      from{ opacity:1; transform: translateY(0) scale(1); filter: blur(0px); }
-      to{ opacity:0; transform: translateY(10px) scale(.985); filter: blur(2px); }
-    }
-    @keyframes fx1In{
-      0%{ opacity:0; transform: translateY(14px) scale(.985); filter: blur(3px); }
-      60%{ opacity:1; transform: translateY(-2px) scale(1.003); filter: blur(0px); }
-      100%{ opacity:1; transform: translateY(0) scale(1); filter: blur(0px); }
-    }
-
-    @keyframes fx2Out{
-      from{ opacity:1; transform: scale(1); filter: blur(0px) saturate(1); }
-      to{ opacity:0; transform: scale(.965); filter: blur(4px) saturate(.95); }
-    }
-    @keyframes fx2In{
-      0%{ opacity:0; transform: scale(.965); filter: blur(6px) saturate(.95); }
-      55%{ opacity:1; transform: scale(1.01); filter: blur(0px) saturate(1.05); }
-      100%{ opacity:1; transform: scale(1); filter: blur(0px) saturate(1); }
-    }
-
-    @keyframes fx3Out{
-      from{ opacity:1; transform: perspective(900px) rotateY(0deg) translateY(0); filter: blur(0px); }
-      to{ opacity:0; transform: perspective(900px) rotateY(12deg) translateY(6px); filter: blur(2px); }
-    }
-    @keyframes fx3In{
-      0%{ opacity:0; transform: perspective(900px) rotateY(-12deg) translateY(10px); filter: blur(4px); }
-      65%{ opacity:1; transform: perspective(900px) rotateY(1.5deg) translateY(-2px); filter: blur(0px); }
-      100%{ opacity:1; transform: perspective(900px) rotateY(0deg) translateY(0); filter: blur(0px); }
-    }
-
-    @keyframes fx4Out{
-      from{ opacity:1; transform: translateY(0) skewX(0deg); filter: blur(0px) hue-rotate(0deg); }
-      to{ opacity:0; transform: translateY(10px) skewX(-2deg); filter: blur(3px) hue-rotate(20deg); }
-    }
-    @keyframes fx4In{
-      0%{ opacity:0; transform: translateY(14px) skewX(2deg); filter: blur(7px) hue-rotate(-30deg); }
-      50%{ opacity:1; transform: translateY(-2px) skewX(0deg); filter: blur(0px) hue-rotate(0deg); }
-      100%{ opacity:1; transform: translateY(0) skewX(0deg); filter: blur(0px) hue-rotate(0deg); }
-    }
-
-    @keyframes fx5Out{
-      from{ opacity:1; transform: perspective(900px) rotateX(0deg) scale(1); filter: blur(0px); }
-      to{ opacity:0; transform: perspective(900px) rotateX(10deg) scale(.985); filter: blur(3px); }
-    }
-    @keyframes fx5In{
-      0%{ opacity:0; transform: perspective(900px) rotateX(-10deg) scale(.985); filter: blur(6px); }
-      60%{ opacity:1; transform: perspective(900px) rotateX(1deg) scale(1.01); filter: blur(0px); }
-      100%{ opacity:1; transform: perspective(900px) rotateX(0deg) scale(1); filter: blur(0px); }
+    @media (prefers-reduced-motion: reduce){
+      .bg-live .scanlines,
+      .bg-live .particles,
+      .leader-card::before,
+      .leader-card .sheen,
+      .week-summary::before,
+      .week-summary .sheen,
+      .week-total-chip,
+      .week-total-chip::after,
+      .dept-orb::before,
+      .dept-orb .dept-sheen,
+      .dept-name,
+      .leaders-wrapper.swap,
+      .skeleton::before,
+      .num-anim.swap{
+        animation: none !important;
+      }
+      *{
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .leader-card:hover,
+      .week-summary:hover,
+      .dept-orb:hover{
+        transform: none !important;
+        filter: none !important;
+      }
+      .leader-panel-header.sticky,
+      .leader-tabs,
+      .week-summary,
+      .reactions-panel{
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      .cursor-glow{ display:none !important; }
     }
   </style>
 </head>
@@ -1446,10 +1831,13 @@
     <div class="vignette"></div>
   </div>
 
+  <div class="cursor-glow" id="cursor-glow"></div>
+  <div class="toast-host" id="toast-host"></div>
+
   <div id="app">
     <div class="page-header">
       <div class="page-title-block">
-        <div class="page-title">ТОП ЛИДЕРОВ PD</div>
+        <div class="page-title" id="page-title" data-text="ТОП ЛИДЕРОВ PD">ТОП ЛИДЕРОВ PD</div>
         <div class="user-tag" id="user-tag"></div>
       </div>
 
@@ -1472,7 +1860,7 @@
     </div>
 
     <div class="leader-panel">
-      <div class="leader-panel-header">
+      <div class="leader-panel-header" id="panel-header">
         <div class="leader-tabs">
           <button class="leader-tab active" id="tab-day" data-period="day">
             <span class="icon">♥</span>
@@ -1483,7 +1871,12 @@
             <span class="label">Активность недели</span>
           </button>
         </div>
-        <div class="leader-date" id="leader-date"></div>
+
+        <div class="leader-date crossfade" id="leader-date-wrap">
+          <span class="cf-out" id="leader-date"></span>
+          <span class="cf-in" id="leader-date-next"></span>
+        </div>
+
         <div class="dept-podium" id="dept-podium" style="display:none;"></div>
       </div>
 
@@ -1516,10 +1909,64 @@
 
     const API_BASE = "https://world-script-api.onrender.com/api";
 
-    async function apiGet(path) {
-      const r = await fetch(API_BASE + path, { credentials: "include" });
+    const memCache = new Map();
+    const CACHE_CFG = {
+      day: 60_000,
+      week: 180_000
+    };
+
+    function nowMs(){ return Date.now(); }
+
+    function cacheKey(path){ return "cache:" + path; }
+
+    function readCache(path){
+      const k = cacheKey(path);
+      const mem = memCache.get(k);
+      if (mem && mem.exp > nowMs()) return mem.val;
+
+      try{
+        const raw = localStorage.getItem(k);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || obj.exp <= nowMs()) return null;
+        memCache.set(k, obj);
+        return obj.val;
+      }catch{ return null; }
+    }
+
+    function writeCache(path, val, ttl){
+      const k = cacheKey(path);
+      const obj = { val, exp: nowMs() + ttl };
+      memCache.set(k, obj);
+      try{ localStorage.setItem(k, JSON.stringify(obj)); }catch{}
+    }
+
+    let activeController = null;
+
+    async function apiGet(path, opts = {}) {
+      const useCache = !!opts.cacheTtl;
+      if (useCache){
+        const cached = readCache(path);
+        if (cached) return cached;
+      }
+
+      if (opts.abortPrev && activeController){
+        try{ activeController.abort(); }catch{}
+      }
+
+      const controller = new AbortController();
+      if (opts.abortPrev) activeController = controller;
+
+      const r = await fetch(API_BASE + path, {
+        credentials: "include",
+        signal: controller.signal
+      });
+
       if (!r.ok) throw new Error(await r.text());
-      return r.json();
+
+      const json = await r.json();
+      if (useCache) writeCache(path, json, opts.cacheTtl);
+      return json;
     }
 
     async function apiPost(path, body, extraHeaders = {}) {
@@ -1533,27 +1980,63 @@
       return r.json();
     }
 
+    const toastHost = document.getElementById("toast-host");
+
+    function toastIcon(type){
+      if (type === "ok") return "✅";
+      if (type === "warn") return "⚠️";
+      if (type === "err") return "⛔";
+      return "✨";
+    }
+
+    function toastTitle(type){
+      if (type === "ok") return "Готово";
+      if (type === "warn") return "Внимание";
+      if (type === "err") return "Ошибка";
+      return "Сообщение";
+    }
+
+    function showToast(text, type = "info", ms = 2600){
+      if (!toastHost) return;
+      const el = document.createElement("div");
+      el.className = "toast";
+      el.innerHTML = `
+        <div class="toast-ico">${toastIcon(type)}</div>
+        <div class="toast-body">
+          <div class="toast-title">${toastTitle(type)}</div>
+          <div class="toast-text"></div>
+        </div>
+        <button class="toast-close" aria-label="close">✕</button>
+      `;
+      el.querySelector(".toast-text").textContent = text || "";
+      const close = () => {
+        el.classList.add("out");
+        setTimeout(() => { try{ el.remove(); }catch{} }, 460);
+      };
+      el.querySelector(".toast-close").onclick = close;
+      toastHost.appendChild(el);
+      setTimeout(close, ms);
+    }
+
     const errorModal = document.getElementById("error-modal");
     const errorModalText = document.getElementById("error-modal-text");
     const errorModalClose = document.getElementById("error-modal-close");
 
     function showErrorModal(message) {
+      if (!errorModal || !errorModalText) return;
       errorModalText.textContent = message || "Неизвестная ошибка";
       errorModal.classList.add("active");
     }
-
     if (errorModalClose) errorModalClose.onclick = () => errorModal.classList.remove("active");
 
     function monthRuUpper(monthIndex) {
       const m = ["ЯНВАРЬ","ФЕВРАЛЬ","МАРТ","АПРЕЛЬ","МАЙ","ИЮНЬ","ИЮЛЬ","АВГУСТ","СЕНТЯБРЬ","ОКТЯБРЬ","НОЯБРЬ","ДЕКАБРЬ"];
       return m[monthIndex] || "";
     }
-
     function parseDateOnly(iso) {
       const [y,m,d] = String(iso).split("-").map(Number);
       return new Date(y, (m || 1) - 1, d || 1);
     }
-
     function formatPeriodRu(startISO, endISO) {
       const s = parseDateOnly(startISO);
       const e = parseDateOnly(endISO);
@@ -1561,53 +2044,143 @@
     }
 
     const leadersWrapper = document.getElementById("leaders-wrapper");
-    const dateEl = document.getElementById("leader-date");
+    const dateWrap = document.getElementById("leader-date-wrap");
+    const dateOut = document.getElementById("leader-date");
+    const dateIn = document.getElementById("leader-date-next");
+
+    const panelHeader = document.getElementById("panel-header");
     const deptPodiumEl = document.getElementById("dept-podium");
+
     let currentPeriod = "day";
-    let switching = false;
+    let weeklyData = [];
+    let activeDeptFilter = null;
 
-    const FX = ["fx1","fx2","fx3","fx4","fx5"];
+    function setStickyHeader(){
+      if(!panelHeader) return;
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      panelHeader.classList.toggle("sticky", y > 90);
+    }
+    window.addEventListener("scroll", setStickyHeader, { passive: true });
 
-    function pickFx() {
-      return FX[Math.floor(Math.random() * FX.length)];
+    const pageTitle = document.getElementById("page-title");
+    function triggerGlitch(){
+      if(!pageTitle) return;
+      pageTitle.classList.add("glitching");
+      setTimeout(() => pageTitle.classList.remove("glitching"), 360);
+    }
+    if (pageTitle){
+      pageTitle.addEventListener("mouseenter", triggerGlitch);
+      setInterval(() => {
+        const chance = Math.random();
+        if (chance < 0.085) triggerGlitch();
+      }, 4500);
     }
 
-    function sleep(ms) {
-      return new Promise(r => setTimeout(r, ms));
+    const cursorGlow = document.getElementById("cursor-glow");
+    function canUseCursorGlow(){
+      const coarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      return !coarse;
     }
-
-    function clearFx(el) {
-      if (!el) return;
-      el.classList.remove("swap-in","swap-out",...FX);
-    }
-
-    async function animateSwitch(run) {
-      if (switching) return;
-      switching = true;
-
-      const fx = pickFx();
-      const targets = [leadersWrapper, deptPodiumEl].filter(Boolean);
-
-      targets.forEach(el => {
-        clearFx(el);
-        el.classList.add(fx, "swap-out");
-      });
-
-      await sleep(340);
-
-      targets.forEach(el => el.classList.remove("swap-out"));
-
-      try {
-        await run();
-      } finally {
-        targets.forEach(el => {
-          clearFx(el);
-          el.classList.add(fx, "swap-in");
+    if (cursorGlow && canUseCursorGlow()){
+      document.body.classList.add("cursor-on");
+      let raf = 0;
+      let tx = 0, ty = 0;
+      window.addEventListener("mousemove", (e) => {
+        tx = e.clientX; ty = e.clientY;
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          cursorGlow.style.left = tx + "px";
+          cursorGlow.style.top = ty + "px";
+          raf = 0;
         });
-        await sleep(680);
-        targets.forEach(el => clearFx(el));
-        switching = false;
+      }, { passive: true });
+    }
+
+    function crossfadeText(next){
+      if (!dateWrap || !dateOut || !dateIn) return;
+      dateIn.textContent = next || "";
+      dateWrap.classList.add("is-swapping");
+      setTimeout(() => {
+        dateOut.textContent = next || "";
+        dateWrap.classList.remove("is-swapping");
+        dateIn.textContent = "";
+      }, 520);
+    }
+
+    function setDateDay(){
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      crossfadeText(`${dd}.${mm}.${yyyy}`);
+    }
+
+    function setDateBlank(){
+      crossfadeText("");
+    }
+
+    function chooseSwapVariant(){
+      return 1 + Math.floor(Math.random() * 5);
+    }
+
+    function runSwapAnimation(){
+      if(!leadersWrapper) return;
+      const v = chooseSwapVariant();
+      leadersWrapper.classList.remove("swap","v1","v2","v3","v4","v5");
+      void leadersWrapper.offsetWidth;
+      leadersWrapper.classList.add("swap", "v" + v);
+      setTimeout(() => {
+        leadersWrapper.classList.remove("swap","v1","v2","v3","v4","v5");
+      }, 900);
+    }
+
+    function stabilizeHeight(){
+      if (!leadersWrapper) return () => {};
+      const h = leadersWrapper.getBoundingClientRect().height;
+      leadersWrapper.style.minHeight = Math.max(180, Math.floor(h)) + "px";
+      return () => { leadersWrapper.style.minHeight = ""; };
+    }
+
+    function skeletonDay(){
+      if (!leadersWrapper) return;
+      leadersWrapper.innerHTML = "";
+      for (let i=0;i<3;i++){
+        const s = document.createElement("div");
+        s.className = "skeleton sk-card";
+        leadersWrapper.appendChild(s);
       }
+    }
+
+    function skeletonWeek(){
+      if (!leadersWrapper) return;
+      leadersWrapper.innerHTML = "";
+      const count = 3;
+      for (let i=0;i<count;i++){
+        const s = document.createElement("div");
+        s.className = "skeleton sk-week";
+        leadersWrapper.appendChild(s);
+      }
+    }
+
+    function emptyState(title, subtitle, emoji){
+      if(!leadersWrapper) return;
+      leadersWrapper.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">${emoji || "✨"}</div>
+          <div class="empty-text">
+            <div class="empty-title">${title || "Пусто"}</div>
+            <div class="empty-sub">${subtitle || "Пока нет данных."}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function deptClass(dept){
+      const d = String(dept || "").trim().toUpperCase();
+      if (d === "LSPD") return "lspd";
+      if (d === "SFPD") return "sfpd";
+      if (d === "LVPD") return "lvpd";
+      return "unk";
     }
 
     function toISODateOnly(x){
@@ -1639,31 +2212,25 @@
       const lspd = pickNum(row, "lspd_ash", "ash_lspd", "total_lspd", "lspd_total", "lspd");
       const sfpd = pickNum(row, "sfpd_ash", "ash_sfpd", "total_sfpd", "sfpd_total", "sfpd");
       const lvpd = pickNum(row, "lvpd_ash", "ash_lvpd", "total_lvpd", "lvpd_total", "lvpd");
-
       if (lspd !== null || sfpd !== null || lvpd !== null){
         return { LSPD: lspd ?? 0, SFPD: sfpd ?? 0, LVPD: lvpd ?? 0 };
       }
-
       const acc = { LSPD: 0, SFPD: 0, LVPD: 0 };
-
       const put = (dept, ash) => {
         const d = String(dept || "").trim().toUpperCase();
         if (d !== "LSPD" && d !== "SFPD" && d !== "LVPD") return;
         const v = Number(ash || 0);
         acc[d] += (Number.isFinite(v) ? v : 0);
       };
-
       put(row?.dept_1, row?.ash_1);
       put(row?.dept_2, row?.ash_2);
       put(row?.dept_3, row?.ash_3);
-
       return acc;
     }
 
     function rankDeptsFromLast3Weeks(rows){
       const sorted = sortWeeksDesc(rows);
       const last3 = sorted.slice(0, 3);
-
       const total = { LSPD: 0, SFPD: 0, LVPD: 0 };
       for (const row of last3){
         const s = sumDeptAshFromRow(row);
@@ -1671,7 +2238,6 @@
         total.SFPD += Number(s.SFPD || 0);
         total.LVPD += Number(s.LVPD || 0);
       }
-
       return [
         { dept: "LSPD", val: total.LSPD },
         { dept: "SFPD", val: total.SFPD },
@@ -1681,30 +2247,77 @@
 
     function renderDeptPodium(list){
       if(!deptPodiumEl) return;
-
-      const d1 = list?.[0] || { dept:"—" };
-      const d2 = list?.[1] || { dept:"—" };
-      const d3 = list?.[2] || { dept:"—" };
-
+      const d1 = list?.[0] || { dept:"—", val:0 };
+      const d2 = list?.[1] || { dept:"—", val:0 };
+      const d3 = list?.[2] || { dept:"—", val:0 };
       deptPodiumEl.innerHTML = `
-        <div class="dept-orb p2">
+        <div class="dept-orb p2" data-dept="${d2.dept}">
           <div class="dept-place">2 МЕСТО</div>
           <div class="dept-sheen"></div>
           <div class="dept-name">${d2.dept}</div>
+          <div class="dept-sub">Сумма АШ: <span class="num-anim" data-num="${Number(d2.val||0)}">${Number(d2.val||0)}</span></div>
         </div>
-
-        <div class="dept-orb p1">
+        <div class="dept-orb p1" data-dept="${d1.dept}">
           <div class="dept-place">1 МЕСТО</div>
           <div class="dept-sheen"></div>
           <div class="dept-name">${d1.dept}</div>
+          <div class="dept-sub">Сумма АШ: <span class="num-anim" data-num="${Number(d1.val||0)}">${Number(d1.val||0)}</span></div>
         </div>
-
-        <div class="dept-orb p3">
+        <div class="dept-orb p3" data-dept="${d3.dept}">
           <div class="dept-place">3 МЕСТО</div>
           <div class="dept-sheen"></div>
           <div class="dept-name">${d3.dept}</div>
+          <div class="dept-sub">Сумма АШ: <span class="num-anim" data-num="${Number(d3.val||0)}">${Number(d3.val||0)}</span></div>
         </div>
       `;
+      bindDeptPodiumClicks();
+      animateAllNumbers(deptPodiumEl);
+      syncDeptPodiumSelection();
+    }
+
+    function syncDeptPodiumSelection(){
+      if(!deptPodiumEl) return;
+      deptPodiumEl.querySelectorAll(".dept-orb").forEach(el => {
+        const d = el.getAttribute("data-dept");
+        const isSel = activeDeptFilter && d === activeDeptFilter;
+        el.classList.toggle("selected", !!isSel);
+        el.classList.toggle("dimmed", !!activeDeptFilter && !isSel);
+      });
+    }
+
+    function bindDeptPodiumClicks(){
+      if(!deptPodiumEl) return;
+      deptPodiumEl.querySelectorAll(".dept-orb").forEach(el => {
+        el.onclick = () => {
+          const d = el.getAttribute("data-dept");
+          if (!d || d === "—") return;
+          activeDeptFilter = (activeDeptFilter === d) ? null : d;
+          syncDeptPodiumSelection();
+          applyWeekDeptHighlight();
+          if (activeDeptFilter) showToast(`Фильтр: ${activeDeptFilter}`, "info", 1400);
+          else showToast(`Фильтр снят`, "info", 1200);
+        };
+      });
+    }
+
+    function applyWeekDeptHighlight(){
+      if(!leadersWrapper) return;
+      const want = activeDeptFilter;
+      const blocks = leadersWrapper.querySelectorAll(".week-summary");
+      blocks.forEach(block => {
+        const slots = block.querySelectorAll(".week-slot");
+        if (!want){
+          slots.forEach(s => { s.classList.remove("dimmed","hit"); });
+          return;
+        }
+        slots.forEach(s => {
+          const pill = s.querySelector(".dept-pill");
+          const dept = String(pill?.textContent || "").trim().toUpperCase();
+          const hit = dept === want;
+          s.classList.toggle("hit", hit);
+          s.classList.toggle("dimmed", !hit);
+        });
+      });
     }
 
     function renderLeaderCard(place, row) {
@@ -1753,9 +2366,7 @@
 
         const dept = (row.department || "").trim().toUpperCase();
         const deptEl = document.createElement("div");
-        deptEl.className =
-          "dept-badge " +
-          (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
+        deptEl.className = "dept-badge " + (dept === "LSPD" ? "lspd" : dept === "SFPD" ? "sfpd" : dept === "LVPD" ? "lvpd" : "");
         deptEl.textContent = dept || "—";
 
         main.appendChild(nameRow);
@@ -1765,8 +2376,9 @@
         scoreRow.className = "leader-score";
 
         const valueEl = document.createElement("span");
-        valueEl.className = "value";
-        valueEl.textContent = row.points ?? 0;
+        valueEl.className = "value num-anim";
+        valueEl.textContent = String(row.points ?? 0);
+        valueEl.setAttribute("data-num", String(row.points ?? 0));
 
         const unitEl = document.createElement("span");
         unitEl.className = "unit";
@@ -1797,17 +2409,29 @@
       return card;
     }
 
-    function deptClass(dept){
-      const d = String(dept || "").trim().toUpperCase();
-      if (d === "LSPD") return "lspd";
-      if (d === "SFPD") return "sfpd";
-      if (d === "LVPD") return "lvpd";
-      return "unk";
+    function bestDeptForRow(row){
+      const totals = sumDeptAshFromRow(row);
+      const list = [
+        { dept: "LSPD", val: Number(totals.LSPD||0) },
+        { dept: "SFPD", val: Number(totals.SFPD||0) },
+        { dept: "LVPD", val: Number(totals.LVPD||0) },
+      ].sort((a,b)=>b.val-a.val);
+      return list[0]?.dept || "—";
     }
 
-    function renderWeeklySummaryBlock(row){
+    function trendForRow(curr, prev){
+      const a = Number(curr?.total_ash || 0);
+      const b = Number(prev?.total_ash || 0);
+      const diff = a - b;
+      if (diff > 0) return { cls:"trend-up", sym:"↑", diff };
+      if (diff < 0) return { cls:"trend-down", sym:"↓", diff };
+      return { cls:"trend-flat", sym:"→", diff: 0 };
+    }
+
+    function renderWeeklySummaryBlock(row, idx, fullList){
       const wrap = document.createElement("div");
       wrap.className = "week-summary";
+      wrap.setAttribute("data-week", String(row?.week_end || row?.week_start || ""));
 
       const sheen = document.createElement("div");
       sheen.className = "sheen";
@@ -1825,8 +2449,7 @@
 
       const chip = document.createElement("div");
       chip.className = "week-total-chip";
-      chip.innerHTML = `<span class="label">ОБЩЕЕ</span><span class="num">${Number(row.total_ash || 0)}</span>`;
-
+      chip.innerHTML = `<span class="label">ОБЩЕЕ</span><span class="num num-anim" data-num="${Number(row.total_ash || 0)}">${Number(row.total_ash || 0)}</span>`;
       orbit.appendChild(chip);
 
       head.appendChild(period);
@@ -1867,7 +2490,8 @@
 
         const ash = document.createElement("div");
         ash.className = "ash";
-        ash.innerHTML = `<span class="num">${Number(s.ash || 0)}</span><span class="unit">АШ</span>`;
+        const val = Number(s.ash || 0);
+        ash.innerHTML = `<span class="num num-anim" data-num="${val}">${val}</span><span class="unit">АШ</span>`;
 
         slot.appendChild(rank);
         slot.appendChild(nameLine);
@@ -1876,82 +2500,161 @@
         top3.appendChild(slot);
       }
 
+      const meta = document.createElement("div");
+      meta.className = "week-meta";
+
+      const total = Number(row.total_ash || 0);
+      const avg = Math.round(total / 7);
+      const bestDept = bestDeptForRow(row);
+
+      const prev = fullList?.[idx + 1] || null;
+      const tr = prev ? trendForRow(row, prev) : { cls:"trend-flat", sym:"→", diff:0 };
+
+      const diffAbs = Math.abs(tr.diff);
+      const diffText = prev ? `${tr.sym} ${diffAbs}` : `→ —`;
+
+      meta.innerHTML = `
+        <div class="meta-chip">Всего: <strong><span class="num-anim" data-num="${total}">${total}</span></strong></div>
+        <div class="meta-chip">Среднее/день: <strong><span class="num-anim" data-num="${avg}">${avg}</span></strong></div>
+        <div class="meta-chip">Лучший: <strong>${bestDept}</strong></div>
+        <div class="meta-chip">Тренд: <strong class="${tr.cls}">${diffText}</strong></div>
+      `;
+
+      wrap.appendChild(meta);
       wrap.appendChild(top3);
       return wrap;
     }
 
-    function setTodayDate() {
-      if (!dateEl) return;
-      const now = new Date();
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-      dateEl.textContent = `${dd}.${mm}.${yyyy}`;
-    }
-
-    async function loadDay() {
-      currentPeriod = "day";
-      if (deptPodiumEl) deptPodiumEl.style.display = "none";
-      setTodayDate();
-      if (!leadersWrapper) return;
-      leadersWrapper.textContent = "Загрузка…";
-
-      const rows = await apiGet("/leaders/day?limit=3");
-      const slots = [0,1,2].map((i) => rows?.[i] || null);
-
-      leadersWrapper.innerHTML = "";
-      slots.forEach((row, idx) => leadersWrapper.appendChild(renderLeaderCard(idx + 1, row)));
-    }
-
-    async function loadWeek() {
-      currentPeriod = "week";
-      if (dateEl) dateEl.textContent = "";
-      if (!leadersWrapper) return;
-      leadersWrapper.textContent = "Загрузка…";
-
-      const data = await apiGet("/leaders/week?limit=8");
-
-      if (deptPodiumEl) {
-        deptPodiumEl.style.display = "grid";
-        const ranked = rankDeptsFromLast3Weeks(data || []);
-        renderDeptPodium(ranked);
-      }
-
-      if (!data || !data.length) {
-        leadersWrapper.textContent = "Пока нет данных по неделям";
+    function animateNumber(el, from, to, ms = 560){
+      if (!el) return;
+      const a = Number(from);
+      const b = Number(to);
+      if (!Number.isFinite(a) || !Number.isFinite(b)){
+        el.textContent = String(to);
+        el.classList.add("swap");
+        setTimeout(() => el.classList.remove("swap"), 620);
         return;
       }
 
-      leadersWrapper.innerHTML = "";
-      for (const row of data) leadersWrapper.appendChild(renderWeeklySummaryBlock(row));
+      const start = performance.now();
+      const ease = (t) => 1 - Math.pow(1 - t, 3);
+
+      const step = (now) => {
+        const p = Math.min(1, (now - start) / ms);
+        const v = Math.round(a + (b - a) * ease(p));
+        el.textContent = String(v);
+        if (p < 1) requestAnimationFrame(step);
+      };
+
+      el.classList.add("swap");
+      requestAnimationFrame(step);
+      setTimeout(() => el.classList.remove("swap"), 620);
     }
 
-    async function switchPeriod(period) {
-      await animateSwitch(async () => {
-        try {
-          if (period === "week") await loadWeek();
-          else await loadDay();
-        } catch (e) {
-          leadersWrapper.textContent = period === "week" ? "Ошибка загрузки активности недели!" : "Ошибка загрузки рейтинга";
-          showErrorModal("Ошибка загрузки!");
-        }
+    function animateAllNumbers(root){
+      const scope = root || document;
+      scope.querySelectorAll(".num-anim").forEach(el => {
+        const to = Number(el.getAttribute("data-num") || el.textContent || 0);
+        const prev = Number(el.getAttribute("data-prev") || el.textContent || 0);
+        el.setAttribute("data-prev", String(to));
+        animateNumber(el, prev, to, 620);
       });
+    }
+
+    async function loadLeaders(){
+      currentPeriod = "day";
+      activeDeptFilter = null;
+      if (deptPodiumEl) deptPodiumEl.style.display = "none";
+
+      const restoreMinHeight = stabilizeHeight();
+      setDateDay();
+
+      skeletonDay();
+      runSwapAnimation();
+
+      try {
+        const rows = await apiGet("/leaders/day?limit=3", { abortPrev: true, cacheTtl: CACHE_CFG.day });
+        if (!rows || !rows.length){
+          emptyState("Нет данных за день", "Пока никто не набрал активность. Загляни чуть позже.", "🛰️");
+          restoreMinHeight();
+          return;
+        }
+
+        const slots = [0,1,2].map((i) => rows?.[i] || null);
+        leadersWrapper.innerHTML = "";
+        slots.forEach((row, idx) => leadersWrapper.appendChild(renderLeaderCard(idx + 1, row)));
+        animateAllNumbers(leadersWrapper);
+        restoreMinHeight();
+      } catch (e) {
+        restoreMinHeight();
+        if (String(e?.name || "").toLowerCase() === "aborterror") return;
+        emptyState("Ошибка сети", "Не удалось загрузить рейтинг дня. Проверь соединение и попробуй снова.", "📡");
+        showToast("Не удалось загрузить данные дня.", "err", 2800);
+      }
+    }
+
+    async function loadWeeklyBlocks(){
+      currentPeriod = "week";
+
+      const restoreMinHeight = stabilizeHeight();
+      setDateBlank();
+
+      skeletonWeek();
+      runSwapAnimation();
+
+      try {
+        const data = await apiGet("/leaders/week?limit=8", { abortPrev: true, cacheTtl: CACHE_CFG.week });
+        weeklyData = Array.isArray(data) ? data : [];
+
+        if (!weeklyData.length){
+          if (deptPodiumEl) deptPodiumEl.style.display = "none";
+          emptyState("Нет данных по неделям", "Сводки появятся после закрытия первой недели.", "🗓️");
+          restoreMinHeight();
+          return;
+        }
+
+        if (deptPodiumEl) {
+          deptPodiumEl.style.display = "grid";
+          const ranked = rankDeptsFromLast3Weeks(weeklyData);
+          renderDeptPodium(ranked);
+        }
+
+        leadersWrapper.innerHTML = "";
+        weeklyData.forEach((row, idx) => {
+          leadersWrapper.appendChild(renderWeeklySummaryBlock(row, idx, weeklyData));
+        });
+
+        animateAllNumbers(leadersWrapper);
+        applyWeekDeptHighlight();
+        restoreMinHeight();
+      } catch (e) {
+        restoreMinHeight();
+        if (String(e?.name || "").toLowerCase() === "aborterror") return;
+        if (deptPodiumEl) deptPodiumEl.style.display = "none";
+        emptyState("Ошибка загрузки", "Не удалось загрузить недельную активность. Попробуй ещё раз.", "🧯");
+        showToast("Не удалось загрузить данные недели.", "err", 2800);
+      }
     }
 
     const tabDay = document.getElementById("tab-day");
     const tabWeek = document.getElementById("tab-week");
 
+    function setActiveTab(btn){
+      [tabDay, tabWeek].forEach(b => b && b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    function onSwitch(period){
+      if (period === currentPeriod) return;
+      const restoreMinHeight = stabilizeHeight();
+      setTimeout(restoreMinHeight, 900);
+      if (period === "week") loadWeeklyBlocks();
+      else loadLeaders();
+    }
+
     if (tabDay && tabWeek) {
-      const tabs = [tabDay, tabWeek];
-      tabs.forEach((btn) => {
-        btn.onclick = async () => {
-          if (switching) return;
-          tabs.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          const period = btn.dataset.period;
-          await switchPeriod(period);
-        };
-      });
+      tabDay.onclick = () => { setActiveTab(tabDay); onSwitch("day"); };
+      tabWeek.onclick = () => { setActiveTab(tabWeek); onSwitch("week"); };
     }
 
     const editLeadersTopBtn = document.getElementById("edit-leaders-top");
@@ -1977,7 +2680,7 @@
 
     function openBulkModal(){
       if(!canBulkEdit(currentUser)){
-        showErrorModal("Недостаточно прав.");
+        showToast("Нет прав для редактирования.", "warn", 2400);
         return;
       }
       hideBulkError();
@@ -1993,7 +2696,7 @@
     }
 
     async function fetchLeadersForDepts(){
-      return apiGet("/leaders/by-depts?depts=LSPD,SFPD,LVPD");
+      return apiGet("/leaders/by-depts?depts=LSPD,SFPD,LVPD", { abortPrev: false });
     }
 
     function createBulkCard(row){
@@ -2051,7 +2754,13 @@
     }
 
     async function buildBulkModal(){
-      bulkFormsEl.innerHTML = "Загрузка…";
+      bulkFormsEl.innerHTML = "";
+      const sk = document.createElement("div");
+      sk.className = "skeleton";
+      sk.style.height = "220px";
+      sk.style.borderRadius = "16px";
+      bulkFormsEl.appendChild(sk);
+
       bulkRows = await fetchLeadersForDepts();
       bulkFormsEl.innerHTML = "";
 
@@ -2080,10 +2789,14 @@
 
       try {
         await apiPost("/leaders/bulk", { rows });
+        writeCache("/leaders/day?limit=3", null, 1);
+        writeCache("/leaders/by-depts?depts=LSPD,SFPD,LVPD", null, 1);
         closeBulkModal();
-        await switchPeriod(currentPeriod);
+        showToast("Изменения сохранены.", "ok", 2200);
+        currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders();
       } catch (e) {
         showBulkError(String(e.message || e));
+        showToast("Не удалось сохранить изменения.", "err", 2800);
       }
     }
 
@@ -2140,7 +2853,7 @@
 
     async function refreshReactionCounts(){
       try {
-        const data = await apiGet(`/reactions/counts?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}`);
+        const data = await apiGet(`/reactions/counts?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}`, { abortPrev: false });
         const map = { like:0, dislike:0, ura:0, govno:0 };
         (data || []).forEach(row => { map[row.reaction] = Number(row.cnt || 0); });
         setCountsFromMap(map);
@@ -2150,7 +2863,7 @@
     async function fetchMyReaction(){
       try {
         const userKey = getUserKey();
-        const data = await apiGet(`/reactions/my?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}&user_key=${encodeURIComponent(userKey)}`);
+        const data = await apiGet(`/reactions/my?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}&user_key=${encodeURIComponent(userKey)}`, { abortPrev: false });
         return data?.reaction || null;
       } catch {
         return null;
@@ -2165,19 +2878,31 @@
         const current = await fetchMyReaction();
 
         if (current === nextReaction) {
-          await apiPost("/reactions/set", { page: REACTIONS_PAGE_KEY, user_key: userKey, reaction: null });
+          await apiPost("/reactions/set", {
+            page: REACTIONS_PAGE_KEY,
+            user_key: userKey,
+            reaction: null
+          });
           setReactionButtonsActive(null);
           if (hint) hint.textContent = "Реакция убрана.";
           await refreshReactionCounts();
+          showToast("Реакция убрана.", "info", 1400);
           return;
         }
 
-        await apiPost("/reactions/set", { page: REACTIONS_PAGE_KEY, user_key: userKey, reaction: nextReaction });
+        await apiPost("/reactions/set", {
+          page: REACTIONS_PAGE_KEY,
+          user_key: userKey,
+          reaction: nextReaction
+        });
+
         setReactionButtonsActive(nextReaction);
         if (hint) hint.textContent = "Реакция сохранена.";
         await refreshReactionCounts();
+        showToast("Реакция сохранена.", "ok", 1400);
       } catch {
         if (hint) hint.textContent = "Не удалось поставить реакцию.";
+        showToast("Не удалось поставить реакцию.", "err", 2400);
       }
     }
 
@@ -2210,20 +2935,14 @@
 
       if (editBtn && myNick) {
         try {
-          const r = await apiGet(`/users/can-edit?nick=${encodeURIComponent(myNick)}`);
+          const r = await apiGet(`/users/can-edit?nick=${encodeURIComponent(myNick)}`, { abortPrev: false });
           if (r?.ok) editBtn.style.display = "inline-flex";
         } catch {}
       }
 
-      try {
-        await switchPeriod("day");
-      } catch {
-        leadersWrapper.textContent = "Ошибка загрузки рейтинга";
-      }
-
-      try {
-        await initReactions();
-      } catch {}
+      setStickyHeader();
+      await loadLeaders();
+      initReactions();
     }
 
     window.addEventListener("load", initPage);
