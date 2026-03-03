@@ -2025,40 +2025,84 @@
       .ws-topmark .brand{ font-size: 11px; letter-spacing: .08em; }
     }
     
-    /* ─────────────────────────────────────────
-       Flame up from hovered blocks
-       ───────────────────────────────────────── */
-    .ws-flame{ position: relative; overflow:hidden; }
+    .ws-flame{
+      position: relative;
+      overflow: hidden;
+    }
     
+    .ws-flame::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:-40px;
+      width:min(720px, 170%);
+      height:320px;
+      transform: translateX(-50%) translateY(70px);
+      opacity:0;
+      pointer-events:none;
+      filter: blur(18px) saturate(1.4);
+      background:
+        radial-gradient(closest-side at 50% 88%, rgba(60,255,120,.26), rgba(60,255,120,0) 72%),
+        radial-gradient(closest-side at 35% 92%, rgba(0,255,160,.18), rgba(0,255,160,0) 74%),
+        radial-gradient(closest-side at 65% 92%, rgba(120,255,90,.14), rgba(120,255,90,0) 74%);
+      mix-blend-mode: screen;
+      transition: opacity 260ms var(--ease), transform 620ms var(--ease2);
+    }
+    
+    /* само "пламя" — языки */
     .ws-flame::after{
       content:"";
       position:absolute;
       left:50%;
-      bottom:-26px;
-      width:min(520px, 140%);
-      height:220px;
-      transform: translateX(-50%) translateY(44px);
+      bottom:-60px;
+      width:min(760px, 190%);
+      height:380px;
+      transform: translateX(-50%) translateY(120px) scaleY(.9);
       opacity:0;
       pointer-events:none;
-      filter: blur(10px) saturate(1.22);
-      background:
-        radial-gradient(closest-side at 50% 82%, rgba(46,249,255,.30), rgba(46,249,255,0) 70%),
-        radial-gradient(closest-side at 35% 88%, rgba(255,45,122,.20), rgba(255,45,122,0) 72%),
-        radial-gradient(closest-side at 65% 88%, rgba(168,85,247,.18), rgba(168,85,247,0) 74%),
-        conic-gradient(from 180deg at 50% 90%,
-          rgba(46,249,255,0) 0deg,
-          rgba(46,249,255,.24) 70deg,
-          rgba(255,45,122,.18) 150deg,
-          rgba(168,85,247,.18) 230deg,
-          rgba(46,249,255,0) 360deg
-        );
       mix-blend-mode: screen;
-      transition: opacity 260ms var(--ease), transform 520ms var(--ease2);
+    
+      /* много "языков" через conic + radial */
+      background:
+        conic-gradient(from 180deg at 50% 92%,
+          rgba(0,0,0,0) 0deg,
+          rgba(0,255,160,.00) 10deg,
+          rgba(60,255,120,.85) 36deg,
+          rgba(140,255,80,.65) 70deg,
+          rgba(60,255,120,.85) 110deg,
+          rgba(0,255,160,.55) 150deg,
+          rgba(60,255,120,.85) 200deg,
+          rgba(140,255,80,.60) 250deg,
+          rgba(60,255,120,.85) 300deg,
+          rgba(0,255,160,.00) 350deg,
+          rgba(0,0,0,0) 360deg
+        ),
+        radial-gradient(closest-side at 50% 92%, rgba(60,255,120,.55), rgba(60,255,120,0) 70%);
+    
+      filter: blur(6px) saturate(1.5) contrast(1.1);
+      transition: opacity 240ms var(--ease), transform 720ms var(--ease2);
+      animation: flameWobble 1.35s ease-in-out infinite;
+      animation-play-state: paused;
+    }
+    
+    /* hover: пламя поднимается вверх */
+    .ws-flame:hover::before{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-120px);
     }
     
     .ws-flame:hover::after{
-      opacity:1;
-      transform: translateX(-50%) translateY(-64px);
+      opacity: 1;
+      transform: translateX(-50%) translateY(-170px) scaleY(1.05);
+      animation-play-state: running;
+    }
+    
+    /* колыхание, чтобы было "живое" */
+    @keyframes flameWobble{
+      0%   { transform: translateX(-50%) translateY(-170px) scaleY(1.05) skewX(0deg);   filter: blur(6px) saturate(1.5); }
+      30%  { transform: translateX(calc(-50% - 10px)) translateY(-182px) scaleY(1.08) skewX(-2deg); filter: blur(5px) saturate(1.7); }
+      60%  { transform: translateX(calc(-50% + 12px)) translateY(-168px) scaleY(1.03) skewX(2deg);  filter: blur(6px) saturate(1.55); }
+      100% { transform: translateX(-50%) translateY(-170px) scaleY(1.05) skewX(0deg);   filter: blur(6px) saturate(1.5); }
     }
   </style>
 </head>
