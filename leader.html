@@ -10,23 +10,31 @@
   <style>
     :root{
       --text:#f3f6ff;
+
       --accent1:#ff2d7a;
       --accent2:#2ef9ff;
       --accent3:#a855f7;
       --accent4:#ff4d5e;
+
       --bg0:#06070f;
+
       --glass: rgba(8, 10, 24, .55);
       --glass2: rgba(0,0,0,.22);
+
       --b1: rgba(255,255,255,.10);
       --b2: rgba(255,255,255,.16);
       --ring: rgba(46,249,255,.42);
+
       --shadow-s: 0 10px 32px rgba(0,0,0,.28);
       --shadow-m: 0 18px 64px rgba(0,0,0,.44);
       --shadow-l: 0 28px 96px rgba(0,0,0,.62);
+
       --rXL: 30px;
       --rL: 24px;
+
       --ease: cubic-bezier(.2,.9,.1,1);
       --ease2: cubic-bezier(.16,1,.3,1);
+
       --dur-quick: 240ms;
       --dur: 520ms;
       --dur-slow: 820ms;
@@ -306,6 +314,18 @@
       width: 100%;
     }
 
+    .leader-panel-header.sticky{
+      position: sticky;
+      top: 10px;
+      padding: 10px 10px 12px;
+      border-radius: 22px;
+      background: rgba(0,0,0,.12);
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 18px 54px rgba(0,0,0,.26);
+    }
+
     .leader-tabs{
       width: min(860px, 100%);
       margin: 0 auto;
@@ -319,7 +339,69 @@
       box-shadow: none;
       overflow: visible;
       perspective: 1200px;
+      position: relative;
+      transform: translateZ(0);
     }
+
+    .tab-flow{
+      position:absolute;
+      left: 0;
+      top: 0;
+      width: 100px;
+      height: 52px;
+      border-radius: 22px;
+      pointer-events:none;
+      z-index: 0;
+      opacity: 0;
+      transform: translate3d(0,0,0) scale(.98);
+      transition:
+        left 860ms var(--ease2),
+        top 860ms var(--ease2),
+        width 860ms var(--ease2),
+        height 860ms var(--ease2),
+        transform 860ms var(--ease2),
+        opacity 520ms var(--ease2),
+        filter 860ms var(--ease2);
+      background:
+        radial-gradient(900px 260px at 15% 20%, rgba(255,45,122,.18), transparent 55%),
+        radial-gradient(900px 260px at 85% 25%, rgba(46,249,255,.16), transparent 58%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.04) inset,
+        0 18px 70px rgba(0,0,0,.34),
+        0 0 48px rgba(46,249,255,.10),
+        0 0 48px rgba(255,45,122,.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      filter: saturate(1.12) brightness(1.02);
+    }
+
+    .tab-flow::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 24px;
+      background: conic-gradient(
+        from 0deg,
+        rgba(46,249,255,0) 0deg,
+        rgba(46,249,255,.70) 90deg,
+        rgba(255,45,122,.76) 180deg,
+        rgba(168,85,247,.64) 270deg,
+        rgba(46,249,255,0) 360deg
+      );
+      opacity: .55;
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+      filter: blur(.22px);
+      animation: tabFlowSpin 9.5s linear infinite;
+    }
+
+    @keyframes tabFlowSpin{ to { transform: rotate(360deg); } }
 
     .leader-tab{
       flex: 1 1 0;
@@ -353,6 +435,7 @@
         filter 780ms var(--ease2),
         color 520ms var(--ease2);
       overflow:hidden;
+      z-index: 1;
     }
 
     .leader-tab::before{
@@ -374,7 +457,7 @@
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       padding: 2px;
-      opacity: .28;
+      opacity: .22;
       filter: blur(.25px);
       transition: opacity 780ms var(--ease2), filter 780ms var(--ease2);
       pointer-events:none;
@@ -468,18 +551,12 @@
       .leader-tab:hover{
         transform: translateY(-2px) scale(1.01);
       }
-    }
-
-    .leader-panel-header.sticky{
-      position: sticky;
-      top: 10px;
-      padding: 10px 10px 12px;
-      border-radius: 22px;
-      background: rgba(0,0,0,.12);
-      border: 1px solid rgba(255,255,255,.08);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: 0 18px 54px rgba(0,0,0,.26);
+      .tab-flow{
+        border-radius: 20px;
+      }
+      .tab-flow::before{
+        border-radius: 22px;
+      }
     }
 
     .leader-date{
@@ -1259,86 +1336,6 @@
     .edit-avatar-preview img{ width:100%; height:100%; object-fit:cover; }
     .drag-over{ outline: 3px solid rgba(46,249,255,.6); }
 
-    .reactions-panel{
-      margin-top: 18px;
-      border-radius: 22px;
-      padding: 14px 14px 12px;
-      background: rgba(0,0,0,.14);
-      border: 1px solid rgba(46,249,255,.14);
-      box-shadow: 0 18px 70px rgba(0,0,0,.38);
-      overflow: hidden;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .reactions-title{
-      font-weight: 900;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      color: rgba(243,246,255,.82);
-      margin-bottom: 12px;
-      text-shadow: 0 0 14px rgba(46,249,255,.10);
-    }
-
-    .reactions-grid{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
-    .reaction-btn{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
-      padding: 12px 12px;
-      border-radius: 16px;
-      background: rgba(0,0,0,.16);
-      border: 1px solid rgba(255,255,255,.12);
-      color: rgba(243,246,255,.90);
-      cursor: pointer;
-      transition: transform var(--dur-quick) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
-      will-change: transform;
-    }
-    .reaction-btn:hover{
-      transform: translateY(-1px);
-      border-color: rgba(46,249,255,.22);
-      box-shadow: 0 0 22px rgba(46,249,255,.10);
-    }
-    .reaction-btn:active{ transform: translateY(0px) scale(.99); }
-
-    .reaction-btn.active{
-      border-color: rgba(255,45,122,.42);
-      box-shadow:
-        0 0 22px rgba(255,45,122,.14),
-        0 0 26px rgba(46,249,255,.10);
-    }
-
-    .reaction-emoji{ font-size: 18px; }
-    .reaction-label{
-      font-weight: 900;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      font-size: 12px;
-      opacity: .94;
-    }
-    .reaction-count{
-      margin-left: 2px;
-      min-width: 28px;
-      text-align:center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(46,249,255,.10);
-      border: 1px solid rgba(46,249,255,.18);
-      font-weight: 900;
-    }
-
-    .reactions-hint{
-      margin-top: 10px;
-      font-size: 12px;
-      color: rgba(243,246,255,.64);
-    }
-
     .dept-podium{
       width: min(860px, 100%);
       margin: 6px auto 0;
@@ -1399,7 +1396,6 @@
       animation: deptSpin 9s linear infinite;
       animation-play-state: paused;
     }
-
     @keyframes deptSpin{ to { transform: rotate(360deg); } }
 
     .dept-orb .dept-sheen{
@@ -1758,7 +1754,6 @@
     }
 
     @media (max-width: 900px){
-      .reactions-grid{ grid-template-columns: repeat(2, 1fr); }
       .toast-host{
         left: 16px;
         right: 16px;
@@ -1871,7 +1866,8 @@
       .dept-name,
       .leaders-wrapper.swap,
       .skeleton::before,
-      .num-anim.swap{
+      .num-anim.swap,
+      .tab-flow::before{
         animation: none !important;
       }
       *{
@@ -1880,17 +1876,18 @@
       }
       .leader-card:hover,
       .week-summary:hover,
-      .dept-orb:hover{
+      .dept-orb:hover,
+      .leader-tab:hover{
         transform: none !important;
         filter: none !important;
       }
       .leader-panel-header.sticky,
-      .week-summary,
-      .reactions-panel{
+      .week-summary{
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
       }
       .cursor-glow{ display:none !important; }
+      .tab-flow{ display:none !important; }
     }
   </style>
 </head>
@@ -1932,7 +1929,8 @@
 
     <div class="leader-panel">
       <div class="leader-panel-header" id="panel-header">
-        <div class="leader-tabs">
+        <div class="leader-tabs" id="tabs-wrap">
+          <div class="tab-flow" id="tab-flow"></div>
           <button class="leader-tab active" id="tab-day" data-period="day">
             <span class="icon">♥</span>
             <span class="label">Активность дня</span>
@@ -1990,6 +1988,7 @@
       const k = cacheKey(path);
       const mem = memCache.get(k);
       if (mem && mem.exp > nowMs()) return mem.val;
+
       try{
         const raw = localStorage.getItem(k);
         if (!raw) return null;
@@ -2016,7 +2015,7 @@
     let activeController = null;
 
     async function apiGet(path, opts = {}) {
-      const useCache = !!opts.cacheTtl;
+      const useCache = Number.isFinite(opts.cacheTtl) && opts.cacheTtl > 0;
       if (useCache){
         const cached = readCache(path);
         if (cached) return cached;
@@ -2118,9 +2117,15 @@
     const panelHeader = document.getElementById("panel-header");
     const deptPodiumEl = document.getElementById("dept-podium");
 
+    const tabsWrap = document.getElementById("tabs-wrap");
+    const tabFlow = document.getElementById("tab-flow");
+    const tabDay = document.getElementById("tab-day");
+    const tabWeek = document.getElementById("tab-week");
+
     let currentPeriod = "day";
     let weeklyData = [];
     let activeDeptFilter = null;
+    let switchingTabs = false;
 
     function setStickyHeader(){
       if(!panelHeader) return;
@@ -2310,6 +2315,84 @@
       ].sort((a,b) => b.val - a.val);
     }
 
+    function animateNumber(el, from, to, ms = 560){
+      if (!el) return;
+      const a = Number(from);
+      const b = Number(to);
+      if (!Number.isFinite(a) || !Number.isFinite(b)){
+        el.textContent = String(to);
+        el.classList.add("swap");
+        setTimeout(() => el.classList.remove("swap"), 620);
+        return;
+      }
+      const start = performance.now();
+      const ease = (t) => 1 - Math.pow(1 - t, 3);
+      const step = (now) => {
+        const p = Math.min(1, (now - start) / ms);
+        const v = Math.round(a + (b - a) * ease(p));
+        el.textContent = String(v);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      el.classList.add("swap");
+      requestAnimationFrame(step);
+      setTimeout(() => el.classList.remove("swap"), 620);
+    }
+
+    function animateAllNumbers(root){
+      const scope = root || document;
+      scope.querySelectorAll(".num-anim").forEach(el => {
+        const to = Number(el.getAttribute("data-num") || el.textContent || 0);
+        const prev = Number(el.getAttribute("data-prev") || el.textContent || 0);
+        el.setAttribute("data-prev", String(to));
+        animateNumber(el, prev, to, 620);
+      });
+    }
+
+    function syncDeptPodiumSelection(){
+      if(!deptPodiumEl) return;
+      deptPodiumEl.querySelectorAll(".dept-orb").forEach(el => {
+        const d = el.getAttribute("data-dept");
+        const isSel = activeDeptFilter && d === activeDeptFilter;
+        el.classList.toggle("selected", !!isSel);
+        el.classList.toggle("dimmed", !!activeDeptFilter && !isSel);
+      });
+    }
+
+    function applyWeekDeptHighlight(){
+      if(!leadersWrapper) return;
+      const want = activeDeptFilter;
+      const blocks = leadersWrapper.querySelectorAll(".week-summary");
+      blocks.forEach(block => {
+        const slots = block.querySelectorAll(".week-slot");
+        if (!want){
+          slots.forEach(s => { s.classList.remove("dimmed","hit"); });
+          return;
+        }
+        slots.forEach(s => {
+          const pill = s.querySelector(".dept-pill");
+          const dept = String(pill?.textContent || "").trim().toUpperCase();
+          const hit = dept === want;
+          s.classList.toggle("hit", hit);
+          s.classList.toggle("dimmed", !hit);
+        });
+      });
+    }
+
+    function bindDeptPodiumClicks(){
+      if(!deptPodiumEl) return;
+      deptPodiumEl.querySelectorAll(".dept-orb").forEach(el => {
+        el.onclick = () => {
+          const d = el.getAttribute("data-dept");
+          if (!d || d === "—") return;
+          activeDeptFilter = (activeDeptFilter === d) ? null : d;
+          syncDeptPodiumSelection();
+          applyWeekDeptHighlight();
+          if (activeDeptFilter) showToast(`Фильтр: ${activeDeptFilter}`, "info", 1400);
+          else showToast(`Фильтр снят`, "info", 1200);
+        };
+      });
+    }
+
     function renderDeptPodium(list){
       if(!deptPodiumEl) return;
       const d1 = list?.[0] || { dept:"—", val:0 };
@@ -2338,51 +2421,6 @@
       bindDeptPodiumClicks();
       animateAllNumbers(deptPodiumEl);
       syncDeptPodiumSelection();
-    }
-
-    function syncDeptPodiumSelection(){
-      if(!deptPodiumEl) return;
-      deptPodiumEl.querySelectorAll(".dept-orb").forEach(el => {
-        const d = el.getAttribute("data-dept");
-        const isSel = activeDeptFilter && d === activeDeptFilter;
-        el.classList.toggle("selected", !!isSel);
-        el.classList.toggle("dimmed", !!activeDeptFilter && !isSel);
-      });
-    }
-
-    function bindDeptPodiumClicks(){
-      if(!deptPodiumEl) return;
-      deptPodiumEl.querySelectorAll(".dept-orb").forEach(el => {
-        el.onclick = () => {
-          const d = el.getAttribute("data-dept");
-          if (!d || d === "—") return;
-          activeDeptFilter = (activeDeptFilter === d) ? null : d;
-          syncDeptPodiumSelection();
-          applyWeekDeptHighlight();
-          if (activeDeptFilter) showToast(`Фильтр: ${activeDeptFilter}`, "info", 1400);
-          else showToast(`Фильтр снят`, "info", 1200);
-        };
-      });
-    }
-
-    function applyWeekDeptHighlight(){
-      if(!leadersWrapper) return;
-      const want = activeDeptFilter;
-      const blocks = leadersWrapper.querySelectorAll(".week-summary");
-      blocks.forEach(block => {
-        const slots = block.querySelectorAll(".week-slot");
-        if (!want){
-          slots.forEach(s => { s.classList.remove("dimmed","hit"); });
-          return;
-        }
-        slots.forEach(s => {
-          const pill = s.querySelector(".dept-pill");
-          const dept = String(pill?.textContent || "").trim().toUpperCase();
-          const hit = dept === want;
-          s.classList.toggle("hit", hit);
-          s.classList.toggle("dimmed", !hit);
-        });
-      });
     }
 
     function renderLeaderCard(place, row) {
@@ -2530,6 +2568,7 @@
 
       const prev = fullList?.[idx + 1] || null;
       const tr = prev ? trendForRow(row, prev) : { cls:"trend-flat", sym:"→", diff:0 };
+
       const diffAbs = Math.abs(tr.diff);
       const diffText = prev ? `${tr.sym} ${diffAbs}` : `→ —`;
 
@@ -2589,118 +2628,46 @@
       return wrap;
     }
 
-    function animateNumber(el, from, to, ms = 560){
-      if (!el) return;
-      const a = Number(from);
-      const b = Number(to);
-      if (!Number.isFinite(a) || !Number.isFinite(b)){
-        el.textContent = String(to);
-        el.classList.add("swap");
-        setTimeout(() => el.classList.remove("swap"), 620);
+    function updateTabFlowFor(btn, immediate = false){
+      if(!tabsWrap || !tabFlow || !btn) return;
+      const w = tabsWrap.getBoundingClientRect();
+      const b = btn.getBoundingClientRect();
+      const left = (b.left - w.left) + tabsWrap.scrollLeft;
+      const top = (b.top - w.top) + tabsWrap.scrollTop;
+      const width = b.width;
+      const height = b.height;
+
+      if (immediate){
+        tabFlow.style.transition = "none";
+        tabFlow.style.left = left + "px";
+        tabFlow.style.top = top + "px";
+        tabFlow.style.width = width + "px";
+        tabFlow.style.height = height + "px";
+        tabFlow.style.opacity = "1";
+        tabFlow.style.transform = "translate3d(0,0,0) scale(1)";
+        void tabFlow.offsetWidth;
+        tabFlow.style.transition = "";
         return;
       }
-      const start = performance.now();
-      const ease = (t) => 1 - Math.pow(1 - t, 3);
-      const step = (now) => {
-        const p = Math.min(1, (now - start) / ms);
-        const v = Math.round(a + (b - a) * ease(p));
-        el.textContent = String(v);
-        if (p < 1) requestAnimationFrame(step);
-      };
-      el.classList.add("swap");
-      requestAnimationFrame(step);
-      setTimeout(() => el.classList.remove("swap"), 620);
+
+      tabFlow.style.left = left + "px";
+      tabFlow.style.top = top + "px";
+      tabFlow.style.width = width + "px";
+      tabFlow.style.height = height + "px";
+      tabFlow.style.opacity = "1";
+      tabFlow.style.transform = "translate3d(0,0,0) scale(1)";
     }
 
-    function animateAllNumbers(root){
-      const scope = root || document;
-      scope.querySelectorAll(".num-anim").forEach(el => {
-        const to = Number(el.getAttribute("data-num") || el.textContent || 0);
-        const prev = Number(el.getAttribute("data-prev") || el.textContent || 0);
-        el.setAttribute("data-prev", String(to));
-        animateNumber(el, prev, to, 620);
-      });
+    function syncTabFlowImmediate(){
+      const active = tabDay?.classList.contains("active") ? tabDay : tabWeek;
+      if (active) updateTabFlowFor(active, true);
     }
 
-    async function loadLeaders(){
-      currentPeriod = "day";
-      activeDeptFilter = null;
-      if (deptPodiumEl) deptPodiumEl.style.display = "none";
-
-      const restoreMinHeight = stabilizeHeight();
-      setDateDay();
-
-      skeletonDay();
+    function crossfadeSwap(){
       runSwapAnimation();
-
-      try {
-        const rows = await apiGet("/leaders/day?limit=3", { abortPrev: true, cacheTtl: CACHE_CFG.day });
-        if (!rows || !rows.length){
-          emptyState("Нет данных за день", "Пока никто не набрал активность. Загляни чуть позже.", "🛰️");
-          restoreMinHeight();
-          return;
-        }
-        const slots = [0,1,2].map((i) => rows?.[i] || null);
-        leadersWrapper.innerHTML = "";
-        slots.forEach((row, idx) => leadersWrapper.appendChild(renderLeaderCard(idx + 1, row)));
-        animateAllNumbers(leadersWrapper);
-        restoreMinHeight();
-      } catch (e) {
-        restoreMinHeight();
-        if (String(e?.name || "").toLowerCase() === "aborterror") return;
-        emptyState("Ошибка сети", "Не удалось загрузить рейтинг дня. Проверь соединение и попробуй снова.", "📡");
-        showToast("Не удалось загрузить данные дня.", "err", 2800);
-      }
+      const restore = stabilizeHeight();
+      setTimeout(restore, 900);
     }
-
-    async function loadWeeklyBlocks(){
-      currentPeriod = "week";
-
-      const restoreMinHeight = stabilizeHeight();
-      setDateBlank();
-
-      skeletonWeek();
-      runSwapAnimation();
-
-      try {
-        const data = await apiGet("/leaders/week?limit=8", { abortPrev: true, cacheTtl: CACHE_CFG.week });
-        weeklyData = Array.isArray(data) ? data : [];
-
-        if (!weeklyData.length){
-          if (deptPodiumEl) deptPodiumEl.style.display = "none";
-          emptyState("Нет данных по неделям", "Сводки появятся после закрытия первой недели.", "🗓️");
-          restoreMinHeight();
-          return;
-        }
-
-        if (deptPodiumEl) {
-          deptPodiumEl.style.display = "grid";
-          const ranked = rankDeptsFromLast3Weeks(weeklyData);
-          renderDeptPodium(ranked);
-        }
-
-        leadersWrapper.innerHTML = "";
-        weeklyData.forEach((row, idx) => {
-          leadersWrapper.appendChild(renderWeeklySummaryBlock(row, idx, weeklyData));
-        });
-
-        animateAllNumbers(leadersWrapper);
-        applyWeekDeptHighlight();
-        restoreMinHeight();
-      } catch (e) {
-        restoreMinHeight();
-        if (String(e?.name || "").toLowerCase() === "aborterror") return;
-        if (deptPodiumEl) deptPodiumEl.style.display = "none";
-        emptyState("Ошибка загрузки", "Не удалось загрузить недельную активность. Попробуй ещё раз.", "🧯");
-        showToast("Не удалось загрузить данные недели.", "err", 2800);
-      }
-    }
-
-    const tabDay = document.getElementById("tab-day");
-    const tabWeek = document.getElementById("tab-week");
-    const tabsWrap = document.querySelector(".leader-tabs");
-
-    let switchingTabs = false;
 
     function setActiveTabSmooth(nextBtn){
       if(!tabDay || !tabWeek || !tabsWrap) return;
@@ -2710,6 +2677,8 @@
       switchingTabs = true;
 
       tabsWrap.classList.add("is-switching");
+
+      updateTabFlowFor(nextBtn, false);
 
       prevBtn.style.transition = "transform 920ms var(--ease2), filter 920ms var(--ease2)";
       nextBtn.style.transition = "transform 920ms var(--ease2), filter 920ms var(--ease2)";
@@ -2730,17 +2699,81 @@
           prevBtn.style.filter = "";
           nextBtn.style.transform = "";
           nextBtn.style.filter = "";
-
           prevBtn.style.transition = "";
           nextBtn.style.transition = "";
-
           tabsWrap.classList.remove("is-switching");
           switchingTabs = false;
         }, 980);
       });
     }
 
+    async function loadLeaders(){
+      currentPeriod = "day";
+      activeDeptFilter = null;
+      if (deptPodiumEl) deptPodiumEl.style.display = "none";
+
+      setDateDay();
+      crossfadeSwap();
+      skeletonDay();
+
+      try {
+        const rows = await apiGet("/leaders/day?limit=3", { abortPrev: true, cacheTtl: CACHE_CFG.day });
+        if (!rows || !rows.length){
+          emptyState("Нет данных за день", "Пока никто не набрал активность. Загляни чуть позже.", "🛰️");
+          return;
+        }
+
+        const slots = [0,1,2].map((i) => rows?.[i] || null);
+        leadersWrapper.innerHTML = "";
+        slots.forEach((row, idx) => leadersWrapper.appendChild(renderLeaderCard(idx + 1, row)));
+        animateAllNumbers(leadersWrapper);
+      } catch (e) {
+        if (String(e?.name || "").toLowerCase() === "aborterror") return;
+        emptyState("Ошибка сети", "Не удалось загрузить рейтинг дня. Проверь соединение и попробуй снова.", "📡");
+        showToast("Не удалось загрузить данные дня.", "err", 2800);
+      }
+    }
+
+    async function loadWeeklyBlocks(){
+      currentPeriod = "week";
+
+      setDateBlank();
+      crossfadeSwap();
+      skeletonWeek();
+
+      try {
+        const data = await apiGet("/leaders/week?limit=8", { abortPrev: true, cacheTtl: CACHE_CFG.week });
+        weeklyData = Array.isArray(data) ? data : [];
+
+        if (!weeklyData.length){
+          if (deptPodiumEl) deptPodiumEl.style.display = "none";
+          emptyState("Нет данных по неделям", "Сводки появятся после закрытия первой недели.", "🗓️");
+          return;
+        }
+
+        if (deptPodiumEl) {
+          deptPodiumEl.style.display = "grid";
+          const ranked = rankDeptsFromLast3Weeks(weeklyData);
+          renderDeptPodium(ranked);
+        }
+
+        leadersWrapper.innerHTML = "";
+        weeklyData.forEach((row, idx) => {
+          leadersWrapper.appendChild(renderWeeklySummaryBlock(row, idx, weeklyData));
+        });
+
+        animateAllNumbers(leadersWrapper);
+        applyWeekDeptHighlight();
+      } catch (e) {
+        if (String(e?.name || "").toLowerCase() === "aborterror") return;
+        if (deptPodiumEl) deptPodiumEl.style.display = "none";
+        emptyState("Ошибка загрузки", "Не удалось загрузить недельную активность. Попробуй ещё раз.", "🧯");
+        showToast("Не удалось загрузить данные недели.", "err", 2800);
+      }
+    }
+
     function switchPeriod(period){
+      if (period === currentPeriod) return;
       if (period === "week") loadWeeklyBlocks();
       else loadLeaders();
     }
@@ -2755,6 +2788,10 @@
         switchPeriod("week");
       };
     }
+
+    window.addEventListener("resize", () => {
+      syncTabFlowImmediate();
+    });
 
     const editLeadersTopBtn = document.getElementById("edit-leaders-top");
     const bulkModal = document.getElementById("leaders-bulk-modal");
@@ -2795,7 +2832,7 @@
     }
 
     async function fetchLeadersForDepts(){
-      return apiGet("/leaders/by-depts?depts=LSPD,SFPD,LVPD", { abortPrev: false });
+      return apiGet("/leaders/by-depts?depts=LSPD,SFPD,LVPD", { abortPrev: false, cacheTtl: 0 });
     }
 
     function createBulkCard(row){
@@ -2889,7 +2926,7 @@
       try {
         await apiPost("/leaders/bulk", { rows });
         invalidateCache("/leaders/day?limit=3");
-        invalidateCache("/leaders/by-depts?depts=LSPD,SFPD,LVPD");
+        invalidateCache("/leaders/week?limit=8");
         closeBulkModal();
         showToast("Изменения сохранены.", "ok", 2200);
         currentPeriod === "week" ? loadWeeklyBlocks() : loadLeaders();
@@ -2908,111 +2945,6 @@
     if(bulkCancelBtn) bulkCancelBtn.onclick = closeBulkModal;
     if(bulkSaveBtn) bulkSaveBtn.onclick = saveBulk;
 
-    const REACTIONS_PAGE_KEY = "leaders_pd";
-
-    function getOrCreateAnonId(){
-      const k = "pp_anon_id";
-      let v = localStorage.getItem(k);
-      if(!v){
-        v = (crypto?.randomUUID?.() || (Date.now() + "-" + Math.random().toString(16).slice(2)));
-        localStorage.setItem(k, v);
-      }
-      return v;
-    }
-
-    function getUserKey(){
-      return (
-        currentUser?.id ||
-        currentUser?.account_id ||
-        currentUser?.accountId ||
-        currentUser?.login ||
-        currentUser?.nick ||
-        getOrCreateAnonId()
-      ).toString();
-    }
-
-    function setReactionButtonsActive(activeReaction){
-      document.querySelectorAll(".reaction-btn").forEach(btn => {
-        const r = btn.getAttribute("data-reaction");
-        btn.classList.toggle("active", r === activeReaction);
-      });
-    }
-
-    function setCountsFromMap(map){
-      const safe = (x) => (Number.isFinite(x) ? x : 0);
-      const a = document.getElementById("rc-like");
-      const b = document.getElementById("rc-dislike");
-      const c = document.getElementById("rc-ura");
-      const d = document.getElementById("rc-govno");
-      if (a) a.textContent = safe(map.like);
-      if (b) b.textContent = safe(map.dislike);
-      if (c) c.textContent = safe(map.ura);
-      if (d) d.textContent = safe(map.govno);
-    }
-
-    async function refreshReactionCounts(){
-      try {
-        const data = await apiGet(`/reactions/counts?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}`, { abortPrev: false });
-        const map = { like:0, dislike:0, ura:0, govno:0 };
-        (data || []).forEach(row => { map[row.reaction] = Number(row.cnt || 0); });
-        setCountsFromMap(map);
-      } catch {}
-    }
-
-    async function fetchMyReaction(){
-      try {
-        const userKey = getUserKey();
-        const data = await apiGet(`/reactions/my?page=${encodeURIComponent(REACTIONS_PAGE_KEY)}&user_key=${encodeURIComponent(userKey)}`, { abortPrev: false });
-        return data?.reaction || null;
-      } catch {
-        return null;
-      }
-    }
-
-    async function setMyReaction(nextReaction){
-      const userKey = getUserKey();
-      const hint = document.getElementById("reactions-hint");
-
-      try {
-        const current = await fetchMyReaction();
-
-        if (current === nextReaction) {
-          await apiPost("/reactions/set", { page: REACTIONS_PAGE_KEY, user_key: userKey, reaction: null });
-          setReactionButtonsActive(null);
-          if (hint) hint.textContent = "Реакция убрана.";
-          await refreshReactionCounts();
-          showToast("Реакция убрана.", "info", 1400);
-          return;
-        }
-
-        await apiPost("/reactions/set", { page: REACTIONS_PAGE_KEY, user_key: userKey, reaction: nextReaction });
-
-        setReactionButtonsActive(nextReaction);
-        if (hint) hint.textContent = "Реакция сохранена.";
-        await refreshReactionCounts();
-        showToast("Реакция сохранена.", "ok", 1400);
-      } catch {
-        if (hint) hint.textContent = "Не удалось поставить реакцию.";
-        showToast("Не удалось поставить реакцию.", "err", 2400);
-      }
-    }
-
-    function bindReactionButtons(){
-      document.querySelectorAll(".reaction-btn").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const r = btn.getAttribute("data-reaction");
-          await setMyReaction(r);
-        });
-      });
-    }
-
-    async function initReactions(){
-      bindReactionButtons();
-      await refreshReactionCounts();
-      const my = await fetchMyReaction();
-      setReactionButtonsActive(my);
-    }
-
     const userTagEl = document.getElementById("user-tag");
 
     async function initPage() {
@@ -3026,14 +2958,16 @@
 
       if (editBtn && myNick) {
         try {
-          const r = await apiGet(`/users/can-edit?nick=${encodeURIComponent(myNick)}`, { abortPrev: false });
+          const r = await apiGet(`/users/can-edit?nick=${encodeURIComponent(myNick)}`, { abortPrev: false, cacheTtl: 0 });
           if (r?.ok) editBtn.style.display = "inline-flex";
         } catch {}
       }
 
       setStickyHeader();
+      setDateDay();
+
+      syncTabFlowImmediate();
       await loadLeaders();
-      initReactions();
     }
 
     window.addEventListener("load", initPage);
