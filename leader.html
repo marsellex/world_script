@@ -1890,104 +1890,101 @@
       .tab-flow{ display:none !important; }
     }
 
-    .ws-corner-logo{
-      position: fixed;
-      top: 14px;
-      left: 14px;
-      z-index: 30;
-    
-      display: inline-block;
-      width: 178px;              /* можно менять */
-      height: auto;
-    
-      border-radius: 18px;
-      padding: 10px 10px;
-      background: rgba(0,0,0,.14);
-      border: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.04) inset,
-        0 18px 60px rgba(0,0,0,.46);
-    
-      transform: translateZ(0);
-      will-change: transform, filter;
-      transition: transform 520ms var(--ease2), box-shadow 520ms var(--ease2), border-color 520ms var(--ease2);
-      overflow: hidden;
-      text-decoration: none;
-    }
-    
-    /* картинка */
-    .ws-corner-logo img{
-      width: 100%;
-      height: auto;
-      display:block;
-      transform: translateZ(0);
-      filter: drop-shadow(0 0 14px rgba(46,249,255,.22));
-      animation: wsLogoIdle 3.8s ease-in-out infinite;
-    }
-    
-    /* “живой” glow внутри блока */
-    .ws-corner-glow{
-      position:absolute;
-      inset:-40%;
-      pointer-events:none;
-      background:
-        radial-gradient(circle at 30% 40%, rgba(46,249,255,.22), transparent 55%),
-        radial-gradient(circle at 70% 60%, rgba(255,45,122,.14), transparent 60%),
-        radial-gradient(circle at 50% 80%, rgba(168,85,247,.12), transparent 62%);
-      filter: blur(12px);
-      opacity: .55;
-      mix-blend-mode: screen;
-      animation: wsGlowIdle 4.6s ease-in-out infinite;
-    }
-    
-    /* легкое “дыхание” */
-    @keyframes wsLogoIdle{
-      0%   { transform: translateY(0px) scale(1);   filter: drop-shadow(0 0 12px rgba(46,249,255,.18)); }
-      50%  { transform: translateY(-2px) scale(1.01); filter: drop-shadow(0 0 18px rgba(46,249,255,.26)) drop-shadow(0 0 12px rgba(255,45,122,.12)); }
-      100% { transform: translateY(0px) scale(1);   filter: drop-shadow(0 0 12px rgba(46,249,255,.18)); }
-    }
-    @keyframes wsGlowIdle{
-      0%   { transform: translate3d(-2%, 1%, 0) scale(1); opacity: .48; }
-      50%  { transform: translate3d( 2%,-1%, 0) scale(1.05); opacity: .70; }
-      100% { transform: translate3d(-2%, 1%, 0) scale(1); opacity: .48; }
-    }
-    
-    /* hover: эффект “как у баннера” */
-    .ws-corner-logo:hover{
-      transform: translateY(-3px) rotateZ(-0.4deg) scale(1.02);
-      border-color: rgba(46,249,255,.28);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.06) inset,
-        0 26px 90px rgba(0,0,0,.62),
-        0 0 34px rgba(46,249,255,.18),
-        0 0 34px rgba(255,45,122,.12);
-    }
-    
-    /* на hover усилим "shine" */
-    .ws-corner-logo:hover img{
-      animation-duration: 2.2s;
-      filter:
-        drop-shadow(0 0 24px rgba(46,249,255,.34))
-        drop-shadow(0 0 16px rgba(255,45,122,.18));
-    }
-    .ws-corner-logo:hover .ws-corner-glow{
-      opacity: .95;
-      filter: blur(10px);
-    }
-    
-    /* мобильная подстройка */
-    @media (max-width: 720px){
-      .ws-corner-logo{
-        top: 10px;
-        left: 10px;
-        width: 138px;
-        padding: 8px;
-        border-radius: 16px;
-      }
-    }
+   /* ─────────────────────────────────────────
+   Corner logo (bigger, no panel)
+   ───────────────────────────────────────── */
+.ws-corner-logo{
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 30;
+
+  width: 260px;          /* размер лого (меняй) */
+  height: auto;
+
+  display: inline-block;
+  text-decoration: none;
+
+  background: transparent;  /* убрали панель */
+  border: none;             /* убрали рамку */
+  padding: 0;               /* без отступов */
+  border-radius: 0;         /* без скруглений */
+  box-shadow: none;         /* без тени панели */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  transform: translateZ(0);
+  will-change: transform, filter;
+  transition: transform 520ms var(--ease2), filter 520ms var(--ease2);
+}
+
+.ws-corner-logo img{
+  width: 100%;
+  height: auto;
+  display:block;
+  transform: translateZ(0);
+
+  /* постоянная подсветка */
+  filter:
+    drop-shadow(0 0 18px rgba(46,249,255,.28))
+    drop-shadow(0 0 26px rgba(46,249,255,.14))
+    drop-shadow(0 0 18px rgba(255,45,122,.12));
+
+  animation: wsLogoIdle 3.8s ease-in-out infinite;
+}
+
+.ws-corner-glow{
+  position:absolute;
+  inset:-35%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 30% 45%, rgba(46,249,255,.26), transparent 58%),
+    radial-gradient(circle at 70% 60%, rgba(255,45,122,.16), transparent 62%),
+    radial-gradient(circle at 55% 85%, rgba(168,85,247,.14), transparent 64%);
+  filter: blur(14px);
+  opacity: .65;
+  mix-blend-mode: screen;
+  animation: wsGlowIdle 4.6s ease-in-out infinite;
+}
+
+@keyframes wsLogoIdle{
+  0%   { transform: translateY(0px) scale(1); }
+  50%  { transform: translateY(-3px) scale(1.02); }
+  100% { transform: translateY(0px) scale(1); }
+}
+@keyframes wsGlowIdle{
+  0%   { transform: translate3d(-2%, 1%, 0) scale(1); opacity: .55; }
+  50%  { transform: translate3d( 2%,-1%, 0) scale(1.08); opacity: .85; }
+  100% { transform: translate3d(-2%, 1%, 0) scale(1); opacity: .55; }
+}
+
+/* Hover — сильнее подсветка + чуть больше масштаб */
+.ws-corner-logo:hover{
+  transform: translateY(-4px) scale(1.03);
+}
+
+.ws-corner-logo:hover img{
+  filter:
+    drop-shadow(0 0 28px rgba(46,249,255,.40))
+    drop-shadow(0 0 42px rgba(46,249,255,.20))
+    drop-shadow(0 0 24px rgba(255,45,122,.16))
+    drop-shadow(0 0 18px rgba(168,85,247,.12));
+  animation-duration: 2.2s;
+}
+
+.ws-corner-logo:hover .ws-corner-glow{
+  opacity: 1;
+  filter: blur(12px);
+}
+
+/* мобильная подстройка */
+@media (max-width: 720px){
+  .ws-corner-logo{
+    top: 10px;
+    left: 10px;
+    width: 190px;
+  }
+}
     
   </style>
 </head>
