@@ -306,6 +306,182 @@
       width: 100%;
     }
 
+    .leader-tabs{
+      width: min(860px, 100%);
+      margin: 0 auto;
+      display:flex;
+      gap: 14px;
+      align-items: stretch;
+      justify-content: center;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      overflow: visible;
+      perspective: 1200px;
+    }
+    
+    .leader-tab{
+      flex: 1 1 0;
+      min-width: 0 !important;
+      white-space: nowrap;
+    
+      position: relative;
+      border: 0;
+      border-radius: 22px;
+      padding: 16px 18px;
+    
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+    
+      font-weight: 1000;
+      font-size: 15px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+    
+      cursor: pointer;
+      color: rgba(243,246,255,.78);
+    
+      background: rgba(0,0,0,.16);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06) inset,
+        0 18px 54px rgba(0,0,0,.34);
+    
+      transform: translateZ(0);
+      will-change: transform, box-shadow, filter;
+      transition:
+        transform 780ms var(--ease2),
+        box-shadow 780ms var(--ease2),
+        filter 780ms var(--ease2),
+        color 520ms var(--ease2);
+      overflow:hidden;
+    }
+    
+    .leader-tab::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius: 24px;
+    
+      background: conic-gradient(
+        from 0deg,
+        rgba(46,249,255,0) 0deg,
+        rgba(46,249,255,.75) 90deg,
+        rgba(255,45,122,.78) 180deg,
+        rgba(168,85,247,.68) 270deg,
+        rgba(46,249,255,0) 360deg
+      );
+    
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    
+      padding: 2px;
+      opacity: .28;
+      filter: blur(.25px);
+      transition: opacity 780ms var(--ease2), filter 780ms var(--ease2);
+      pointer-events:none;
+    }
+    
+    .leader-tab::after{
+      content:"";
+      position:absolute;
+      inset: 2px;
+      border-radius: 20px;
+      background:
+        radial-gradient(800px 220px at 15% 15%, rgba(255,45,122,.10), transparent 60%),
+        radial-gradient(780px 240px at 85% 25%, rgba(46,249,255,.09), transparent 58%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.18));
+      opacity: .85;
+      pointer-events:none;
+    }
+    
+    .leader-tab .icon{
+      filter: drop-shadow(0 0 12px rgba(46,249,255,.10));
+      transform: translateZ(0);
+    }
+    
+    .leader-tab:hover{
+      color: rgba(255,255,255,.96);
+      transform:
+        translateY(-3px)
+        perspective(1200px)
+        rotateY(-10deg)
+        rotateZ(-1.2deg)
+        scale(1.015);
+    
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.07) inset,
+        0 26px 92px rgba(0,0,0,.52),
+        0 0 38px rgba(46,249,255,.14),
+        0 0 44px rgba(255,45,122,.12);
+    
+      filter: saturate(1.10) brightness(1.02);
+    }
+    
+    .leader-tab:hover::before{
+      opacity: .78;
+      filter: blur(.18px);
+    }
+    
+    .leader-tab:active{
+      transform:
+        translateY(-1px)
+        perspective(1200px)
+        rotateY(-7deg)
+        rotateZ(-0.8deg)
+        scale(1.01);
+    }
+    
+    .leader-tab.active{
+      color: #fff;
+      filter: saturate(1.12) brightness(1.03);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.08) inset,
+        0 30px 110px rgba(0,0,0,.60),
+        0 0 54px rgba(46,249,255,.16),
+        0 0 58px rgba(255,45,122,.14);
+    }
+    
+    .leader-tab.active::before{
+      opacity: .95;
+      animation: tabGlowSpin 8.5s linear infinite;
+    }
+    
+    @keyframes tabGlowSpin{
+      to{ transform: rotate(360deg); }
+    }
+    
+    .leader-tabs.is-switching .leader-tab{
+      transition:
+        transform 920ms var(--ease2),
+        box-shadow 920ms var(--ease2),
+        filter 920ms var(--ease2),
+        color 720ms var(--ease2);
+    }
+    
+    @media (max-width: 720px){
+      .leader-tabs{
+        flex-direction: column;
+        gap: 10px;
+        perspective: none;
+      }
+      .leader-tab{
+        border-radius: 20px;
+        padding: 16px 16px;
+      }
+      .leader-tab:hover{
+        transform: translateY(-2px) scale(1.01);
+      }
+    }
+
     .leader-panel-header.sticky{
       position: sticky;
       top: 10px;
@@ -318,85 +494,6 @@
       box-shadow: 0 18px 54px rgba(0,0,0,.26);
     }
 
-    .leader-tabs{
-      display:flex !important;
-      flex-direction: row !important;
-      align-items: stretch;
-      justify-content: center;
-      width: min(860px, 100%);
-      margin: 0 auto;
-      border-radius: 999px;
-      padding: 6px;
-      background: rgba(0,0,0,.16);
-      border: 1px solid rgba(46,249,255,.18);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.05) inset,
-        0 18px 54px rgba(0,0,0,.34),
-        0 0 28px rgba(46,249,255,.10),
-        0 0 26px rgba(255,45,122,.08);
-      overflow: hidden;
-      transform: translateZ(0);
-    }
-
-    .leader-tab{
-      flex: 1 1 0;
-      min-width: 0 !important;
-      white-space: nowrap;
-      position:relative;
-      border:0;
-      background: transparent;
-      border-radius: 999px;
-      padding: 14px 18px;
-      font-weight: 900;
-      font-size: 16px;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      color: rgba(243,246,255,.74);
-      cursor:pointer;
-      transition: transform var(--dur-quick) var(--ease), color var(--dur) var(--ease), filter var(--dur) var(--ease);
-      z-index:1;
-      will-change: transform;
-    }
-    .leader-tab:hover{
-      transform: translateY(-1px);
-      color: rgba(255,255,255,.96);
-      filter: drop-shadow(0 0 14px rgba(46,249,255,.18));
-    }
-    .leader-tab:active{ transform: translateY(0px) scale(.99); }
-
-    .leader-tab.active{
-      color: #fff;
-      text-shadow:
-        0 0 18px rgba(46,249,255,.16),
-        0 0 18px rgba(255,45,122,.14);
-    }
-    .leader-tab.active::before{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(46,249,255,.85), rgba(255,45,122,.92), rgba(168,85,247,.70));
-      box-shadow:
-        0 0 34px rgba(46,249,255,.18),
-        0 0 44px rgba(255,45,122,.16);
-      z-index:-2;
-    }
-    .leader-tab.active::after{
-      content:"";
-      position:absolute;
-      inset: 3px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.26);
-      z-index:-1;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-    }
 
     .leader-date{
       font-size: 18px;
@@ -1683,18 +1780,6 @@
     }
 
     @media (max-width: 720px){
-      .leader-tabs{
-        flex-direction: column !important;
-        gap: 10px;
-        padding: 10px;
-        border-radius: 22px;
-      }
-      .leader-tab{
-        width: 100%;
-        font-size: 14px;
-        padding: 14px 16px;
-        letter-spacing: .08em;
-      }
       .leader-card{
         position: relative;
         flex-direction: row;
@@ -1813,7 +1898,6 @@
         filter: none !important;
       }
       .leader-panel-header.sticky,
-      .leader-tabs,
       .week-summary,
       .reactions-panel{
         backdrop-filter: none !important;
@@ -2636,12 +2720,67 @@
       }
     }
 
+
     const tabDay = document.getElementById("tab-day");
     const tabWeek = document.getElementById("tab-week");
-
-    function setActiveTab(btn){
-      [tabDay, tabWeek].forEach(b => b && b.classList.remove("active"));
-      btn.classList.add("active");
+    const tabsWrap = document.querySelector(".leader-tabs");
+    
+    let switchingTabs = false;
+    
+    function setActiveTabSmooth(nextBtn){
+      if(!tabDay || !tabWeek || !tabsWrap) return;
+    
+      const prevBtn = tabDay.classList.contains("active") ? tabDay : tabWeek;
+      if (prevBtn === nextBtn) return;
+    
+      if (switchingTabs) return;
+      switchingTabs = true;
+    
+      tabsWrap.classList.add("is-switching");
+    
+      prevBtn.style.transition = "transform 920ms var(--ease2), filter 920ms var(--ease2)";
+      nextBtn.style.transition = "transform 920ms var(--ease2), filter 920ms var(--ease2)";
+    
+      prevBtn.style.transform = "translateY(1px) scale(.995)";
+      prevBtn.style.filter = "blur(.6px) saturate(.95)";
+    
+      nextBtn.style.transform = "translateY(-2px) scale(1.01)";
+      nextBtn.style.filter = "saturate(1.08) brightness(1.02)";
+    
+      requestAnimationFrame(() => {
+        tabDay.classList.remove("active");
+        tabWeek.classList.remove("active");
+        nextBtn.classList.add("active");
+    
+        setTimeout(() => {
+          prevBtn.style.transform = "";
+          prevBtn.style.filter = "";
+          nextBtn.style.transform = "";
+          nextBtn.style.filter = "";
+    
+          prevBtn.style.transition = "";
+          nextBtn.style.transition = "";
+    
+          tabsWrap.classList.remove("is-switching");
+          switchingTabs = false;
+        }, 980);
+      });
+    }
+    
+    function switchPeriod(period){
+      if (period === "week") loadWeeklyBlocks();
+      else loadLeaders();
+    }
+    
+    if (tabDay && tabWeek) {
+      tabDay.onclick = () => {
+        setActiveTabSmooth(tabDay);
+        switchPeriod("day");
+      };
+      tabWeek.onclick = () => {
+        setActiveTabSmooth(tabWeek);
+        switchPeriod("week");
+      };
     }
 
     function onSwitch(period){
@@ -2650,12 +2789,7 @@
       setTimeout(restoreMinHeight, 900);
       if (period === "week") loadWeeklyBlocks();
       else loadLeaders();
-    }
-
-    if (tabDay && tabWeek) {
-      tabDay.onclick = () => { setActiveTab(tabDay); onSwitch("day"); };
-      tabWeek.onclick = () => { setActiveTab(tabWeek); onSwitch("week"); };
-    }
+    }}
 
     const editLeadersTopBtn = document.getElementById("edit-leaders-top");
     const bulkModal = document.getElementById("leaders-bulk-modal");
